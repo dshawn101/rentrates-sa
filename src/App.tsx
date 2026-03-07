@@ -1,25 +1,44 @@
-import './styles/global.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './hooks/useAuth';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { ToastContainer } from './components/ui/ToastContainer';
+
+// Public Pages
+import { Login } from './pages/auth/Login';
+import { Signup } from './pages/auth/Signup';
+
+// Protected Pages
+import { Profile } from './pages/Profile';
+import { Dashboard } from './pages/Dashboard';
+import { BookWizard } from './pages/book/BookWizard';
+import { Transparency } from './pages/Transparency';
+import { Billing } from './pages/Billing';
 
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 relative">
-      <div className="glass-card p-12 max-w-2xl w-full text-center relative z-10">
-        <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-primary mb-6">
-          Puble Studio
-        </h1>
-        <p className="text-xl text-white/80 mb-8 leading-relaxed">
-          The transparent, author-centric, lean, and beautiful AI book creation platform.
-        </p>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/auth/login" element={<Login />} />
+          <Route path="/auth/signup" element={<Signup />} />
+          <Route path="/transparency" element={<Transparency />} />
 
-        <div className="flex gap-4 justify-center">
-          <button className="glass-button w-48 text-lg">
-            Get Started
-          </button>
-          <input className="glass-input w-64" placeholder="Enter your email..." />
-        </div>
-      </div>
-    </div>
-  )
+          {/* Protected Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/books" element={<Dashboard />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/billing" element={<Billing />} />
+            <Route path="/settings" element={<Profile />} />
+            <Route path="/book/:id" element={<BookWizard />} />
+          </Route>
+        </Routes>
+        <ToastContainer />
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
 
-export default App
+export default App;

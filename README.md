@@ -1,73 +1,37 @@
-# React + TypeScript + Vite
+# Puble Studio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The transparent, author-centric, lean, and beautiful AI book creation platform.
 
-Currently, two official plugins are available:
+## Features
+- **Project Scaffold:** Vite + React + TypeScript + Tailwind CSS
+- **Database/Auth:** Supabase Auth and PostgreSQL Database (RLS Secured)
+- **AI Integrations:** Google Gemini 1.5 Pro (Outlining & Writing), Pica/Unsplash API (Cover Generation)
+- **Zero Platform Markup:** Bring Your Own Key (BYOK) architecture to pay for AI usage directly
+- **Exports:** Browser-native generation for PDF (print ready A5) and EPUB
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Quickstart
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Clone repo and install dependencies
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. Set up Environment Variables
+Copy `.env.example` to `.env` and fill in your keys:
 ```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_key (optional, can use BYOK in app)
+VITE_PICA_API_KEY=your_pica_key (optional)
+```
+
+3. Setup Supabase Database
+Run the migration file located at `supabase/migrations/20250101000000_puble_schema.sql` in your Supabase SQL Editor.
+
+4. Run the development server
+```bash
+npm run dev &
+```
+
+## Deployment (Vercel)
+This project includes a `vercel.json` file designed for immediate deployment. Connect your repository to Vercel, ensure the build command is `npm run build`, output directory is `dist`, and inject the Environment Variables inside the Vercel dashboard.
