@@ -8,17 +8,11 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#0f172a', // slate-900
+          DEFAULT: '#8B5CF6', // purple-500
         },
-        secondary: {
-          DEFAULT: '#2563eb', // blue-600
-        },
-        accent: {
-          DEFAULT: '#10b981', // emerald-500
-        }
       },
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
+      backgroundImage: {
+        'glass-gradient': 'linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
       }
     },
   },

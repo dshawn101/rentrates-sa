@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .glass-card {
+    @apply bg-glass-gradient backdrop-blur-xl border border-white/20 shadow-xl rounded-xl;
+  }
+
+  .glass-button {
+    @apply bg-primary hover:bg-purple-600 text-white font-medium shadow-lg hover:shadow-primary/50 transition-all hover:-translate-y-0.5 rounded-lg px-4 py-2;
+  }
+
+  .glass-input {
+    @apply bg-white/5 border border-white/10 rounded-lg px-4 py-2 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent backdrop-blur-md;
+  }
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 min-h-screen relative overflow-x-hidden;
+  /* Dark space background with subtle purple accent glows behind everything */
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+}

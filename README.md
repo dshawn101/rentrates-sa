@@ -1,52 +1,73 @@
-# OpenBook Builder - Transparent AI Book Creation Platform
+# React + TypeScript + Vite
 
-## Project Overview
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-OpenBook Builder is an MVP application designed to validate a business idea for creating, formatting, and publishing books using AI with transparent pricing.
+Currently, two official plugins are available:
 
-## Features (MVP Scope)
-- **Account Management:** User signup, login via Supabase.
-- **Book Workflow:** 5-step wizard to create a book (Setup, Outline generation, AI-assisted Writing, Cover generation, Export).
-- **Transparency:** Clear tracking of API costs with a zero-markup policy.
-- **Integrations:** Stubbed integrations for Google Gemini 3.1, Pica AI (cover generation), and n8n webhooks.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Tech Stack
-- Frontend: React + Vite + TypeScript
-- Styling: Tailwind CSS (Primary: slate-900, Secondary: blue-600, Accent: emerald-500)
-- Database/Auth: Supabase
-- AI Services: Google Gemini (Text), Pica AI (Images)
-- Automation: n8n
+## React Compiler
 
-## Getting Started
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
-1. Clone the repository.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Copy the environment variables:
-   ```bash
-   cp .env.example .env
-   ```
-4. Fill out the `.env` file with your actual keys (Supabase URL/Key, Gemini API Key, etc.).
-5. Start the development server:
-   ```bash
-   npm run dev
-   ```
+## Expanding the ESLint configuration
 
-## Deployment
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-This application is configured for deployment on Vercel.
-Simply push to your main branch or import the repository into the Vercel dashboard. Ensure the `.env` variables are duplicated in the Vercel Project Settings.
-- Deployment Config: `vercel.json` included.
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-## Known Issues (MVP)
-- AI integrations (`gemini.ts`, `pica.ts`, `n8n.ts`) currently use mock/stub data to prevent external billings during initial development/testing.
-- PDF and EPUB exports are stubbed alert notifications for the MVP workflow validation.
-- The `useAuth` session logic expects a real Supabase instance. If using local, ensure Supabase CLI is running.
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-## Next Steps Recommendations
-1. Replace stubs in `src/lib/*` with real API calls using the provided keys.
-2. Hook up `react-pdf` and `epub-gen` libraries to actually compile the finalized book structures.
-3. Build the User Profile page for "Bring Your Own Key" functionality.
-4. Set up the Supabase SQL Migrations for the Book tracking schemas.
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```

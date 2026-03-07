@@ -1,41 +1,25 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Layout } from './components/Layout';
-import Dashboard from './pages/Dashboard';
-import Login from './pages/auth/Login';
-import Signup from './pages/auth/Signup';
-import Transparency from './pages/Transparency';
-import BookWizard from './pages/book/BookWizard';
-import Profile from './pages/Profile';
-
-function Home() {
-  return (
-    <div className="flex flex-col items-center justify-center h-[70vh] text-center gap-6">
-      <h1 className="text-5xl font-bold text-accent">OpenBook Builder</h1>
-      <p className="text-2xl text-secondary">Transparent AI Book Creation Platform</p>
-      <a href="/auth/signup" className="bg-accent text-white px-8 py-4 rounded-lg font-bold hover:bg-emerald-600 transition shadow-lg mt-8">
-        Start Writing Now
-      </a>
-    </div>
-  );
-}
+import './styles/global.css'
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/transparency" element={<Transparency />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/book/new" element={<BookWizard />} />
-          <Route path="/book/:id" element={<BookWizard />} />
-        </Routes>
-      </Layout>
-    </BrowserRouter>
-  );
+    <div className="min-h-screen flex items-center justify-center p-8 relative">
+      <div className="glass-card p-12 max-w-2xl w-full text-center relative z-10">
+        <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-primary mb-6">
+          Puble Studio
+        </h1>
+        <p className="text-xl text-white/80 mb-8 leading-relaxed">
+          The transparent, author-centric, lean, and beautiful AI book creation platform.
+        </p>
+
+        <div className="flex gap-4 justify-center">
+          <button className="glass-button w-48 text-lg">
+            Get Started
+          </button>
+          <input className="glass-input w-64" placeholder="Enter your email..." />
+        </div>
+      </div>
+    </div>
+  )
 }
 
-export default App;
+export default App
