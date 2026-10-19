@@ -39,11 +39,11 @@ export function Login() {
 
       <div className="w-full max-w-md relative z-10">
         <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex mb-6" aria-label="PubleStudio home"><Brand /></Link>
+          <Link to="/" className="inline-flex mb-6" aria-label="PubléStudio home"><Brand /></Link>
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-primary mb-2 tracking-tight">
             Welcome back
           </h1>
-          <p className="text-slate-400 text-lg">Sign in to continue to Puble Studio</p>
+          <p className="text-slate-400 text-lg">Sign in to continue to Publé Studio</p>
         </div>
 
         <GlassCard className="p-8">
