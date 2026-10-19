@@ -12,6 +12,7 @@ it('repairs an empty app schema, backfills existing users, reruns safely and enf
       GRANT USAGE ON SCHEMA auth TO authenticated;
       INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000001','existing@example.test');`);
     await db.exec(repair);
+    await db.exec(readFileSync('supabase/migrations/20261019105558_restrict_rls_event_trigger_access.sql', 'utf8'));
     await db.exec(repair);
     expect((await db.query('SELECT * FROM public.user_profiles')).rows).toHaveLength(1);
     await db.exec(`INSERT INTO auth.users VALUES ('00000000-0000-0000-0000-000000000002','new@example.test');`);
