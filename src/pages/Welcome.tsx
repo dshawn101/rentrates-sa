@@ -1,3 +1,4 @@
+import { PublicFooter } from '../components/legal/PublicFooter';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Check, Download, Feather, Image, Sparkles } from 'lucide-react';
 import { Brand } from '../components/ui/Brand';
@@ -54,6 +55,6 @@ export function Welcome() {
       <section id="questions" className="welcome-section welcome-container welcome-faq"><div><p className="welcome-eyebrow">A FEW THINGS TO KNOW</p><h2>Before your<br />first chapter.</h2></div><div>{questions.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
       <section className="welcome-final welcome-container"><div className="welcome-final-quill"><Brand compact /></div><p className="welcome-eyebrow">THERE’S A BOOK IN THAT IDEA.</p><h2>Let’s give it a first page.</h2><p>Start with a title. The rest can take shape as you go.</p><Link className="welcome-primary" to={start}>{user ? 'Open your dashboard' : 'Start your book'} <ArrowRight size={19} /></Link></section>
     </main>
-    <footer className="welcome-footer welcome-container"><Link to="/" aria-label="PubleStudio home"><Brand /></Link><p>A little help. All your voice.</p><Link to="/transparency">Features & costs <ArrowRight size={14} /></Link></footer>
+    <PublicFooter />
   </div>;
 }

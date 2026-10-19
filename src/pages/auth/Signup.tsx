@@ -82,8 +82,8 @@ export function Signup() {
 
             <div className="text-sm text-slate-400 leading-relaxed">
               By signing up, you agree to our{' '}
-              <a href="#" className="text-primary hover:text-purple-400 transition-colors">Terms of Service</a> and{' '}
-              <a href="#" className="text-primary hover:text-purple-400 transition-colors">Privacy Policy</a>.
+              <Link to="/legal/terms" className="text-primary hover:text-purple-400 transition-colors">Terms & Conditions</Link> and{' '}
+              <Link to="/legal/privacy" className="text-primary hover:text-purple-400 transition-colors">Privacy Policy</Link>.
             </div>
 
             <GlassButton type="submit" className="w-full py-3 text-lg" disabled={!!supabaseConfigError} isLoading={loading || isSubmitting}>
