@@ -1,3 +1,4 @@
+import { TypewriterHeadline } from '../components/ui/TypewriterHeadline';
 import { PublicFooter } from '../components/legal/PublicFooter';
 import { Link } from 'react-router-dom';
 import { ArrowRight, BookOpen, Check, Download, Feather, Image, Sparkles } from 'lucide-react';
@@ -30,7 +31,7 @@ export function Welcome() {
       <section className="welcome-hero welcome-container">
         <div className="welcome-hero-copy">
           <p className="welcome-eyebrow"><span /> A little structure. A lot of possibility.</p>
-          <h1>Your story.<br />Your voice.<br /><em>Your book.</em></h1>
+          <TypewriterHeadline />
           <p className="welcome-intro">A calm space to turn your ideas into a manuscript. Plan your chapters, find your words, and bring it all together — with AI help when you want it.</p>
           <div className="welcome-actions"><Link className="welcome-primary" to={start}>{user ? 'Continue writing' : 'Start your book'} <ArrowRight size={19} /></Link><a className="welcome-text-link" href="#how-it-works">Take a look around <span>↗</span></a></div>
           <p className="welcome-small"><Check size={14} /> Write without AI. Connect your own key anytime.</p>
