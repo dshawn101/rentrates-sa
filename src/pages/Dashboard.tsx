@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { totalBookWords } from '../lib/book-stats';
+import { useState } from 'react';
 import { useBookStore } from '../store/useBookStore';
-import { useAuth } from '../hooks/useAuth';
 import { Container } from '../components/layout/Container';
 import { GlassCard } from '../components/ui/GlassCard';
 import { BookCard } from '../components/book/BookCard';
@@ -10,17 +10,12 @@ import { useNavigate } from 'react-router-dom';
 import { GlassInput } from '../components/ui/GlassInput';
 
 export function Dashboard() {
-  const { books, isLoading, fetchBooks, createBook, deleteBook, duplicateBook } = useBookStore();
-  const { profile } = useAuth();
+  const { books, isLoading, error, fetchBooks, createBook, deleteBook, duplicateBook } = useBookStore();
   const navigate = useNavigate();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newBookTitle, setNewBookTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    fetchBooks();
-  }, [fetchBooks]);
 
   const handleCreateBook = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +32,7 @@ export function Dashboard() {
     }
   };
 
-  const totalWords = books.reduce((acc, book) => acc + (book.metadata?.wordCount || 0), 0);
+  const totalWords = totalBookWords(books);
 
   return (
     <Container className="space-y-8 animate-in fade-in duration-500">
@@ -48,14 +43,16 @@ export function Dashboard() {
             Dashboard
           </h1>
           <p className="text-slate-400 mt-1">
-            Welcome back! You have {books.length} active projects.
+            {error ? 'Your projects are currently unavailable.' : isLoading ? 'Loading your projects…' : `Welcome back! You have ${books.length} active projects.`}
           </p>
         </div>
-        <GlassButton onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
+        <GlassButton disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
           New Project
         </GlassButton>
       </div>
+
+      {error && <GlassCard className="p-6 border-amber-500/30"><p role="alert" className="text-amber-200">{error}</p><GlassButton variant="secondary" onClick={fetchBooks}>Retry loading books</GlassButton></GlassCard>}
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -63,7 +60,7 @@ export function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-medium text-slate-400">Total Projects</p>
-              <h3 className="text-3xl font-bold text-white mt-2">{books.length}</h3>
+              <h3 className="text-3xl font-bold text-white mt-2">{error ? '—' : books.length}</h3>
             </div>
             <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-purple-300" />
@@ -76,31 +73,23 @@ export function Dashboard() {
             <div>
               <p className="text-sm font-medium text-slate-400">Words Written</p>
               <h3 className="text-3xl font-bold text-white mt-2">
-                {totalWords > 1000 ? `${(totalWords / 1000).toFixed(1)}k` : totalWords}
+                {error ? '—' : totalWords > 1000 ? `${(totalWords / 1000).toFixed(1)}k` : totalWords}
               </h3>
             </div>
             <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-emerald-300" />
             </div>
           </div>
-          <div className="mt-4 flex items-center gap-2 text-xs">
-            <div className="w-full bg-black/40 rounded-full h-1.5 flex-1">
-              <div
-                className="bg-emerald-400 h-1.5 rounded-full"
-                style={{ width: `${Math.min((totalWords / 100000) * 100, 100)}%` }}
-              />
-            </div>
-            <span className="text-slate-500 w-16 text-right">Target 100k</span>
-          </div>
+
         </GlassCard>
 
         <GlassCard className="p-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-bl-full blur-2xl" />
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-sm font-medium text-slate-400">API Usage (This Month)</p>
+              <p className="text-sm font-medium text-slate-400">AI Provider Costs</p>
               <h3 className="text-3xl font-bold text-white mt-2 flex items-baseline gap-1">
-                $0.00 <span className="text-sm font-normal text-slate-500">USD</span>
+                Not tracked
               </h3>
             </div>
             <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
@@ -108,7 +97,7 @@ export function Dashboard() {
             </div>
           </div>
           <p className="text-xs text-amber-200 mt-4 relative z-10">
-            {profile?.tier === 'craft' ? 'Unlimited generative AI usage.' : 'BYOK active. Zero platform markup.'}
+            Optional AI requests are billed by your provider. Check its dashboard for usage.
           </p>
         </GlassCard>
       </div>
@@ -121,16 +110,16 @@ export function Dashboard() {
           <div className="flex justify-center py-12">
             <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
-        ) : books.length === 0 ? (
+        ) : error ? null : books.length === 0 ? (
           <GlassCard className="p-12 text-center flex flex-col items-center justify-center border-dashed border-white/20 bg-white/5">
             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
               <BookOpen className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No projects yet</h3>
             <p className="text-slate-400 max-w-sm mb-6">
-              Create your first book project to start generating outlines, chapters, and covers with AI.
+              Create your first book project to plan chapters, write your manuscript, and export a PDF.
             </p>
-            <GlassButton onClick={() => setIsCreateModalOpen(true)}>
+            <GlassButton disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>
               Create First Project
             </GlassButton>
           </GlassCard>
@@ -143,7 +132,7 @@ export function Dashboard() {
                 title={book.title}
                 status={book.status}
                 updatedAt={book.updated_at}
-                wordCount={book.metadata?.wordCount || 0}
+                wordCount={book.wordCount || 0}
                 coverUrl={book.metadata?.coverUrl}
                 onDelete={deleteBook}
                 onDuplicate={duplicateBook}

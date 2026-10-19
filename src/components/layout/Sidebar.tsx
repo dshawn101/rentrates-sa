@@ -1,3 +1,6 @@
+import { useAuth } from '../../hooks/useAuth';
+import { useBookStore } from '../../store/useBookStore';
+import { totalBookWords } from '../../lib/book-stats';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, BookOpen, User, Settings, CreditCard, Menu } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -16,6 +19,8 @@ import { ShieldCheck } from 'lucide-react';
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { profile } = useAuth();
+  const { books, error, isLoading } = useBookStore();
 
   return (
     <>
@@ -83,16 +88,13 @@ export function Sidebar() {
         <div className="p-4 border-t border-white/5">
           <Link to="/transparency" className="flex items-center gap-2 mb-4 text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
             <ShieldCheck className="w-4 h-4" />
-            0% Markup Transparency
+            Features & Costs
           </Link>
           <div className="bg-white/5 rounded-lg p-4 border border-white/5">
             <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              Free Tier
+              {profile?.tier || 'free'} Tier
             </h4>
-            <div className="w-full bg-black/40 rounded-full h-1.5 mb-2">
-              <div className="bg-gradient-to-r from-primary to-purple-400 h-1.5 rounded-full w-[45%]" />
-            </div>
-            <p className="text-xs text-slate-400">45k / 100k words</p>
+            <p className="text-xs text-slate-400">{isLoading ? 'Loading saved words…' : error ? 'Word count unavailable' : `${totalBookWords(books).toLocaleString()} saved words`}</p>
           </div>
         </div>
       </aside>

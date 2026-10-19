@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { useBookStore } from '../../store/useBookStore';
 import type { ReactNode } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { ToastContainer } from '../ui/ToastContainer';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,6 +11,13 @@ interface LayoutProps {
 }
 
 export function Layout({ children, showSidebar = true }: LayoutProps) {
+  const { user } = useAuth();
+  const fetchBooks = useBookStore(state => state.fetchBooks);
+  useEffect(() => {
+    useBookStore.getState().reset();
+    if (user?.id) void fetchBooks();
+    return () => { useBookStore.getState().reset(); };
+  }, [user?.id, fetchBooks]);
   return (
     <div className="min-h-screen bg-[#0f0c1b] text-slate-100 flex overflow-hidden">
       {showSidebar && <Sidebar />}
@@ -20,7 +29,6 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
           </div>
         </main>
       </div>
-      <ToastContainer />
     </div>
   );
 }

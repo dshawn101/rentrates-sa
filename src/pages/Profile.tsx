@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { GlassCard } from '../components/ui/GlassCard';
 import { GlassInput } from '../components/ui/GlassInput';
@@ -11,26 +11,14 @@ export function Profile() {
   const { user, profile } = useAuth();
   const { addToast } = useToastStore();
 
-  const [geminiKey, setGeminiKey] = useState('');
-  const [picaKey, setPicaKey] = useState('');
-
-  useEffect(() => {
-    // Load existing keys from local storage
-    const savedGemini = localStorage.getItem('userGeminiKey');
-    const savedPica = localStorage.getItem('userPicaKey');
-    if (savedGemini) setGeminiKey(savedGemini);
-    if (savedPica) setPicaKey(savedPica);
-  }, []);
+  const [geminiKey, setGeminiKey] = useState(() => localStorage.getItem('userGeminiKey') || '');
 
   const saveKeys = (e: React.FormEvent) => {
     e.preventDefault();
     if (geminiKey) localStorage.setItem('userGeminiKey', geminiKey);
     else localStorage.removeItem('userGeminiKey');
 
-    if (picaKey) localStorage.setItem('userPicaKey', picaKey);
-    else localStorage.removeItem('userPicaKey');
-
-    addToast('API Keys saved securely to your local device.', 'success');
+    addToast('Gemini key saved in this browser.', 'success');
   };
 
   return (
@@ -71,7 +59,7 @@ export function Profile() {
                   {profile?.tier || 'Free'} Tier
                   {profile?.tier === 'free' && (
                     <span className="ml-auto text-xs bg-primary/20 text-purple-300 px-2 py-1 rounded-full border border-primary/30">
-                      Upgrade Available
+                      MVP Access
                     </span>
                   )}
                 </div>
@@ -88,7 +76,7 @@ export function Profile() {
               Bring Your Own Key (BYOK)
             </h2>
             <p className="text-sm text-slate-400 mb-6">
-              Enter your own API keys to bypass platform limits. Keys are stored locally on your device and are never sent to our database.
+              Optional Gemini assistance uses your own key. The key is stored in this browser and sent to Google when you request AI content. Do not use this option on a shared device.
             </p>
 
             <form onSubmit={saveKeys} className="space-y-5">
@@ -99,26 +87,9 @@ export function Profile() {
                 value={geminiKey}
                 onChange={(e) => setGeminiKey(e.target.value)}
               />
-              <GlassInput
-                label="OpenRouter API Key (For Express/Craft models)"
-                type="password"
-                placeholder="sk-or-v1-..."
-                value={localStorage.getItem('userOpenRouterKey') || ''}
-                onChange={(e) => {
-                   if (e.target.value) localStorage.setItem('userOpenRouterKey', e.target.value);
-                   else localStorage.removeItem('userOpenRouterKey');
-                }}
-              />
-              <GlassInput
-                label="Pica AI API Key (Cover Generation)"
-                type="password"
-                placeholder="pica_..."
-                value={picaKey}
-                onChange={(e) => setPicaKey(e.target.value)}
-              />
               <div className="pt-2">
                 <GlassButton type="submit" className="w-full">
-                  Save Keys Securely
+                  Save Gemini Key
                 </GlassButton>
               </div>
             </form>
