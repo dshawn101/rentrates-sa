@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../src/hooks/useAuth';
-const mocks = vi.hoisted(() => ({ getSession: vi.fn(), onAuthStateChange: vi.fn(), single: vi.fn(), from: vi.fn(), error: vi.fn() }));
-vi.mock('../src/lib/supabase', () => ({ supabaseConfigError: null, handleSupabaseError: mocks.error, supabase: { auth: { getSession: mocks.getSession, onAuthStateChange: mocks.onAuthStateChange }, from: mocks.from } }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), onAuthStateChange: vi.fn(), single: vi.fn(), from: vi.fn(), error: vi.fn(), updateUser: vi.fn() }));
+vi.mock('../src/lib/supabase', () => ({ supabaseConfigError: null, handleSupabaseError: mocks.error, supabase: { auth: { getSession: mocks.getSession, onAuthStateChange: mocks.onAuthStateChange, updateUser: mocks.updateUser }, from: mocks.from } }));
 function Status() {
   const { user } = useAuth();
   return <p>{user ? 'Signed-in dashboard' : 'Login available'}</p>;
@@ -46,4 +46,17 @@ it('bounds a hung initial session lookup', async () => {
   await act(async () => { vi.advanceTimersByTime(15000); });
   expect(screen.getByText('Login available')).toBeTruthy();
   expect(screen.getByRole('alert').textContent).toContain('took too long');
+});
+
+function ProfileEditor() {
+  const { user, updateDisplayName } = useAuth();
+  return <><p>{user?.user_metadata?.display_name || 'No name'}</p><button onClick={() => void updateDisplayName('  Deion   Shawn  ')}>Save test name</button></>;
+}
+it('saves display name as presentation metadata and updates the current greeting immediately', async () => {
+  mocks.getSession.mockResolvedValue({ data: { session: { user: { id: 'author', user_metadata: {} } } }, error: null });
+  mocks.updateUser.mockResolvedValue({ data: { user: { id: 'author', user_metadata: { display_name: 'Deion Shawn' } } }, error: null });
+  render(<AuthProvider><ProfileEditor /></AuthProvider>);
+  fireEvent.click(await screen.findByRole('button', { name: 'Save test name' }));
+  await screen.findByText('Deion Shawn');
+  expect(mocks.updateUser).toHaveBeenCalledWith({ data: { display_name: 'Deion Shawn' } });
 });

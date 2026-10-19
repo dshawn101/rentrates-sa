@@ -23,3 +23,16 @@ it('does not restore a previous account’s in-flight book results after logout'
   await pending;
   expect(useBookStore.getState().books).toHaveLength(0);
 });
+
+it('finds the latest saved chapter and orders projects by chapter activity', async () => {
+  mocks.order.mockResolvedValue({ data: [
+    { id: 'setup-latest', updated_at: '2026-10-18T10:00:00Z', chapters: [] },
+    { id: 'writing-latest', updated_at: '2026-10-01T10:00:00Z', chapters: [
+      { id:'old', title:'Opening', content:'One two', updated_at:'2026-10-05T10:00:00Z', order_index:0 },
+      { id:'new', title:'Next chapter', content:'Three four five', updated_at:'2026-10-19T10:00:00Z', order_index:1 },
+      { id:'empty', title:'Empty', content:'', updated_at:'2026-10-20T10:00:00Z', order_index:2 },
+    ] },
+  ], error:null });
+  await useBookStore.getState().fetchBooks();
+  expect(useBookStore.getState().books[0]).toMatchObject({ id:'writing-latest', wordCount:5, lastEditedChapter:{id:'new',title:'Next chapter',updatedAt:'2026-10-19T10:00:00Z'} });
+});

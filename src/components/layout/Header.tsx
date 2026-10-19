@@ -1,3 +1,4 @@
+import { displayName } from '../../lib/author-profile';
 import { useAuth } from '../../hooks/useAuth';
 import { GlassButton } from '../ui/GlassButton';
 import { Link } from 'react-router-dom';
@@ -21,19 +22,19 @@ export function Header() {
         {user ? (
           <div className="flex items-center gap-4">
             <div className="hidden md:flex flex-col items-end">
-              <span className="text-sm font-medium text-slate-200">
-                {user.email}
+              <span className="text-sm font-medium text-slate-200 max-w-60 truncate">
+                {displayName(user.user_metadata?.display_name) || user.email}
               </span>
               <span className="text-xs text-primary capitalize">
                 {profile?.tier || 'Free'} Tier
               </span>
             </div>
             <div className="relative group">
-              <button className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-medium border-2 border-white/10 hover:border-primary/50 transition-colors">
+              <Link to="/profile" aria-label="Profile settings" className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-medium border-2 border-white/10 hover:border-primary/50 transition-colors">
                 <User className="w-4 h-4" />
-              </button>
+              </Link>
 
-              <div className="absolute right-0 mt-2 w-48 py-2 bg-[#1a1625] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-out transform origin-top-right">
+              <div className="absolute right-0 mt-2 w-48 py-2 bg-[#1a1625] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 ease-out transform origin-top-right">
                 <Link to="/profile" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                   Profile Settings
                 </Link>
