@@ -3,6 +3,9 @@ import { AuthProvider } from './hooks/useAuth';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { ToastContainer } from './components/ui/ToastContainer';
 
+import { CookieNotice } from './components/legal/CookieNotice';
+import { Legal } from './pages/Legal';
+import './styles/legal.css';
 import { Welcome } from './pages/Welcome';
 
 // Public Pages
@@ -25,6 +28,7 @@ function App() {
           <Route path="/" element={<Welcome />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/signup" element={<Signup />} />
+          <Route path="/legal/:document" element={<Legal />} />
           <Route path="/transparency" element={<Transparency />} />
 
           {/* Protected Routes */}
@@ -37,6 +41,7 @@ function App() {
             <Route path="/book/:id" element={<BookWizard />} />
           </Route>
         </Routes>
+        <CookieNotice />
         <ToastContainer />
       </BrowserRouter>
     </AuthProvider>
