@@ -25,12 +25,15 @@ export function CookieNotice() {
     setExplicitlyOpened(false);
   };
   const publicPage = pathname === '/' || pathname.startsWith('/legal/');
-  if (!visible || (!publicPage && !explicitlyOpened)) return null;
+  if (!publicPage && !explicitlyOpened) return null;
+  if (!visible) return <button type="button" className="puble-cookie-launcher" aria-label="Open cookie settings" title="Cookie settings" onClick={() => { setVisible(true); setDetails(true); setStorageError(false); }}>
+    <img src="/cookie-icon.jpg" width="28" height="28" alt="" />
+  </button>;
 
   return <section className="puble-cookie" aria-label="Cookie and browser storage notice">
     <div className="puble-cookie-intro">
       <img src="/cookie-icon.jpg" width="48" height="48" alt="" />
-      <div><h2>A little storage. A clear choice.</h2><p>We use necessary browser storage for sign-in, requested settings, and draft recovery. No optional analytics or advertising cookies are enabled by this app.</p></div>
+      <div><h2>{details ? 'Cookie settings' : 'A little storage. A clear choice.'}</h2><p>We use necessary browser storage for sign-in, requested settings, and draft recovery. No optional analytics or advertising cookies are enabled by this app.</p></div>
     </div>
     {details && <div className="puble-cookie-details">
       <p><strong>Necessary storage · always active</strong><br />Keeps your session working, remembers settings you save, and recovers chapter drafts in this tab. This notice remembers your choice on this browser for up to 180 days.</p>
@@ -39,7 +42,7 @@ export function CookieNotice() {
     </div>}
     {storageError && <p role="alert" className="puble-cookie-error">Your browser could not save this choice. Necessary-only mode still applies. You can dismiss this notice for this visit.</p>}
     <div className="puble-cookie-actions">
-      {!details && <button type="button" onClick={() => setDetails(true)}>Review storage</button>}
+      {!details && <button type="button" onClick={() => setDetails(true)} aria-expanded={details}>Cookie settings</button>}
       <button type="button" onClick={save}>{details ? 'Save & close' : 'Necessary only'}</button>
       {storageError && <button type="button" onClick={() => { setVisible(false); setExplicitlyOpened(false); }}>Dismiss for this visit</button>}
       {!details && <Link to="/legal/cookies">Cookie Policy</Link>}
