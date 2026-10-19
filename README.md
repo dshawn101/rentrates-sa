@@ -93,3 +93,9 @@ its owner authorises that use. Never use real secrets in test fixtures.
 EPUB/DOCX, one-click OAuth, advanced typography and printer-specific wraparound
 covers/bleed are not implemented. The PDF uses built-in Times with limited Unicode
 coverage and is a manuscript export, not guaranteed publisher-specific print output.
+
+### Default writing provider and fallback
+
+In Settings → AI Providers, save a BYOK key and model, then choose **Default AI provider**. This choice is saved per account in this browser; API keys stay in page memory and clear on refresh or sign-out.
+
+Chapter drafting and editing first use the chosen provider. If a non-Gemini provider fails, the app retries once using the author's separate Gemini key and saved Gemini model. On success, Gemini becomes the default and the editor reports the fallback. If Gemini has no key, or both requests fail, the app shows a clear error without changing chapter text or the default. Session and input errors do not trigger fallback. Key tests and cover artwork generation do not fall back. Both attempts may incur provider charges; this feature does not use a platform-funded key.

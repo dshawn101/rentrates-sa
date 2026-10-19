@@ -96,7 +96,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       const prompt = `Write a chapter titled "${selectedChapter.title}". Tone: ${book.metadata?.tone}. Outline: ${selectedChapter.ai_contribution?.outline_description}. Output exactly 500 words.`;
 
       // Use the Multi-Provider AI Fallback
-      const { text, providerUsed } = await MultiProviderAI.generate(prompt);
+      const { text, providerUsed, fallbackUsed } = await MultiProviderAI.generate(prompt);
 
       const newContent = `${selectedChapter.content ? selectedChapter.content + '\n\n' : ''}${text}`;
       handleContentChange(newContent);
@@ -107,7 +107,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       if (error) throw error;
       sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
       setDirty(false);
-      addToast(`Content saved via ${providerUsed.toUpperCase()}`, 'success');
+      addToast(fallbackUsed ? 'Your provider failed. Content saved via Gemini; Gemini is now your default unless you changed it during this request.' : `Content saved via ${providerUsed.toUpperCase()}`, 'success');
 
     } catch (error: any) {
       addToast(error.message || 'Failed to generate chapter', 'error');
@@ -130,7 +130,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
          rephrase: `Rewrite the following text in a slightly different style: \n\n${selectedChapter.content}`
       };
 
-      const { text, providerUsed } = await MultiProviderAI.generate(promptMap[action]);
+      const { text, providerUsed, fallbackUsed } = await MultiProviderAI.generate(promptMap[action]);
 
       let newContent = selectedChapter.content;
       if (action === 'expand') newContent += `\n\n${text}`;
@@ -142,7 +142,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       if (error) throw error;
       sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
       setDirty(false);
-      addToast(`Content saved via ${providerUsed.toUpperCase()}`, 'success');
+      addToast(fallbackUsed ? 'Your provider failed. Content saved via Gemini; Gemini is now your default unless you changed it during this request.' : `Content saved via ${providerUsed.toUpperCase()}`, 'success');
 
     } catch (error: any) {
       addToast(error.message || `Failed to ${action} content.`, 'error');
@@ -270,7 +270,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
               aria-label="Chapter content"
               value={selectedChapter.content || ''}
               onChange={(e) => handleContentChange(e.target.value)}
-              placeholder="Start writing your chapter here, or click 'Write w/ AI' to let Gemini draft it based on your outline..."
+              placeholder="Start writing your chapter here, or click 'Write w/ AI' to let your default provider draft it based on your outline..."
               className="flex-1 w-full bg-transparent border-none p-6 text-slate-300 placeholder:text-slate-600 focus:outline-none focus:ring-0 resize-none font-sans leading-relaxed text-base md:text-lg"
               spellCheck="false"
             />

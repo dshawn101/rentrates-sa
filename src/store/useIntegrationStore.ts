@@ -66,7 +66,10 @@ export const useIntegrationStore = create<IntegrationState>((set, get) => ({
     set(s => ({ providers: { ...s.providers, [id]: { model: model.trim() } }, revision: s.revision + 1 })); persist(get());
   },
   markTested: (id, models) => { set(s => ({ providers: { ...s.providers, [id]: { ...s.providers[id], testedAt: new Date().toISOString(), models } } })); persist(get()); },
-  selectProvider: provider => { set({ provider }); persist(get()); },
+  selectProvider: provider => {
+    if (!readCredential(provider)) throw new Error('Save a key for this provider before making it your default.');
+    set({ provider }); persist(get());
+  },
   setPreferences: preferences => { set({ preferences }); persist(get()); },
   saveServer: (server, token) => {
     if (!get().owner) throw new Error('Sign in before adding tools.');
