@@ -99,3 +99,11 @@ coverage and is a manuscript export, not guaranteed publisher-specific print out
 In Settings → AI Providers, save a BYOK key and model, then choose **Default AI provider**. This choice is saved per account in this browser; API keys stay in page memory and clear on refresh or sign-out.
 
 Chapter drafting and editing first use the chosen provider. If a non-Gemini provider fails, the app retries once using the author's separate Gemini key and saved Gemini model. On success, Gemini becomes the default and the editor reports the fallback. If Gemini has no key, or both requests fail, the app shows a clear error without changing chapter text or the default. Session and input errors do not trigger fallback. Key tests and cover artwork generation do not fall back. Both attempts may incur provider charges; this feature does not use a platform-funded key.
+
+### Profile and dashboard helper
+
+Settings → Account (also available at Profile Settings) lets authors save a display name to their Supabase Auth metadata. The dashboard greets them by its first word; blank names use “Hello”. This is display metadata only, independent of book author names and account permissions.
+
+Dashboard progress uses saved chapter word counts and the latest non-empty chapter timestamp. Chapter content saves now write `updated_at`; merely continuing without edits does not update it. Books are ranked by their latest book or chapter activity, and dashboard entry reloads saved progress. No edit-history or word-change claims are inferred.
+
+The optional **Suggest my next step** button always uses the author's saved OpenRouter model and session-only OpenRouter key, independently of the writing default. It sends only their first name, bounded book/chapter titles, saved word target/count, stage and last chapter timestamp. It never sends manuscript prose or runs automatically, and it does not switch providers or alter the manuscript. The card discloses prompt sharing and provider billing before use.

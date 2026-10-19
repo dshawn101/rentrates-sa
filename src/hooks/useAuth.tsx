@@ -1,3 +1,4 @@
+import { displayName } from '../lib/author-profile';
 import { useIntegrationStore } from '../store/useIntegrationStore';
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
@@ -18,6 +19,7 @@ interface AuthContextType {
   signUp: (e: string, p: string) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
+  updateDisplayName: (name: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType)
@@ -113,12 +115,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
+  const updateDisplayName = async (name: string) => {
+    if (!user?.id || useIntegrationStore.getState().owner !== user.id) throw new Error('Please sign in before editing your profile.');
+    if (name.trim().length > 80) throw new Error('Use a display name of up to 80 characters.');
+    const owner = user.id;
+    // Presentation metadata only; never used for permissions, tier or ownership.
+    const { data, error } = await supabase.auth.updateUser({ data: { display_name: displayName(name) } });
+    if (error) throw new Error('Could not save your display name. Please try again.');
+    if (useIntegrationStore.getState().owner !== owner || data.user?.id !== owner) throw new Error('Your account changed. Please try again.');
+    setUser(data.user);
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
   }
 
   return (
-    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signUp, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ session, user, profile, loading, signIn, signUp, signOut, refreshProfile, updateDisplayName }}>
       {loading ? <div role="status" className="min-h-screen flex items-center justify-center text-slate-200">Restoring your session…</div> : <>
         {authError && <div role="alert" className="p-4 bg-amber-950 text-amber-100">{authError}</div>}
         {profileError && <div role="alert" className="p-4 bg-amber-950 text-amber-100">{profileError} <button onClick={refreshProfile} className="underline">Retry account details</button></div>}

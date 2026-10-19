@@ -67,12 +67,12 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
   const selectedChapter = chapters.find(ch => ch.id === selectedChapterId);
 
   const handleSave = async () => {
-    if (!selectedChapterId) return true;
+    if (!selectedChapterId || !dirty) return true;
     setIsSaving(true);
     try {
       const { error } = await supabase
         .from('chapters')
-        .update({ content: selectedChapter?.content || '' })
+        .update({ content: selectedChapter?.content || '', updated_at: new Date().toISOString() })
         .eq('id', selectedChapterId);
 
       if (error) throw error;
@@ -103,7 +103,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
 
 
       // Auto-save generated content
-      const { error } = await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+      const { error } = await supabase.from('chapters').update({ content: newContent, updated_at: new Date().toISOString() }).eq('id', selectedChapterId);
       if (error) throw error;
       sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
       setDirty(false);
@@ -138,7 +138,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
 
       handleContentChange(newContent);
 
-      const { error } = await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+      const { error } = await supabase.from('chapters').update({ content: newContent, updated_at: new Date().toISOString() }).eq('id', selectedChapterId);
       if (error) throw error;
       sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
       setDirty(false);

@@ -37,7 +37,7 @@ export function ProviderSettings() {
       <select id="default-writing-provider" className="glass-select w-full" value={settings.provider} onChange={e => { settings.selectProvider(e.target.value as ProviderId); setFailure(false); setMessage('Default AI provider updated.'); }}>
         {PROVIDERS.map(p => <option key={p.id} value={p.id} disabled={!readCredential(p.id)}>{p.name}{readCredential(p.id) ? '' : ' · save a key first'}</option>)}
       </select>
-      <p className="text-sm text-slate-400">Save your BYOK key below, then choose your default for chapter drafting and editing.</p>
+      <p className="text-sm text-slate-400">Save your BYOK key below, then choose your default for chapter drafting and editing. The optional dashboard helper always uses your OpenRouter key and model.</p>
       <p className="text-xs text-slate-400">System fallback: Google Gemini, using your own saved Gemini key and model. If another provider fails, we retry once with Gemini. After a successful fallback, Gemini becomes your default. Both attempts may incur provider charges.</p>
       <p role="status" className={`text-xs ${readCredential('gemini') ? 'text-emerald-300' : 'text-amber-200'}`}>{readCredential('gemini') ? 'Gemini fallback key saved for this session. Use Test key below to check access.' : 'Gemini fallback unavailable — save your Gemini key to enable it. Keys clear on refresh or sign-out.'}</p>
     </GlassCard>

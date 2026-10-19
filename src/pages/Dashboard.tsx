@@ -1,7 +1,11 @@
 import { Link } from 'react-router-dom';
 import { PROVIDERS, readCredential, useIntegrationStore } from '../store/useIntegrationStore';
 import { totalBookWords } from '../lib/book-stats';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
+import { authorFirstName } from '../lib/author-profile';
+import { latestSavedBook, progressSnapshot } from '../lib/dashboard-progress';
+import { DashboardHelper } from '../components/dashboard/DashboardHelper';
 import { useBookStore } from '../store/useBookStore';
 import { Container } from '../components/layout/Container';
 import { GlassCard } from '../components/ui/GlassCard';
@@ -17,7 +21,11 @@ export function Dashboard() {
   const integrations = useIntegrationStore();
   const provider = PROVIDERS.find(p => p.id === integrations.provider)!;
   const hasKey = !!readCredential(integrations.provider);
-  const latestBook = books[0];
+  const { user } = useAuth();
+  const firstName = authorFirstName(user?.user_metadata?.display_name);
+  const latestBook = latestSavedBook(books);
+  const progress = progressSnapshot(latestBook);
+  useEffect(() => { void fetchBooks(); }, [fetchBooks]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newBookTitle, setNewBookTitle] = useState('');
@@ -46,7 +54,7 @@ export function Dashboard() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/10 pb-6">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">
-            Dashboard
+            Hello{firstName ? `, ${firstName}` : ''}
           </h1>
           <p className="text-slate-400 mt-1">
             {error ? 'Your projects are currently unavailable.' : isLoading ? 'Loading your projects…' : `Welcome back! You have ${books.length} active projects.`}
@@ -61,7 +69,21 @@ export function Dashboard() {
       {error && <GlassCard className="p-6 border-amber-500/30"><p role="alert" className="text-amber-200">{error}</p><GlassButton variant="secondary" onClick={fetchBooks}>Retry loading books</GlassButton></GlassCard>}
 
       <div className="grid lg:grid-cols-[1.4fr_1fr] gap-5">
-        <GlassCard className="p-7 bg-gradient-to-br from-emerald-400/[0.07] to-transparent"><p className="text-xs text-emerald-300 uppercase tracking-[.18em]">Your next chapter</p><h2 className="text-2xl font-semibold text-white mt-3">{latestBook ? 'Pick up where you left off' : 'Start with an idea'}</h2><p className="text-sm text-slate-400 mt-3">{latestBook ? latestBook.title : 'Plan chapters, write at your pace, and bring your own cover.'}</p><div className="flex flex-wrap gap-4 mt-5">{latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div></GlassCard>
+        <GlassCard className="p-7 bg-gradient-to-br from-purple-400/[0.07] to-transparent">
+          <p className="text-xs text-purple-300 uppercase tracking-[.18em]">Your next chapter</p>
+          <h2 className="text-2xl font-semibold text-white mt-3">{error ? 'Progress unavailable' : isLoading ? 'Checking your saved progress…' : latestBook ? 'Pick up where you left off' : 'Start with an idea'}</h2>
+          {!error && !isLoading && <>
+            <p className="text-sm text-slate-300 mt-3">{latestBook?.title || 'Plan chapters, write at your pace, and bring your own cover.'}</p>
+            {latestBook && <div className="space-y-2 mt-4 text-sm text-slate-400">
+              <p>{(progress.savedWords || 0).toLocaleString()} saved words{progress.targetWords ? ` of ${progress.targetWords.toLocaleString()} target` : ''}</p>
+              {progress.targetWords && <progress aria-label="Book word target progress" className="w-full h-2 accent-purple-400" value={Math.min(progress.savedWords || 0, progress.targetWords)} max={progress.targetWords} />}
+              {latestBook.lastEditedChapter ? <p>Last chapter saved: <span className="text-slate-200">{latestBook.lastEditedChapter.title}</span> · <time dateTime={latestBook.lastEditedChapter.updatedAt}>{new Date(latestBook.lastEditedChapter.updatedAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</time></p> : <p>No saved chapter text yet.</p>}
+              <p>{progress.nextStep}</p>
+            </div>}
+          </>}
+          <div className="flex flex-wrap gap-4 mt-5">{!error && !isLoading && latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div>
+          <DashboardHelper key={`${user?.id}:${firstName}:${latestBook?.id}:${latestBook?.updated_at}:${latestBook?.lastEditedChapter?.updatedAt}:${latestBook?.wordCount}`} book={latestBook} firstName={firstName} unavailable={!!error || isLoading} />
+        </GlassCard>
         <GlassCard className="p-7"><div className="flex justify-between items-center"><h2 className="text-white font-semibold">Your AI setup</h2><span className={`text-xs ${hasKey ? 'text-emerald-300' : 'text-slate-500'}`}>{hasKey && integrations.providers[integrations.provider].testedAt ? 'Key verified' : hasKey ? 'Key saved · untested' : 'Optional'}</span></div><p className="text-xl text-white mt-4">{provider.name}</p><p className="text-xs text-slate-400 mt-2 break-all">{integrations.providers[integrations.provider].model}</p><p className="text-sm text-slate-400 mt-4">{hasKey ? 'Writing requests use your selected provider and API credits.' : 'Add your own key for AI assistance. Manual writing and cover upload work without one.'}</p><Link to="/settings?section=providers" className="inline-flex text-emerald-300 text-sm mt-5">{hasKey ? 'Manage AI settings →' : 'Set up AI assistance →'}</Link></GlassCard>
       </div>
 

@@ -48,7 +48,7 @@ it('saves edits before leaving the chapter editor', async () => {
   fireEvent.change(await screen.findByLabelText('Chapter content'), { target: { value: 'New manuscript text' } });
   fireEvent.click(screen.getByText('Continue'));
   await waitFor(() => expect(next).toHaveBeenCalled());
-  expect(update).toHaveBeenCalledWith({ content: 'New manuscript text' });
+  expect(update).toHaveBeenCalledWith(expect.objectContaining({ content: 'New manuscript text', updated_at: expect.any(String) }));
 });
 it('keeps the editor open when saving fails', async () => {
   update.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: { message: 'offline' } }) });
@@ -79,4 +79,12 @@ it('restores an unsaved chapter after navigating away and reopening', async () =
   first.unmount();
   render(<ChapterEditor book={book} onNext={vi.fn()} onPrev={vi.fn()} />);
   expect((await screen.findByLabelText('Chapter content') as HTMLTextAreaElement).value).toBe('Recovered draft');
+});
+it('does not change last-edit timestamps just by continuing with untouched text', async () => {
+  const next = vi.fn();
+  render(<ChapterEditor book={book} onNext={next} onPrev={vi.fn()} />);
+  await screen.findByLabelText('Chapter content');
+  fireEvent.click(screen.getByText('Continue'));
+  await waitFor(() => expect(next).toHaveBeenCalled());
+  expect(update).not.toHaveBeenCalled();
 });
