@@ -89,3 +89,34 @@
   .welcome .welcome-feature-glass h2 { font-size: 13px; }
   .welcome-feature-glass p { font-size: 10px; }
 }
+
+.welcome h1.welcome-typewriter {
+  font-size: clamp(80px, 9.7vw, 132px);
+  line-height: 1.08;
+  letter-spacing: -5px;
+  margin: 22px 0 28px;
+}
+.welcome-typewriter-fixed, .welcome-typewriter-line { display: block; }
+.welcome-typewriter-line {
+  min-height: 1.08em;
+  color: #c4a0ef;
+  white-space: nowrap;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.welcome-typewriter-caret {
+  display: inline-block;
+  width: 3px;
+  height: .72em;
+  margin-left: 8px;
+  vertical-align: -.02em;
+  background: #d9b8ff;
+  animation: puble-caret-blink 1s step-end infinite;
+}
+@keyframes puble-caret-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+@media (max-width: 760px) {
+  .welcome h1.welcome-typewriter { font-size: clamp(76px, 17vw, 108px); letter-spacing: -3.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-typewriter-caret { display: none; animation: none; }
+}
