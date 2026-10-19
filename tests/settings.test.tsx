@@ -24,3 +24,21 @@ it('offers imported cover workflow without asking authors to connect external to
   expect(screen.getByText(/No API key or tool connection is needed/)).toBeTruthy();
   expect(screen.getByRole('link',{name:/Canva/})).toBeTruthy();
 });
+it('only allows saved BYOK providers as defaults and explains the Gemini fallback',()=>{
+  render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
+  const select=screen.getByLabelText('Default AI provider') as HTMLSelectElement;
+  expect(Array.from(select.options).every(option=>option.disabled)).toBe(true);
+  fireEvent.change(screen.getByLabelText('Google Gemini API key'),{target:{value:'gemini-session-key'}});
+  fireEvent.click(screen.getByText('Save key & model'));
+  expect(select.options[0].disabled).toBe(false);
+  expect(select.options[1].disabled).toBe(true);
+  expect(screen.getByText(/Gemini fallback key saved/)).toBeTruthy();
+});
+it('selects a saved provider from the default dropdown',()=>{
+  const store=useIntegrationStore.getState();
+  store.saveProvider('openai','gpt-4.1-mini','openai-session-key');
+  render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText('Default AI provider'),{target:{value:'openai'}});
+  expect(useIntegrationStore.getState().provider).toBe('openai');
+  expect(screen.getByText('Default AI provider updated.')).toBeTruthy();
+});

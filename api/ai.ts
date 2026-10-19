@@ -25,7 +25,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     let input;
     try { input = validateAIRequest(body); } catch (error) { return reply(400, { error: error instanceof Error ? error.message : 'Invalid request.' }); }
     // User keys are held only for this request, sent only to the selected fixed provider,
-    // and never logged, cached, written to Supabase, or used for automatic fallbacks.
+    // and never logged, cached, written to Supabase, or shared with another provider by this relay.
     return reply(200, await runAI(input));
   } catch (error) {
     const message = error instanceof Error && /^(The provider|Provider quota|This model|No image)/.test(error.message) ? error.message : 'The provider could not be reached or timed out. Retry when your connection is stable.';
