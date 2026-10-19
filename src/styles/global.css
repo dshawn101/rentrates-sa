@@ -75,3 +75,7 @@ body {
 h1, h2, h3, h4, h5, h6 {
   @apply text-slate-50 tracking-tight;
 }
+
+.puble-brand { display:inline-flex; align-items:center; gap:10px; font-size:23px; font-weight:700; letter-spacing:-1px; color:inherit; white-space:nowrap; }
+.puble-brand img { flex-shrink:0; }
+.puble-brand-accent { font-weight:400; color:#e8a04e; }
