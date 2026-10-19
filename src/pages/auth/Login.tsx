@@ -1,3 +1,5 @@
+import { supabaseConfigError } from '../../lib/supabase';
+import { getAuthErrorMessage } from '../../lib/supabase-config';
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { GlassCard } from '../../components/ui/GlassCard';
@@ -7,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useToastStore } from '../../store/useToastStore';
 
 export function Login() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signIn, loading } = useAuth();
@@ -15,12 +18,15 @@ export function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await signIn(email, password);
       addToast('Welcome back!', 'success');
       navigate('/dashboard');
-    } catch (error: any) {
-      addToast(error.message || 'Failed to login', 'error');
+    } catch (error: unknown) {
+      addToast(getAuthErrorMessage(error), 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -39,6 +45,7 @@ export function Login() {
         </div>
 
         <GlassCard className="p-8">
+          {supabaseConfigError && <p role="alert" className="mb-6 text-amber-200">{supabaseConfigError}</p>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <GlassInput
               label="Email"
@@ -67,7 +74,7 @@ export function Login() {
               </a>
             </div>
 
-            <GlassButton type="submit" className="w-full py-3 text-lg" isLoading={loading}>
+            <GlassButton type="submit" className="w-full py-3 text-lg" disabled={!!supabaseConfigError} isLoading={loading || isSubmitting}>
               Sign in
             </GlassButton>
           </form>

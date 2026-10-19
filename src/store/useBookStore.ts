@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { bookLoadError, countWords } from '../lib/book-stats';
 import { supabase } from '../lib/supabase';
 import { useToastStore } from './useToastStore';
 
@@ -8,6 +9,7 @@ export interface Book {
   title: string;
   status: 'draft' | 'outline' | 'writing' | 'formatting' | 'published';
   tier_created: string;
+  wordCount?: number;
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -16,6 +18,9 @@ export interface Book {
 interface BookStore {
   books: Book[];
   isLoading: boolean;
+  error: string | null;
+  reset: () => void;
+  setWordCount: (id: string, count: number) => void;
   fetchBooks: () => Promise<void>;
   createBook: (title: string, metadata?: Record<string, any>) => Promise<Book | null>;
   updateBook: (id: string, changes: Partial<Pick<Book, 'title' | 'metadata' | 'status'>>) => Promise<void>;
@@ -23,24 +28,33 @@ interface BookStore {
   duplicateBook: (id: string) => Promise<void>;
 }
 
+let latestBookRequest = 0;
+
 export const useBookStore = create<BookStore>((set, get) => ({
   books: [],
   isLoading: false,
+  error: null,
+  reset: () => { latestBookRequest++; set({ books: [], error: null, isLoading: false }); },
+  setWordCount: (id, count) => set(state => ({ books: state.books.map(book => book.id === id ? { ...book, wordCount: count } : book) })),
 
   fetchBooks: async () => {
-    set({ isLoading: true });
+    const request = ++latestBookRequest;
+    set({ isLoading: true, error: null });
     try {
       const { data, error } = await supabase
         .from('books')
-        .select('*')
+        .select('*, chapters(content)')
         .order('updated_at', { ascending: false });
 
+      if (request !== latestBookRequest) return;
       if (error) throw error;
-      set({ books: data || [] });
-    } catch (error: any) {
-      useToastStore.getState().addToast(error.message || 'Failed to fetch books', 'error');
+      set({ books: (data || []).map(({ chapters, ...book }) => ({
+        ...book, wordCount: (chapters || []).reduce((sum: number, chapter: { content: string | null }) => sum + countWords(chapter.content), 0)
+      })) });
+    } catch (error: unknown) {
+      if (request === latestBookRequest) set({ error: bookLoadError(error), books: [] });
     } finally {
-      set({ isLoading: false });
+      if (request === latestBookRequest) set({ isLoading: false });
     }
   },
 
@@ -79,7 +93,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
     const { data, error } = await supabase.from('books')
       .update({ ...changes, updated_at: new Date().toISOString() }).eq('id', id).select().single();
     if (error) throw error;
-    set(state => ({ books: state.books.map(book => book.id === id ? data : book) }));
+    set(state => ({ books: state.books.map(book => book.id === id ? { ...data, wordCount: book.wordCount } : book) }));
   },
 
   deleteBook: async (id) => {

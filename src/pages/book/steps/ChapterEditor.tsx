@@ -1,3 +1,5 @@
+import { useBookStore } from '../../../store/useBookStore';
+import { countWords } from '../../../lib/book-stats';
 import { useState, useEffect } from 'react';
 import type { Book } from '../../../store/useBookStore';
 import { GlassCard } from '../../../components/ui/GlassCard';
@@ -76,6 +78,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       if (error) throw error;
       sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
       setDirty(false);
+      useBookStore.getState().setWordCount(book.id, chapters.reduce((sum, chapter) => sum + countWords(chapter.content), 0));
       addToast('Chapter saved successfully', 'success');
       return true;
     } catch (error: any) {

@@ -69,3 +69,19 @@ production bundle. For a live smoke test, create a two-chapter book, edit and sa
 both chapters, revisit the outline and rename one, refresh the editor, then
 export and inspect the PDF. The automated tests mock Supabase and do not verify
 live authentication, database policies or provider access.
+
+## Repairing an existing Supabase deployment
+
+If sign-in works but the dashboard reports missing `public.books`, apply
+`supabase/migrations/20261019000000_repair_mvp_schema.sql` to the **same Supabase
+project configured in Vercel**. Inspect existing tables first. The repair creates
+missing Phase 1 tables, preserves existing rows and policies, adds profiles for
+email users who signed up before schema installation, and reloads the API schema
+cache. It runs in a transaction and may be rerun. It does not remove user data,
+disable RLS, grant client profile updates, or change existing plan assignments.
+Apply through Supabase SQL Editor or your normal database migration workflow;
+public browser keys cannot run administrative migrations.
+
+After applying: reload the dashboard, create a project, write and save a chapter,
+refresh, then export a PDF. The sidebar and dashboard count saved chapter text;
+AI costs are explicitly untracked and paid upgrades are unavailable in this MVP.
