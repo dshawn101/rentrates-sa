@@ -1,64 +1,71 @@
+# Puble Studio
 
-Built by https://www.blackbox.ai
-
----
-
-# RentRateSA
-
-## Project Overview
-RentRateSA is South Africa's trusted real estate network. This platform connects verified agents, landlords, and renters, promoting transparency and building trust in the property market through reviewed profiles, background checks, and legal resources. The site provides a LinkedIn-style experience for the real estate community with an emphasis on user-generated content and professional reliability.
-
-## Installation
-To run the project locally:
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/rentratesa.git
-   ```
-2. Navigate into the project directory:
-   ```bash
-   cd rentratesa
-   ```
-3. Open `index.html` in your web browser to view the project.
-
-## Usage
-- **Home**: Start at the homepage to learn about the platform.
-- **Directory**: Browse verified agents and renters.
-- **Background Checks**: Learn about tenant screening services.
-- **Legal Forum**: Access community support and expert advice.
-- **Report Issues**: Use the platform to report scammers or problematic tenants.
-
-You can navigate through the links provided in the navigation bar and explore various features.
+The transparent, author-centric, lean, and beautiful AI book creation platform.
 
 ## Features
-- **Verified Profiles**: Access EAAB/PPRA certified agents and TPN credit checks.
-- **Background Checks**: Partnering with leading companies for tenant screening.
-- **Reputation Scoring**: Professional rating system for communication and reliability.
-- **Red Flag Alerts**: Reporting system for problematic agents and tenants.
-- **Freemium Model**: Basic profiles and reviews are free with premium features available.
+- **Project Scaffold:** Vite + React + TypeScript + Tailwind CSS
+- **Database/Auth:** Supabase Auth and PostgreSQL Database (RLS Secured)
+- **AI Integrations:** Google Gemini 1.5 Pro (Outlining & Writing), Pica/Unsplash API (Cover Generation)
+- **Zero Platform Markup:** Bring Your Own Key (BYOK) architecture to pay for AI usage directly
+- **Exports:** Browser-native generation for PDF (print ready A5) and EPUB
 
-## Dependencies
-For front-end styling, the project uses the following dependencies as specified in the CSS files:
-- Fonts from Google Fonts (Inter)
-  
-No additional JavaScript libraries or frameworks were identified within the provided structure.
+## Quickstart
 
-## Project Structure
-```
-rentratesa/
-├── index.html              # Main HTML document
-├── assets/
-│   ├── css/
-│   │   └── style.css       # Stylesheet for the project
-│   └── js/
-│       └── main.js         # Main JavaScript file
+1. Clone repo and install dependencies
+```bash
+npm install
 ```
 
-### Additional Notes
-- Ensure you have a stable internet connection for external resources like fonts and images.
-- Customize the project as necessary to fit your requirements or to expand functionalities.
+2. Set up Environment Variables
+Copy `.env.example` to `.env` and fill in your keys:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_GEMINI_API_KEY=your_gemini_key (optional, can use BYOK in app)
+VITE_PICA_API_KEY=your_pica_key (optional)
+```
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+3. Setup Supabase Database
+Run the migration file located at `supabase/migrations/20250101000000_puble_schema.sql` in your Supabase SQL Editor.
 
-## Acknowledgments
-Thanks to the contributors and users for their ongoing support and improvement of the platform.
+4. Run the development server
+```bash
+npm run dev &
+```
+
+## Deployment (Vercel)
+This project includes a `vercel.json` file designed for immediate deployment. Connect your repository to Vercel, ensure the build command is `npm run build`, output directory is `dist`, and inject the Environment Variables inside the Vercel dashboard.
+## Book creation MVP
+
+Configure `.env` with your Supabase URL and anon key, apply
+`supabase/migrations/20250101000000_puble_schema.sql`, then run `npm ci` and
+`npm run dev`. Sign up/sign in to create a project from the dashboard.
+
+1. Enter a title, author and book details; save and continue.
+2. Add chapters manually or append the editable starter template. Save the outline.
+3. Write chapter text. Switching chapters or using Back/Continue saves the current
+   chapter first; a failed save keeps you in the editor. Unsaved prose is also
+   retained in this browser tab's session storage for recovery after navigation
+   or refresh. Save recovered chapters before exporting.
+4. Continue past the optional cover step. This MVP exports a title page; custom
+   image cover generation is not integrated.
+5. Download the A5 PDF manuscript. Every chapter must contain saved text. Export
+   reads chapters from Supabase in outline order and does not publish the book.
+
+Wizard steps are addressable via `/book/:id?step=1` through `step=5`. Book metadata
+and progress updates are reflected immediately in the shared store. Outline saves
+preserve chapter IDs and prose; removing a chapter deletes its prose on save.
+No database migration is needed beyond the existing Phase 1 schema.
+
+PDF is the supported MVP export, not a guarantee of publisher-specific print
+compliance. The built-in Times font has limited Unicode coverage. EPUB/DOCX and
+custom cover generation are not exposed. Manual creation needs no AI keys;
+optional Gemini assistance requires a valid key and supported model. OpenRouter
+now reports an unavailable integration rather than returning simulated prose.
+
+Validation: `npm test` exercises prose preservation, failed loads/saves, draft
+recovery, export gating and multipage PDF generation; `npm run build` checks the
+production bundle. For a live smoke test, create a two-chapter book, edit and save
+both chapters, revisit the outline and rename one, refresh the editor, then
+export and inspect the PDF. The automated tests mock Supabase and do not verify
+live authentication, database policies or provider access.
