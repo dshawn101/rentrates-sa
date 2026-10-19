@@ -113,7 +113,9 @@ export const useBookStore = create<BookStore>((set, get) => ({
         const bookToDuplicate = get().books.find(b => b.id === id);
         if (!bookToDuplicate) return;
 
-        await get().createBook(`${bookToDuplicate.title} (Copy)`, bookToDuplicate.metadata);
+        const metadata = { ...bookToDuplicate.metadata };
+        delete metadata.coverPath; delete metadata.coverWidth; delete metadata.coverHeight; delete metadata.coverUrl;
+        await get().createBook(`${bookToDuplicate.title} (Copy)`, metadata);
      } catch (error: any) {
          useToastStore.getState().addToast(error.message || 'Failed to duplicate book', 'error');
      }

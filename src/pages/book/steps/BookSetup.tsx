@@ -1,3 +1,4 @@
+import { useIntegrationStore } from '../../../store/useIntegrationStore';
 import { useState } from 'react';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassInput } from '../../../components/ui/GlassInput';
@@ -43,9 +44,9 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
     title: book.title || '',
     subtitle: book.metadata?.subtitle || '',
     author: book.metadata?.author || '',
-    genre: book.metadata?.genre || 'non-fiction',
-    targetWordCount: book.metadata?.targetWordCount || 50000,
-    tone: book.metadata?.tone || 'professional',
+    genre: book.metadata?.genre || useIntegrationStore.getState().preferences.genre,
+    targetWordCount: book.metadata?.targetWordCount || useIntegrationStore.getState().preferences.targetWordCount,
+    tone: book.metadata?.tone || useIntegrationStore.getState().preferences.tone,
     synopsis: book.metadata?.synopsis || ''
   });
 

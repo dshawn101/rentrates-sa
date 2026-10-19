@@ -1,8 +1,9 @@
+import { getCoverUrl } from '../../lib/covers';
 import { GlassCard } from '../ui/GlassCard';
 import { Badge } from '../ui/Badge';
 import { Link } from 'react-router-dom';
 import { FileText, MoreVertical, Edit3, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface BookCardProps {
   id: string;
@@ -11,11 +12,15 @@ export interface BookCardProps {
   updatedAt: string;
   wordCount?: number;
   coverUrl?: string;
+  coverPath?: string;
   onDelete?: (id: string) => void;
   onDuplicate?: (id: string) => void;
 }
 
-export function BookCard({ id, title, status, updatedAt, wordCount = 0, coverUrl, onDelete, onDuplicate }: BookCardProps) {
+export function BookCard({ id, title, status, updatedAt, wordCount = 0, coverUrl, coverPath, onDelete, onDuplicate }: BookCardProps) {
+  const [signedCover, setSignedCover] = useState('');
+  useEffect(() => { let active = true; if (coverPath) getCoverUrl(coverPath).then(url => { if (active) setSignedCover(url); }).catch(() => {}); return () => { active = false; }; }, [coverPath]);
+  const image = coverPath ? signedCover : coverUrl;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const statusColors = {
@@ -28,13 +33,13 @@ export function BookCard({ id, title, status, updatedAt, wordCount = 0, coverUrl
 
   return (
     <GlassCard className="group relative overflow-hidden transition-all duration-300 hover:shadow-primary/20 hover:-translate-y-1">
-      <Link to={`/book/${id}`} className="absolute inset-0 z-0" />
+      <Link to={`/book/${id}`} aria-label={`Open ${title}`} className="absolute inset-0 z-0" />
 
-      <div className="p-5 flex flex-col h-full relative z-10">
+      <div className="p-5 flex flex-col h-full relative z-10 pointer-events-none">
         <div className="flex justify-between items-start mb-4">
-          {coverUrl ? (
+          {image ? (
             <div className="w-16 h-24 bg-black/40 rounded shadow-md overflow-hidden flex-shrink-0">
-               <img src={coverUrl} alt={title} className="w-full h-full object-cover" />
+               <img src={image} onError={() => setSignedCover('')} alt={title} className="w-full h-full object-contain" />
             </div>
           ) : (
             <div className="w-12 h-16 bg-gradient-to-br from-purple-500/20 to-primary/10 rounded flex items-center justify-center border border-white/10 flex-shrink-0">
@@ -42,7 +47,7 @@ export function BookCard({ id, title, status, updatedAt, wordCount = 0, coverUrl
             </div>
           )}
 
-          <div className="relative">
+          <div className="relative pointer-events-auto z-20">
             <button
               onClick={(e) => { e.preventDefault(); setMenuOpen(!menuOpen); }}
               className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
@@ -52,7 +57,7 @@ export function BookCard({ id, title, status, updatedAt, wordCount = 0, coverUrl
 
             {menuOpen && (
               <div className="absolute right-0 mt-2 w-36 bg-[#1a1625] border border-white/10 rounded-xl shadow-xl py-1 z-50">
-                <Link to={`/book/${id}/edit`} className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
+                <Link to={`/book/${id}?step=1`} className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
                   <Edit3 className="w-4 h-4" /> Edit Details
                 </Link>
                 <button

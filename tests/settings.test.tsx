@@ -1,0 +1,26 @@
+// @vitest-environment jsdom
+import { beforeEach, afterEach, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { Settings } from '../src/pages/Settings';
+import { useIntegrationStore } from '../src/store/useIntegrationStore';
+vi.mock('../src/hooks/useAuth',()=>({useAuth:()=>({user:{email:'author@example.test'},profile:{tier:'free'},signOut:vi.fn()})}));
+beforeEach(()=>{localStorage.clear();useIntegrationStore.getState().configureOwner(null);useIntegrationStore.getState().configureOwner('author');});
+afterEach(cleanup);
+it('shows only four author-facing settings sections with advanced tools collapsed',()=>{
+  render(<MemoryRouter initialEntries={['/settings']}><Settings/></MemoryRouter>);
+  expect(screen.getByRole('navigation',{name:'Settings sections'}).querySelectorAll('button')).toHaveLength(4);
+  expect(screen.getByRole('button',{name:/Advanced tools/}).getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByText('Remote MCP tools')).toBeNull();
+});
+it('saves writing defaults used by new books',()=>{
+  render(<MemoryRouter initialEntries={['/settings?section=writing']}><Settings/></MemoryRouter>);
+  fireEvent.change(screen.getByLabelText('Target book words'),{target:{value:'25000'}});
+  fireEvent.click(screen.getByText('Save defaults'));
+  expect(useIntegrationStore.getState().preferences.targetWordCount).toBe(25000);
+});
+it('offers imported cover workflow without asking authors to connect external tools',()=>{
+  render(<MemoryRouter initialEntries={['/settings?section=design']}><Settings/></MemoryRouter>);
+  expect(screen.getByText(/No API key or tool connection is needed/)).toBeTruthy();
+  expect(screen.getByRole('link',{name:/Canva/})).toBeTruthy();
+});

@@ -1,0 +1,60 @@
+export type Provider = 'gemini' | 'openai' | 'openrouter';
+export interface AIRequest { provider: Provider; action: 'test' | 'generate' | 'image'; apiKey: string; model?: string; prompt?: string; maxOutputTokens?: number }
+export function validateAIRequest(input: unknown): AIRequest {
+  if (!input || typeof input !== 'object') throw new Error('Invalid request.');
+  const r = input as AIRequest;
+  if (!['gemini', 'openai', 'openrouter'].includes(r.provider) || !['test', 'generate', 'image'].includes(r.action)) throw new Error('Unsupported provider or action.');
+  if (typeof r.apiKey !== 'string' || r.apiKey.length < 8 || r.apiKey.length > 1024 || /[\r\n]/.test(r.apiKey)) throw new Error('Enter a valid API key.');
+  if (r.action !== 'test' && (typeof r.prompt !== 'string' || !r.prompt.trim() || r.prompt.length > 100000)) throw new Error('Enter a prompt of up to 100,000 characters.');
+  if (r.action !== 'test' && (typeof r.model !== 'string' || !/^[a-zA-Z0-9_.:/-]{1,160}$/.test(r.model))) throw new Error('Enter a valid model ID.');
+  if (r.action === 'image' && (r.provider !== 'openai' || !['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'gpt-image-2'].includes(r.model!))) throw new Error('Choose a supported OpenAI image model.');
+  return r;
+}
+interface UpstreamResponse {
+  models?: { name: string; supportedGenerationMethods?: string[] }[];
+  data?: { id: string; b64_json?: string; architecture?: { output_modalities?: string[] } }[];
+  candidates?: { content?: { parts?: { text?: string }[] } }[];
+  choices?: { message?: { content?: string } }[];
+}
+async function readJSON(response: Response): Promise<UpstreamResponse> {
+  const data = await response.json() as UpstreamResponse;
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) throw new Error('The provider rejected this key or model access. Check your key and permissions.');
+    if (response.status === 429) throw new Error('Provider quota, billing limit or rate limit reached. Check your provider account.');
+    if (response.status === 404) throw new Error('This model is not available. Check its ID or choose a model returned by Test key.');
+    // Never reflect provider error bodies: they can include credential-bearing URLs.
+    throw new Error(`The provider request failed (${response.status}). Check model access and billing in your provider dashboard.`);
+  }
+  return data;
+}
+export async function runAI(r: AIRequest, send: typeof fetch = fetch) {
+  const budget = Math.max(128, Math.min(8000, Number(r.maxOutputTokens) || 2500));
+  const root = r.provider === 'openai' ? 'https://api.openai.com/v1' : 'https://openrouter.ai/api/v1';
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', Authorization: `Bearer ${r.apiKey}` };
+  const options = { redirect: 'error' as const, signal: AbortSignal.timeout(r.action === 'image' ? 170000 : 80000) };
+  if (r.provider === 'gemini') {
+    const googleHeaders = { 'Content-Type': 'application/json', 'x-goog-api-key': r.apiKey };
+    if (r.action === 'test') {
+      const data = await readJSON(await send('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100', { ...options, headers: googleHeaders }));
+      return { models: (data.models || []).filter((m: { supportedGenerationMethods?: string[] }) => m.supportedGenerationMethods?.includes('generateContent')).map((m: { name: string }) => m.name.replace('models/', '')) };
+    }
+    const data = await readJSON(await send(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(r.model!)}:generateContent`, { ...options, method: 'POST', headers: googleHeaders, body: JSON.stringify({ contents: [{ parts: [{ text: r.prompt }] }], generationConfig: { maxOutputTokens: budget } }) }));
+    return { text: data.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') || '' };
+  }
+  if (r.action === 'test') {
+    const endpoint = r.provider === 'openrouter' ? `${root}/key` : `${root}/models`;
+    const data = await readJSON(await send(endpoint, { ...options, headers }));
+    if (r.provider === 'openrouter') {
+      const models = await readJSON(await send(`${root}/models`, { ...options, headers }));
+      return { models: (models.data || []).filter((m: { architecture?: { output_modalities?: string[] } }) => m.architecture?.output_modalities?.includes('text')).map((m: { id: string }) => m.id).slice(0, 1000) };
+    }
+    return { models: (data.data || []).map((m: { id: string }) => m.id).slice(0, 1000) };
+  }
+  if (r.action === 'image') {
+    const data = await readJSON(await send(`${root}/images/generations`, { ...options, method: 'POST', headers, body: JSON.stringify({ model: r.model, prompt: r.prompt, n: 1, size: '1024x1024', quality: 'low', output_format: 'png' }) }));
+    if (!data.data?.[0]?.b64_json) throw new Error('No image returned. Check image model access.');
+    return { image: `data:image/png;base64,${data.data[0].b64_json}` };
+  }
+  const data = await readJSON(await send(`${root}/chat/completions`, { ...options, method: 'POST', headers, body: JSON.stringify({ model: r.model, messages: [{ role: 'user', content: r.prompt }], ...(r.provider === 'openai' ? { max_completion_tokens: budget } : { max_tokens: budget }) }) }));
+  return { text: data.choices?.[0]?.message?.content || '' };
+}

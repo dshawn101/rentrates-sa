@@ -1,3 +1,4 @@
+import { readCoverForPDF } from '../../../lib/covers';
 import { useState } from 'react';
 import type { Book } from '../../../store/useBookStore';
 import { GlassCard } from '../../../components/ui/GlassCard';
@@ -31,11 +32,15 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
       if (!chapters.data?.length || chapters.data.some(ch => !ch.content?.trim())) {
         throw new Error('Write and save content in every chapter before exporting.');
       }
+      const cover = book.metadata?.coverPath
+        ? await readCoverForPDF(book.metadata.coverPath, Number(book.metadata.coverWidth), Number(book.metadata.coverHeight))
+        : undefined;
       const exportData = {
          title: book.title,
          author: book.metadata?.author || 'Unknown',
          chapters: chapters.data?.map(c => ({ title: c.title, content: c.content })) || [],
-         isbn: isbn
+         isbn: isbn,
+         cover
       };
 
       const { exportToPDF } = await import('../../../lib/export');
@@ -61,7 +66,7 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
             </div>
             <h2 className="text-3xl font-bold text-white mb-2">Export your manuscript</h2>
             <p className="text-slate-400 text-lg">
-              Download the latest saved chapters as a PDF manuscript.
+              Download your saved chapters and optional cover as a PDF manuscript.
             </p>
           </div>
 

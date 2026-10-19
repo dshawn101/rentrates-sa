@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import type { InputHTMLAttributes } from 'react';
 import { cn } from '../../lib/utils';
 
@@ -8,15 +8,18 @@ export interface GlassInputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
-  ({ className, label, error, ...props }, ref) => {
+  ({ className, label, error, id, ...props }, ref) => {
+    const generatedId = useId();
+    const inputId = id || generatedId;
     return (
       <div className="w-full flex flex-col gap-1.5">
         {label && (
-          <label className="glass-label">
+          <label htmlFor={inputId} className="glass-label">
             {label}
           </label>
         )}
         <input
+          id={inputId}
           ref={ref}
           className={cn(
             'glass-input w-full',

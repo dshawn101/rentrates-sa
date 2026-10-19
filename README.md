@@ -1,87 +1,95 @@
 # Puble Studio
 
-The transparent, author-centric, lean, and beautiful AI book creation platform.
+A focused book-writing workspace: plan chapters, write and save a manuscript,
+bring your own cover, and export a PDF. Optional BYOK assistance supports Google
+Gemini, OpenAI and OpenRouter. Manual writing, cover import and export require no
+AI key.
 
-## Features
-- **Project Scaffold:** Vite + React + TypeScript + Tailwind CSS
-- **Database/Auth:** Supabase Auth and PostgreSQL Database (RLS Secured)
-- **AI Integrations:** Google Gemini 1.5 Pro (Outlining & Writing), Pica/Unsplash API (Cover Generation)
-- **Zero Platform Markup:** Bring Your Own Key (BYOK) architecture to pay for AI usage directly
-- **Exports:** Browser-native generation for PDF (print ready A5) and EPUB
+## Start locally
 
-## Quickstart
+1. Run `npm ci`.
+2. Copy `.env.example` to `.env` and set the matching Supabase project URL and
+   public publishable/anon key. Never use a service-role key here.
+3. Install the application schema and storage policies in that Supabase project.
+   For an empty application database, use
+   `supabase/migrations/20261019000000_repair_mvp_schema.sql`, then
+   `supabase/migrations/20261019105558_restrict_rls_event_trigger_access.sql`, then
+   `supabase/migrations/20261019121345_private_book_cover_uploads.sql`.
+   Inspect an existing database before applying migrations. The repair preserves
+   existing rows/policies and backfills profiles for email users who signed up
+   before schema installation. Normal migration workflows should reconcile the
+   original Phase 1 migration/history before pushing to an existing database.
+4. Run `npm run dev`. Vite includes the same authenticated AI relay used on Vercel.
 
-1. Clone repo and install dependencies
-```bash
-npm install
-```
+## Author workflow
 
-2. Set up Environment Variables
-Copy `.env.example` to `.env` and fill in your keys:
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_GEMINI_API_KEY=your_gemini_key (optional, can use BYOK in app)
-VITE_PICA_API_KEY=your_pica_key (optional)
-```
+- Dashboard: continue your latest book, create a book, or configure optional AI.
+- Settings: Account, AI Providers, Writing Defaults and Design Tools. Advanced MCP
+  is collapsed and loaded only on demand.
+- BYOK: add a key and model, test access without generation, then select a writing
+  provider. Model access and credit availability are controlled by the provider.
+- Cover: upload/drop PNG, JPG or WebP (up to 10 MB), preview, then save. Images are
+  normalised to JPEG, scaled to a 2,000-pixel maximum side and stored in a private
+  Supabase bucket. Transparent regions become white. The bucket caps saved files
+  at 3 MB. Only the book owner can upload/read its cover. Front covers appear in
+  the dashboard and as the first PDF page, fitted without stretching or cropping.
+- A cover is optional. PDF export still includes the title page and saved chapters.
+  A missing saved cover produces an actionable export error, not a silent omission.
+- Removing/replacing a cover changes its book attachment; it does not purge old
+  storage objects. Storage lifecycle cleanup can be added separately.
+- Chapter navigation saves before changing chapters/steps. Failed saves retain
+  edits; session-storage drafts support recovery after refresh. Save recovered
+  chapters before exporting.
 
-3. Setup Supabase Database
-Run the migration file located at `supabase/migrations/20250101000000_puble_schema.sql` in your Supabase SQL Editor.
+## Keys and integrations
 
-4. Run the development server
-```bash
-npm run dev &
-```
+Provider keys and MCP access tokens are held in page memory only, clear on page
+refresh/sign-out, and never persist in local/session storage or the database.
+Non-secret model preferences/defaults/server endpoints are saved in this browser,
+separately for each account. A previous Gemini local-storage key can be explicitly
+imported and its old copy removed from AI Providers.
 
-## Deployment (Vercel)
-This project includes a `vercel.json` file designed for immediate deployment. Connect your repository to Vercel, ensure the build command is `npm run build`, output directory is `dist`, and inject the Environment Variables inside the Vercel dashboard.
-## Book creation MVP
+`POST /api/ai` validates the caller with Supabase Auth, then forwards only the
+requested action to fixed official provider URLs. It does not log/cache keys,
+accept arbitrary upstream URLs, or retry against a different provider. Request
+output is bounded. The Vercel function uses the same Supabase environment values
+as the frontend. Ensure no infrastructure request-body logging is enabled.
 
-Configure `.env` with your Supabase URL and anon key, apply
-`supabase/migrations/20250101000000_puble_schema.sql`, then run `npm ci` and
-`npm run dev`. Sign up/sign in to create a project from the dashboard.
+API model listing tests do not generate paid text/images. Text/image generation
+uses the user's provider billing; ChatGPT and other app subscriptions do not grant
+API credits. Image generation requires an explicit paid-credit acknowledgement.
+No real provider calls are made by the automated tests.
 
-1. Enter a title, author and book details; save and continue.
-2. Add chapters manually or append the editable starter template. Save the outline.
-3. Write chapter text. Switching chapters or using Back/Continue saves the current
-   chapter first; a failed save keeps you in the editor. Unsaved prose is also
-   retained in this browser tab's session storage for recovery after navigation
-   or refresh. Save recovered chapters before exporting.
-4. Continue past the optional cover step. This MVP exports a title page; custom
-   image cover generation is not integrated.
-5. Download the A5 PDF manuscript. Every chapter must contain saved text. Export
-   reads chapters from Supabase in outline order and does not publish the book.
+Canva and Midjourney work as external cover-design tools with file import.
+Canva MCP additionally requires a registered OAuth app, per-user authorisation,
+a valid access token and browser CORS support; one-click OAuth is not implemented.
+Midjourney has no official public API integration here. OpenAI artwork uses GPT
+Image models; the retired DALL·E API is not exposed.
 
-Wizard steps are addressable via `/book/:id?step=1` through `step=5`. Book metadata
-and progress updates are reflected immediately in the shared store. Outline saves
-preserve chapter IDs and prose; removing a chapter deletes its prose on save.
-No database migration is needed beyond the existing Phase 1 schema.
+Advanced MCP supports remote HTTPS Streamable HTTP endpoints, live tool discovery,
+and explicit argument review before each tool call. It does not run local stdio
+commands or automatically execute model-suggested actions. MCP calls go directly
+from the browser to the selected endpoint with its dedicated token; a server that
+does not support browser CORS will need an independently trusted gateway. Saved
+server configuration is not presented as a verified connection.
 
-PDF is the supported MVP export, not a guarantee of publisher-specific print
-compliance. The built-in Times font has limited Unicode coverage. EPUB/DOCX and
-custom cover generation are not exposed. Manual creation needs no AI keys;
-optional Gemini assistance requires a valid key and supported model. OpenRouter
-now reports an unavailable integration rather than returning simulated prose.
+## Deploy and verify
 
-Validation: `npm test` exercises prose preservation, failed loads/saves, draft
-recovery, export gating and multipage PDF generation; `npm run build` checks the
-production bundle. For a live smoke test, create a two-chapter book, edit and save
-both chapters, revisit the outline and rename one, refresh the editor, then
-export and inspect the PDF. The automated tests mock Supabase and do not verify
-live authentication, database policies or provider access.
+Vercel: build `npm run build`, output `dist`. Configure `VITE_SUPABASE_URL` and
+`VITE_SUPABASE_ANON_KEY` for the correct deployment environment, apply database
+migrations, and redeploy. `api/ai.ts` is the authenticated serverless relay; no
+platform AI key is required.
 
-## Repairing an existing Supabase deployment
+Run `npm test`, `npm run build`, and `npm run lint`. Tests exercise auth/session
+recovery, chapter preservation, export gating, PDF cover embedding, owner-specific
+storage policies in PostgreSQL (PGlite), provider routing/authentication, credential
+isolation and lean settings navigation. Existing legacy lint findings are not
+silently suppressed.
 
-If sign-in works but the dashboard reports missing `public.books`, apply
-`supabase/migrations/20261019000000_repair_mvp_schema.sql` to the **same Supabase
-project configured in Vercel**. Inspect existing tables first. The repair creates
-missing Phase 1 tables, preserves existing rows and policies, adds profiles for
-email users who signed up before schema installation, and reloads the API schema
-cache. It runs in a transaction and may be rerun. It does not remove user data,
-disable RLS, grant client profile updates, or change existing plan assignments.
-Apply through Supabase SQL Editor or your normal database migration workflow;
-public browser keys cannot run administrative migrations.
+Live smoke test: create a book, save chapter text, upload a cover, reload, reopen,
+then download and inspect the PDF. Configure/test a real provider key only when
+its owner authorises that use. Never use real secrets in test fixtures.
 
-After applying: reload the dashboard, create a project, write and save a chapter,
-refresh, then export a PDF. The sidebar and dashboard count saved chapter text;
-AI costs are explicitly untracked and paid upgrades are unavailable in this MVP.
+EPUB/DOCX, one-click OAuth, advanced typography and printer-specific wraparound
+covers/bleed are not implemented. The PDF uses built-in Times with limited Unicode
+coverage and is a manuscript export, not guaranteed publisher-specific print output.

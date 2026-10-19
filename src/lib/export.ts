@@ -1,3 +1,4 @@
+import { fitCover } from './covers';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
 import JSZip from 'jszip';
@@ -7,6 +8,7 @@ interface ExportData {
   author: string;
   chapters: { title: string; content: string }[];
   isbn?: string;
+  cover?: { dataUrl: string; width: number; height: number };
 }
 
 export function buildPDF(data: ExportData, tier: string = 'free') {
@@ -19,6 +21,12 @@ export function buildPDF(data: ExportData, tier: string = 'free') {
 
   const margins = { top: 20, bottom: 20, left: 15, right: 15 };
   let currentY = margins.top;
+
+  if (data.cover) {
+    const placement = fitCover(data.cover.width, data.cover.height);
+    doc.addImage(data.cover.dataUrl, 'JPEG', placement.x, placement.y, placement.width, placement.height);
+    doc.addPage();
+  }
 
   // Title Page
   doc.setFont('times', 'bold');

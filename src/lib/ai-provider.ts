@@ -1,67 +1,28 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-export type AIProvider = 'gemini' | 'openrouter' | 'huggingface';
-
-interface GenerationOptions {
-  provider?: AIProvider;
-  modelOverride?: string;
-  temperature?: number;
+import { supabase } from './supabase';
+import { readCredential, useIntegrationStore } from '../store/useIntegrationStore';
+import type { ProviderId } from '../store/useIntegrationStore';
+export type AIProvider = ProviderId;
+interface GenerationOptions { provider?: ProviderId; modelOverride?: string; temperature?: number }
+export async function requestAI(action: 'test' | 'generate' | 'image', provider: ProviderId, options: { prompt?: string; model?: string; apiKey?: string; maxOutputTokens?: number } = {}) {
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session) throw new Error('Please sign in to use AI tools.');
+  const apiKey = options.apiKey ?? readCredential(provider);
+  if (!apiKey) throw new Error(`Add your ${provider} key in Settings → AI Providers. Keys are cleared when you reload or sign out.`);
+  const response = await fetch('/api/ai', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}` },
+    body: JSON.stringify({ action, provider, apiKey, ...options }), signal: AbortSignal.timeout(action === 'image' ? 180000 : 90000),
+  });
+  const body = await response.json().catch(() => ({ error: 'The AI service returned an invalid response.' }));
+  if (!response.ok) throw new Error(body.error || 'AI request failed.');
+  return body as { text?: string; models?: string[]; image?: string };
 }
-
 export class MultiProviderAI {
-  private static getGeminiKey() {
-    return localStorage.getItem('userGeminiKey') || import.meta.env.VITE_GEMINI_API_KEY;
-  }
-
-  static async generate(prompt: string, options?: GenerationOptions): Promise<{ text: string, providerUsed: AIProvider }> {
-    const preferredProvider = options?.provider || 'gemini';
-
-    // Attempt Primary Provider
-    try {
-      if (preferredProvider === 'gemini') {
-        return await this.callGemini(prompt, options?.modelOverride);
-      }
-      if (preferredProvider === 'openrouter') {
-         return await this.callOpenRouter(prompt);
-      }
-    } catch (error) {
-      console.warn(`Primary provider ${preferredProvider} failed. Attempting fallback...`, error);
-    }
-
-    // Fallback Logic
-    try {
-      if (preferredProvider !== 'gemini') {
-          return await this.callGemini(prompt, 'gemini-1.5-flash');
-      }
-      return await this.callOpenRouter(prompt); // Hypothetical
-    } catch (fallbackError) {
-      console.error("All AI providers failed.", fallbackError);
-      throw new Error("AI Generation failed across all available providers. Please try again later or check your API keys.");
-    }
-
-    throw new Error("Unexpected routing failure.");
-  }
-
-  private static async callGemini(prompt: string, modelName = "gemini-1.5-pro"): Promise<{text: string, providerUsed: AIProvider}> {
-    const key = this.getGeminiKey();
-    if (!key) throw new Error("No Gemini API Key");
-
-    const genAI = new GoogleGenerativeAI(key);
-    const model = genAI.getGenerativeModel({ model: modelName });
-    const result = await model.generateContent(prompt);
-
-    return {
-      text: result.response.text(),
-      providerUsed: 'gemini'
-    };
-  }
-
-  private static async callOpenRouter(prompt: string): Promise<{text: string, providerUsed: AIProvider}> {
-     // Simulated OpenRouter call for Claude/Llama
-     const key = localStorage.getItem('userOpenRouterKey');
-     if (!key) throw new Error("No OpenRouter Key available for this tier.");
-
-     void prompt;
-     throw new Error("OpenRouter integration is not available. Configure a Gemini key or write manually.");
+  static async generate(prompt: string, options?: GenerationOptions): Promise<{ text: string; providerUsed: ProviderId }> {
+    const settings = useIntegrationStore.getState();
+    const provider = options?.provider || settings.provider;
+    const model = options?.modelOverride || settings.providers[provider].model;
+    const result = await requestAI('generate', provider, { prompt, model, maxOutputTokens: settings.preferences.maxOutputTokens });
+    if (!result.text?.trim()) throw new Error('The provider returned no text. Try a different model.');
+    return { text: result.text, providerUsed: provider };
   }
 }
