@@ -1,0 +1,54 @@
+{
+  "title": "Your first book with PubleStudio",
+  "format": "1920x1080, narrated English walkthrough with matching captions",
+  "style": "Charcoal background, purple and white typography, supplied purple quill; gentle transitions; no music beneath instructions",
+  "visualApproach": "Accurate illustrated interface walkthrough, clearly labelled. Replace illustrations with actual screen recordings when authenticated capture is available. Do not fabricate a live app demonstration.",
+  "status": "Narration awaiting user voice selection; no generation submitted",
+  "scenes": [
+    {
+      "title": "Welcome to your writing space",
+      "caption": "Your first book, step by step",
+      "narration": "Welcome to Puble Studio. Let's take your first book from an idea to a downloadable manuscript. You can follow this entire process without an AI key. Start with your own words, and add AI assistance only if you want it."
+    },
+    {
+      "title": "Create your account",
+      "caption": "Start your book → Create account → Sign in",
+      "narration": "On the welcome page, choose Start your book. Enter your email and create a password. If you're asked to confirm your email, open the confirmation message, then return to sign in. Already have an account? Choose Sign in instead."
+    },
+    {
+      "title": "Start a new project",
+      "caption": "Dashboard → New book",
+      "narration": "Your dashboard is home to your book projects. Choose New book, give your project a title, and create it. The book workspace guides you through five stages: Setup, Outline, Write, Cover, and Export."
+    },
+    {
+      "title": "Set up your book",
+      "caption": "Setup → Continue to Outline",
+      "narration": "In Setup, check your book title and author name, choose a genre and tone, and add a synopsis if you have one. You can also set a target word count. Complete the required fields, then choose Continue to Outline."
+    },
+    {
+      "title": "Shape your chapters",
+      "caption": "Add Chapter → Save & Write Content",
+      "narration": "Add chapters yourself, or choose Add Starter Template for an editable starting point. The template does not use AI credits. Give each chapter a title and a short description of what it should cover. Then choose Save and Write Content."
+    },
+    {
+      "title": "Write and save",
+      "caption": "Choose a chapter → Write → Save",
+      "narration": "Select a chapter and begin writing in the editor. Choose Save to store your changes, and check that saving succeeds before leaving. Work through your chapters at your own pace. Each chapter needs saved content before you can export the manuscript."
+    },
+    {
+      "title": "Optional AI assistance",
+      "caption": "Settings → AI Providers",
+      "narration": "For optional AI help, open Settings, then AI Providers. Choose Gemini, OpenAI, or OpenRouter, enter your own API key, and test it. Return to your chapter to request writing assistance. Your provider bills API usage separately. A ChatGPT subscription does not include API credits. Keys clear when you refresh or sign out, so you may need to enter yours again."
+    },
+    {
+      "title": "Add your cover",
+      "caption": "Choose image → Save this cover",
+      "narration": "In Cover, choose a finished front cover as a PNG, JPG, or WebP image, up to ten megabytes. A portrait design works best. Review the preview, then choose Save this cover. You can bring a design made in Canva or another editor. No cover yet? Choose Continue without cover."
+    },
+    {
+      "title": "Export and continue your journey",
+      "caption": "Export → Download PDF",
+      "narration": "Finally, open Export, review the available details and formatting options, and choose Download PDF. Free-tier exports include a watermark. Open the downloaded file and check the cover, chapter order, and text. This is a manuscript PDF; check a publisher or printer's requirements separately. Your project remains on your dashboard so you can keep editing. One idea, one chapter, one step at a time."
+    }
+  ]
+}
