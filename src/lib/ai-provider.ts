@@ -61,11 +61,7 @@ export class MultiProviderAI {
      const key = localStorage.getItem('userOpenRouterKey');
      if (!key) throw new Error("No OpenRouter Key available for this tier.");
 
-     // Simulate network request
-     await new Promise(r => setTimeout(r, 1500));
-     return {
-       text: "[OpenRouter Generated]: " + prompt.substring(0, 100) + "...",
-       providerUsed: 'openrouter'
-     };
+     void prompt;
+     throw new Error("OpenRouter integration is not available. Configure a Gemini key or write manually.");
   }
 }

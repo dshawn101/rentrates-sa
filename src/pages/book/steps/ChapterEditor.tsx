@@ -21,6 +21,13 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    const warn = (event: BeforeUnloadEvent) => { if (dirty) { event.preventDefault(); event.returnValue = ""; } };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
   useEffect(() => {
     fetchChapters();
@@ -35,22 +42,30 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       .order('order_index', { ascending: true });
 
     if (!error && data) {
-      setChapters(data);
+      const restored = data.map(ch => {
+        const draft = sessionStorage.getItem(`chapter-draft:${book.id}:${ch.id}`);
+        return draft === null ? ch : { ...ch, content: draft };
+      });
+      setChapters(restored);
+      setDirty(restored.some((ch, index) => ch.content !== data[index].content));
       if (data.length > 0 && !selectedChapterId) {
         setSelectedChapterId(data[0].id);
       }
     }
+    if (error) addToast('Could not load chapters. Return to the outline and retry.', 'error');
     setIsLoading(false);
   };
 
   const handleContentChange = (content: string) => {
+    if (selectedChapterId) sessionStorage.setItem(`chapter-draft:${book.id}:${selectedChapterId}`, content);
+    setDirty(true);
     setChapters(prev => prev.map(ch => ch.id === selectedChapterId ? { ...ch, content } : ch));
   };
 
   const selectedChapter = chapters.find(ch => ch.id === selectedChapterId);
 
   const handleSave = async () => {
-    if (!selectedChapterId) return;
+    if (!selectedChapterId) return true;
     setIsSaving(true);
     try {
       const { error } = await supabase
@@ -59,9 +74,13 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
         .eq('id', selectedChapterId);
 
       if (error) throw error;
+      sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
+      setDirty(false);
       addToast('Chapter saved successfully', 'success');
+      return true;
     } catch (error: any) {
       addToast(error.message || 'Failed to save chapter', 'error');
+      return false;
     } finally {
       setIsSaving(false);
     }
@@ -79,10 +98,13 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       const newContent = `${selectedChapter.content ? selectedChapter.content + '\n\n' : ''}${text}`;
       handleContentChange(newContent);
 
-      addToast(`Chapter generated via ${providerUsed.toUpperCase()}!`, 'success');
 
       // Auto-save generated content
-      await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+      const { error } = await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+      if (error) throw error;
+      sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
+      setDirty(false);
+      addToast(`Content saved via ${providerUsed.toUpperCase()}`, 'success');
 
     } catch (error: any) {
       addToast(error.message || 'Failed to generate chapter', 'error');
@@ -102,7 +124,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       const promptMap = {
          expand: `Expand on the following text, adding more descriptive detail and narrative depth: \n\n${selectedChapter.content.slice(-1000)}`,
          improve: `Edit the following text for better flow, grammar, and emotional impact: \n\n${selectedChapter.content}`,
-         rephrase: `Rewrite the following text in a slightly different style: \n\n${selectedChapter.content.slice(-500)}`
+         rephrase: `Rewrite the following text in a slightly different style: \n\n${selectedChapter.content}`
       };
 
       const { text, providerUsed } = await MultiProviderAI.generate(promptMap[action], { provider: 'openrouter' }); // Try openrouter first for these actions if available
@@ -112,8 +134,12 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
       else newContent = text; // replace for improve/rephrase
 
       handleContentChange(newContent);
-      addToast(`Content ${action}ed via ${providerUsed.toUpperCase()}`, 'success');
-      await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+
+      const { error } = await supabase.from('chapters').update({ content: newContent }).eq('id', selectedChapterId);
+      if (error) throw error;
+      sessionStorage.removeItem(`chapter-draft:${book.id}:${selectedChapterId}`);
+      setDirty(false);
+      addToast(`Content saved via ${providerUsed.toUpperCase()}`, 'success');
 
     } catch (error: any) {
       addToast(error.message || `Failed to ${action} content.`, 'error');
@@ -140,7 +166,8 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
             chapters.map((chapter, idx) => (
               <button
                 key={chapter.id}
-                onClick={() => setSelectedChapterId(chapter.id)}
+                disabled={isSaving || isGenerating}
+                onClick={async () => { if (await handleSave()) setSelectedChapterId(chapter.id); }}
                 className={cn(
                   "w-full text-left px-3 py-3 rounded-lg flex items-center gap-3 transition-colors",
                   selectedChapterId === chapter.id
@@ -171,11 +198,11 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
 
         {/* Global actions */}
         <div className="flex flex-col gap-2 shrink-0">
-           <GlassButton variant="secondary" onClick={onPrev} className="w-full justify-center">
+           <GlassButton variant="secondary" disabled={isSaving || isGenerating} onClick={async () => { if (await handleSave()) onPrev(); }} className="w-full justify-center">
              <ArrowLeft className="w-4 h-4 mr-2" /> Back to Outline
            </GlassButton>
-           <GlassButton onClick={onNext} className="w-full justify-center">
-             Design Cover <ArrowRight className="w-4 h-4 ml-2" />
+           <GlassButton disabled={isLoading || isSaving || isGenerating || !chapters.length} onClick={async () => { if (await handleSave()) onNext(); }} className="w-full justify-center">
+             Continue <ArrowRight className="w-4 h-4 ml-2" />
            </GlassButton>
         </div>
       </div>
@@ -236,6 +263,8 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
 
             {/* Text Area */}
             <textarea
+              disabled={isSaving || isGenerating}
+              aria-label="Chapter content"
               value={selectedChapter.content || ''}
               onChange={(e) => handleContentChange(e.target.value)}
               placeholder="Start writing your chapter here, or click 'Write w/ AI' to let Gemini draft it based on your outline..."

@@ -4,7 +4,7 @@ import { GlassInput } from '../../../components/ui/GlassInput';
 import { GlassSelect } from '../../../components/ui/GlassSelect';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { GlassTextArea } from '../../../components/ui/GlassTextArea';
-import { supabase } from '../../../lib/supabase';
+import { useBookStore } from '../../../store/useBookStore';
 import { useToastStore } from '../../../store/useToastStore';
 import type { Book } from '../../../store/useBookStore';
 import { Save, ArrowRight } from 'lucide-react';
@@ -60,31 +60,27 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
     setIsSaving(true);
     try {
       // Form validation for required fields
-      if (!formData.title || !formData.author || !formData.genre) {
+      if (!formData.title.trim() || !formData.author.trim() || !formData.genre) {
         throw new Error("Title, Author, and Genre are required.");
       }
 
-      const { error } = await supabase
-        .from('books')
-        .update({
-          title: formData.title,
+      const targetWordCount = Number(formData.targetWordCount);
+      if (!Number.isFinite(targetWordCount) || targetWordCount < 1000 || targetWordCount > 200000) throw new Error('Target word count must be between 1,000 and 200,000.');
+      await useBookStore.getState().updateBook(book.id, {
+          title: formData.title.trim(),
           metadata: {
             ...book.metadata,
             subtitle: formData.subtitle,
             author: formData.author,
             genre: formData.genre,
-            targetWordCount: parseInt(formData.targetWordCount.toString()),
+            targetWordCount: targetWordCount,
             tone: formData.tone,
             synopsis: formData.synopsis
-          },
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', book.id);
-
-      if (error) throw error;
+          }
+        });
 
       addToast('Book details saved', 'success');
-      if (proceed) onNext();
+      if (proceed) await onNext();
     } catch (error: any) {
       addToast(error.message || 'Failed to save book details', 'error');
     } finally {

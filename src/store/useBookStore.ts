@@ -18,6 +18,7 @@ interface BookStore {
   isLoading: boolean;
   fetchBooks: () => Promise<void>;
   createBook: (title: string, metadata?: Record<string, any>) => Promise<Book | null>;
+  updateBook: (id: string, changes: Partial<Pick<Book, 'title' | 'metadata' | 'status'>>) => Promise<void>;
   deleteBook: (id: string) => Promise<void>;
   duplicateBook: (id: string) => Promise<void>;
 }
@@ -72,6 +73,13 @@ export const useBookStore = create<BookStore>((set, get) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  updateBook: async (id, changes) => {
+    const { data, error } = await supabase.from('books')
+      .update({ ...changes, updated_at: new Date().toISOString() }).eq('id', id).select().single();
+    if (error) throw error;
+    set(state => ({ books: state.books.map(book => book.id === id ? data : book) }));
   },
 
   deleteBook: async (id) => {

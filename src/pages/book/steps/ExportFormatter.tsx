@@ -18,7 +18,7 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
   const { profile } = useAuth();
   const [isbn, setIsbn] = useState('');
   const [isExporting, setIsExporting] = useState(false);
-  const [exportFormat, setExportFormat] = useState<'pdf' | 'epub' | 'docx'>('pdf');
+  const [exportFormat, setExportFormat] = useState<'pdf'>('pdf');
   const [exportStatus, setExportStatus] = useState<string | null>(null);
 
   const handleExport = async () => {
@@ -26,15 +26,11 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
     setExportStatus('Compiling chapters...');
 
     try {
-      // Simulate export process
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setExportStatus('Applying formatting...');
-
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setExportStatus(`Generating ${exportFormat.toUpperCase()} file...`);
-
-      // Call actual export logic here
       const chapters = await supabase.from('chapters').select('*').eq('book_id', book.id).order('order_index', {ascending: true});
+      if (chapters.error) throw chapters.error;
+      if (!chapters.data?.length || chapters.data.some(ch => !ch.content?.trim())) {
+        throw new Error('Write and save content in every chapter before exporting.');
+      }
       const exportData = {
          title: book.title,
          author: book.metadata?.author || 'Unknown',
@@ -42,23 +38,13 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
          isbn: isbn
       };
 
-      if (exportFormat === 'pdf') {
-         const { exportToPDF } = await import('../../../lib/export');
-         await exportToPDF(exportData, profile?.tier || 'free');
-      } else if (exportFormat === 'epub') {
-         const { exportToEPUB } = await import('../../../lib/export');
-         await exportToEPUB(exportData);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Mark as published in DB (if it wasn't already)
-      await supabase.from('books').update({ status: 'published' }).eq('id', book.id);
+      const { exportToPDF } = await import('../../../lib/export');
+      await exportToPDF(exportData, profile?.tier || 'free');
 
       addToast(`${exportFormat.toUpperCase()} generated successfully!`, 'success');
       setExportStatus(null);
     } catch (error) {
-      addToast('Failed to export book', 'error');
+      addToast(error instanceof Error ? error.message : 'Failed to export book', 'error');
       setExportStatus(null);
     } finally {
       setIsExporting(false);
@@ -73,9 +59,9 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
             <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.2)]">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Your Book is Ready!</h2>
+            <h2 className="text-3xl font-bold text-white mb-2">Export your manuscript</h2>
             <p className="text-slate-400 text-lg">
-              Review final metadata and export your manuscript for publishing.
+              Download the latest saved chapters as a PDF manuscript.
             </p>
           </div>
 
@@ -118,9 +104,7 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
 
               <div className="grid gap-3">
                 {[
-                  { id: 'pdf', title: 'PDF (Print Ready)', desc: 'Formatted for KDP paperback (A5)', icon: FileText, tierRequired: 'free' },
-                  { id: 'epub', title: 'EPUB (eBook)', desc: 'Standard format for Kindle & Apple Books', icon: FileText, tierRequired: 'express' },
-                  { id: 'docx', title: 'DOCX (Word)', desc: 'For professional editing & formatting', icon: FileText, tierRequired: 'craft' },
+                  { id: 'pdf', title: 'PDF manuscript', desc: 'A5 pages with a title page', icon: FileText, tierRequired: 'free' },
                 ].map((format) => {
 
                    const currentTier = profile?.tier || 'free';
@@ -131,7 +115,7 @@ export function ExportFormatter({ book, onPrev }: ExportFormatterProps) {
                       <button
                         key={format.id}
                         disabled={isLocked}
-                        onClick={() => setExportFormat(format.id as any)}
+                        onClick={() => setExportFormat('pdf')}
                         className={`
                           w-full text-left p-4 rounded-xl border flex items-start gap-4 transition-all duration-200 relative overflow-hidden
                           ${exportFormat === format.id

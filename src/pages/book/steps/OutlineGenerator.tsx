@@ -4,7 +4,7 @@ import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { useToastStore } from '../../../store/useToastStore';
 import { supabase } from '../../../lib/supabase';
-import { Sparkles, ArrowRight, ArrowLeft, GripVertical, Plus, Trash2, Loader2 } from 'lucide-react';
+import { Sparkles, ArrowRight, ArrowLeft, Plus, Trash2, Loader2 } from 'lucide-react';
 import { GlassInput } from '../../../components/ui/GlassInput';
 
 interface OutlineGeneratorProps {
@@ -18,12 +18,16 @@ interface ChapterOutline {
   title: string;
   description: string;
   order_index: number;
+  content?: string;
+  ai_contribution?: Record<string, unknown>;
 }
 
 export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps) {
   const { addToast } = useToastStore();
   const [outline, setOutline] = useState<ChapterOutline[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -33,6 +37,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
 
   const fetchOutline = async () => {
     setIsLoading(true);
+    setLoadFailed(false);
     const { data, error } = await supabase
       .from('chapters')
       .select('*')
@@ -40,17 +45,21 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
       .order('order_index', { ascending: true });
 
     if (!error && data) {
+      setSavedIds(data.map(ch => ch.id));
       setOutline(data.map(ch => ({
         id: ch.id,
+        content: ch.content,
+        ai_contribution: ch.ai_contribution,
         title: ch.title,
         description: ch.ai_contribution?.outline_description || '',
         order_index: ch.order_index
       })));
     }
+    if (error) setLoadFailed(true);
     setIsLoading(false);
   };
 
-  const generateAIOutline = async () => {
+  const addStarterOutline = async () => {
     if (!book.title || !book.metadata?.genre) {
       addToast('Please complete book setup first', 'error');
       return;
@@ -58,8 +67,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
 
     setIsGenerating(true);
     try {
-      // Phase 7 placeholder: Call Gemini API here
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+      // An editable starter template; no AI request or provider key required.
 
       const newOutline = [
         { id: crypto.randomUUID(), title: "Introduction: Setting the Stage", description: "Hook the reader and introduce the main concept.", order_index: 0 },
@@ -69,9 +77,9 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
         { id: crypto.randomUUID(), title: "Conclusion: Resolution", description: "Tying up loose ends.", order_index: 4 },
       ];
 
-      setOutline(newOutline);
-      addToast('AI Outline Generated!', 'success');
-    } catch (error) {
+      setOutline(prev => [...prev, ...newOutline.map((chapter, i) => ({ ...chapter, order_index: prev.length + i }))]);
+      addToast('Starter chapters added. Edit them to fit your book.', 'success');
+    } catch {
       addToast('Failed to generate outline', 'error');
     } finally {
       setIsGenerating(false);
@@ -103,32 +111,39 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
   const handleSaveAndContinue = async () => {
     setIsSaving(true);
     try {
-      // Simple sync: Delete existing, insert new for this prototype to maintain order_index easily
-      // In production, an upsert or more careful diff logic would be better.
-      const { error: delError } = await supabase.from('chapters').delete().eq('book_id', book.id);
-      if (delError) throw delError;
+      if (isLoading || loadFailed) return;
+      if (!outline.length || outline.some(ch => !ch.title.trim())) throw new Error("Every chapter needs a title.");
 
       if (outline.length > 0) {
-        const { error: insError } = await supabase.from('chapters').insert(
-          outline.map(ch => ({
+        const { error: insError } = await supabase.from('chapters').upsert(
+          outline.map((ch, index) => ({
+            id: ch.id,
             book_id: book.id,
             title: ch.title,
-            content: '', // Start empty
-            order_index: ch.order_index,
-            ai_contribution: { outline_description: ch.description }
+            content: ch.content || '',
+            order_index: index,
+            ai_contribution: { ...ch.ai_contribution, outline_description: ch.description }
           }))
         );
         if (insError) throw insError;
       }
 
+      const removed = savedIds.filter(id => !outline.some(ch => ch.id === id));
+      if (removed.length) {
+        const { error } = await supabase.from('chapters').delete().eq('book_id', book.id).in('id', removed);
+        if (error) throw error;
+      }
       addToast('Outline saved successfully', 'success');
-      onNext();
+      setSavedIds(outline.map(ch => ch.id));
+      await onNext();
     } catch (error: any) {
       addToast(error.message || 'Failed to save outline', 'error');
     } finally {
       setIsSaving(false);
     }
   };
+
+  if (loadFailed) return <GlassCard className="p-8"><p role="alert">Could not load chapters.</p><GlassButton onClick={fetchOutline}>Retry</GlassButton></GlassCard>;
 
   return (
     <div className="h-full overflow-y-auto pb-24 px-4 sm:px-0">
@@ -140,16 +155,17 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
             <div>
               <h2 className="text-xl font-bold text-white mb-1">Book Outline</h2>
               <p className="text-slate-400 text-sm">
-                Define your chapters before writing. Use AI to brainstorm a structure based on your synopsis.
+                Define your chapters before writing. Add chapters manually or start with an editable template.
               </p>
             </div>
             <GlassButton
-              onClick={generateAIOutline}
+              disabled={isLoading || isSaving}
+              onClick={addStarterOutline}
               isLoading={isGenerating}
               className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate with AI
+              Add Starter Template
             </GlassButton>
           </div>
         </GlassCard>
@@ -170,8 +186,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
           ) : (
             outline.map((chapter, index) => (
               <GlassCard key={chapter.id} className="p-4 flex gap-4 group">
-                <div className="flex flex-col items-center justify-center text-slate-500 cursor-grab active:cursor-grabbing hover:text-white transition-colors">
-                  <GripVertical className="w-5 h-5" />
+                <div className="flex flex-col items-center justify-center text-slate-500">
                   <span className="text-xs font-bold mt-1">{index + 1}</span>
                 </div>
 
@@ -192,6 +207,8 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
 
                 <div className="flex items-start">
                   <button
+                    aria-label={`Remove ${chapter.title}`}
+                    title="Removes this chapter and its prose when you save the outline"
                     onClick={() => removeChapter(chapter.id)}
                     className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                   >
@@ -218,7 +235,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Setup
           </GlassButton>
 
-          <GlassButton onClick={handleSaveAndContinue} isLoading={isSaving} disabled={outline.length === 0}>
+          <GlassButton onClick={handleSaveAndContinue} isLoading={isSaving} disabled={isLoading || isGenerating || outline.length === 0}>
             Save & Write Content <ArrowRight className="w-4 h-4 ml-2" />
           </GlassButton>
         </div>

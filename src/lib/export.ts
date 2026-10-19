@@ -9,7 +9,7 @@ interface ExportData {
   isbn?: string;
 }
 
-export async function exportToPDF(data: ExportData, tier: string = 'free') {
+export function buildPDF(data: ExportData, tier: string = 'free') {
   // A5 format: 148 x 210 mm
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -23,11 +23,11 @@ export async function exportToPDF(data: ExportData, tier: string = 'free') {
   // Title Page
   doc.setFont('times', 'bold');
   doc.setFontSize(28);
-  doc.text(data.title, 148 / 2, 80, { align: 'center' });
+  doc.text(doc.splitTextToSize(data.title, 118), 74, 50, { align: 'center' });
 
   doc.setFont('times', 'normal');
   doc.setFontSize(14);
-  doc.text(`By ${data.author}`, 148 / 2, 100, { align: 'center' });
+  doc.text(doc.splitTextToSize(`By ${data.author}`, 118), 74, 130, { align: 'center' });
 
   if (data.isbn) {
     doc.setFontSize(10);
@@ -42,8 +42,13 @@ export async function exportToPDF(data: ExportData, tier: string = 'free') {
     // Chapter Title
     doc.setFont('times', 'bold');
     doc.setFontSize(20);
-    doc.text(chapter.title, 148 / 2, currentY, { align: 'center' });
-    currentY += 20;
+    const heading: string[] = doc.splitTextToSize(chapter.title, 118);
+    for (const line of heading) {
+      if (currentY > 185) { doc.addPage(); currentY = margins.top; }
+      doc.text(line, 74, currentY, { align: 'center' });
+      currentY += 9;
+    }
+    currentY += 10;
 
     // Chapter Content
     doc.setFont('times', 'normal');
@@ -71,7 +76,11 @@ export async function exportToPDF(data: ExportData, tier: string = 'free') {
     }
   }
 
-  doc.save(`${data.title.replace(/\s+/g, '_')}_A5_Print.pdf`);
+  return doc;
+}
+
+export async function exportToPDF(data: ExportData, tier: string = 'free') {
+  buildPDF(data, tier).save(`${data.title.replace(/\s+/g, '_')}_A5_Print.pdf`);
 }
 
 export async function exportToEPUB(data: ExportData) {

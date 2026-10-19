@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useBookStore } from '../../store/useBookStore';
 import { GlassButton } from '../../components/ui/GlassButton';
 import { Settings, List, PenTool, Image as ImageIcon, Download, CheckCircle2 } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
+import { useToastStore } from '../../store/useToastStore';
 
 // Step components
 import { BookSetup } from './steps/BookSetup';
@@ -25,7 +25,10 @@ export function BookWizard() {
   const navigate = useNavigate();
   const { books, fetchBooks } = useBookStore();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedStep = Number(searchParams.get('step') || 1);
+  const currentStep = Number.isInteger(requestedStep) && requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1;
+  const setCurrentStep = (step: number) => setSearchParams({ step: String(step) });
   const [isLoading, setIsLoading] = useState(true);
 
   // Find current book
@@ -34,7 +37,7 @@ export function BookWizard() {
   useEffect(() => {
     const loadBook = async () => {
       setIsLoading(true);
-      if (books.length === 0) {
+      if (!books.some(b => b.id === id)) {
         await fetchBooks();
       }
       setIsLoading(false);
@@ -61,7 +64,6 @@ export function BookWizard() {
 
   const handleNextStep = async () => {
     if (currentStep < 5) {
-      setCurrentStep(prev => prev + 1);
 
       // Update book status progressively
       const statusMap = {
@@ -73,20 +75,18 @@ export function BookWizard() {
       } as const;
 
       try {
-        await supabase
-          .from('books')
-          .update({ status: statusMap[currentStep as keyof typeof statusMap] })
-          .eq('id', book.id);
-        fetchBooks(); // Refresh state silently
+        await useBookStore.getState().updateBook(book.id, { status: statusMap[currentStep as keyof typeof statusMap] });
+        setCurrentStep(currentStep + 1);
       } catch (err) {
-        console.error("Failed to update status", err);
+        useToastStore.getState().addToast('Could not save progress. Please try again.', 'error');
+        console.error(err);
       }
     }
   };
 
   const handlePrevStep = () => {
     if (currentStep > 1) {
-      setCurrentStep(prev => prev - 1);
+      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -131,8 +131,8 @@ export function BookWizard() {
       </div>
 
       {/* Step Content Area */}
-      <div className="flex-1 min-h-0 relative">
-        {currentStep === 1 && <BookSetup book={book} onNext={handleNextStep} />}
+      <div key={book.id} className="flex-1 min-h-0 relative">
+        {currentStep === 1 && <BookSetup key={book.id} book={book} onNext={handleNextStep} />}
         {currentStep === 2 && <OutlineGenerator book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 3 && <ChapterEditor book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 4 && <CoverDesigner book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
