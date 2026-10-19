@@ -33,7 +33,7 @@ export function CookieNotice() {
   return <section className="puble-cookie" aria-label="Cookie and browser storage notice">
     <div className="puble-cookie-intro">
       <img src="/cookie-icon.jpg" width="48" height="48" alt="" />
-      <div><h2>A little storage. A clear choice.</h2><p>We use necessary browser storage for sign-in, requested settings, and draft recovery. No optional analytics or advertising cookies are enabled by this app.</p></div>
+      <div><h2>{details ? 'Cookie settings' : 'A little storage. A clear choice.'}</h2><p>We use necessary browser storage for sign-in, requested settings, and draft recovery. No optional analytics or advertising cookies are enabled by this app.</p></div>
     </div>
     {details && <div className="puble-cookie-details">
       <p><strong>Necessary storage · always active</strong><br />Keeps your session working, remembers settings you save, and recovers chapter drafts in this tab. This notice remembers your choice on this browser for up to 180 days.</p>
