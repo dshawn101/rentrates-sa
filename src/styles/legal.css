@@ -41,3 +41,23 @@
 @media(max-width:400px) { .puble-footer-grid { grid-template-columns: 1fr; } }
 
 .puble-footer-brand .puble-brand { color: #fff; }
+
+.puble-cookie-launcher {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 65;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  border: 1px solid #c196ff6b;
+  background: #24172fee;
+  box-shadow: 0 6px 24px #0006, inset 0 1px 0 #ffffff20;
+  cursor: pointer;
+}
+.puble-cookie-launcher img { background: #fff; padding: 3px; border-radius: 8px; }
+.puble-cookie-launcher:hover { background: #392449; }
+.puble-cookie-launcher:focus-visible { outline: 2px solid #e0bdff; outline-offset: 4px; }

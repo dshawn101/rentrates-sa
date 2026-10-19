@@ -25,7 +25,10 @@ export function CookieNotice() {
     setExplicitlyOpened(false);
   };
   const publicPage = pathname === '/' || pathname.startsWith('/legal/');
-  if (!visible || (!publicPage && !explicitlyOpened)) return null;
+  if (!publicPage && !explicitlyOpened) return null;
+  if (!visible) return <button type="button" className="puble-cookie-launcher" aria-label="Open cookie settings" title="Cookie settings" onClick={() => { setVisible(true); setDetails(true); setStorageError(false); }}>
+    <img src="/cookie-icon.jpg" width="28" height="28" alt="" />
+  </button>;
 
   return <section className="puble-cookie" aria-label="Cookie and browser storage notice">
     <div className="puble-cookie-intro">
@@ -39,7 +42,7 @@ export function CookieNotice() {
     </div>}
     {storageError && <p role="alert" className="puble-cookie-error">Your browser could not save this choice. Necessary-only mode still applies. You can dismiss this notice for this visit.</p>}
     <div className="puble-cookie-actions">
-      {!details && <button type="button" onClick={() => setDetails(true)}>Review storage</button>}
+      {!details && <button type="button" onClick={() => setDetails(true)} aria-expanded={details}>Cookie settings</button>}
       <button type="button" onClick={save}>{details ? 'Save & close' : 'Necessary only'}</button>
       {storageError && <button type="button" onClick={() => { setVisible(false); setExplicitlyOpened(false); }}>Dismiss for this visit</button>}
       {!details && <Link to="/legal/cookies">Cookie Policy</Link>}
