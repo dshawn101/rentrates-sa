@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { ToastContainer } from './components/ui/ToastContainer';
+
+import { Welcome } from './pages/Welcome';
 
 // Public Pages
 import { Login } from './pages/auth/Login';
@@ -20,7 +22,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Welcome />} />
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/signup" element={<Signup />} />
           <Route path="/transparency" element={<Transparency />} />

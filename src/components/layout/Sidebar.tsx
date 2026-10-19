@@ -1,3 +1,4 @@
+import { Brand } from '../ui/Brand';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
 import { totalBookWords } from '../../lib/book-stats';
@@ -49,12 +50,7 @@ export function Sidebar() {
       >
         <div className="h-16 flex items-center px-6 border-b border-white/5">
           <Link to="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-purple-800 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
-            </div>
-            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-primary">
-              Puble
-            </span>
+            <Brand />
           </Link>
         </div>
 
