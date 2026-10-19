@@ -130,7 +130,7 @@ export function ChapterEditor({ book, onNext, onPrev }: ChapterEditorProps) {
          rephrase: `Rewrite the following text in a slightly different style: \n\n${selectedChapter.content}`
       };
 
-      const { text, providerUsed } = await MultiProviderAI.generate(promptMap[action], { provider: 'openrouter' }); // Try openrouter first for these actions if available
+      const { text, providerUsed } = await MultiProviderAI.generate(promptMap[action]);
 
       let newContent = selectedChapter.content;
       if (action === 'expand') newContent += `\n\n${text}`;

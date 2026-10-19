@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+import { PROVIDERS, readCredential, useIntegrationStore } from '../store/useIntegrationStore';
 import { totalBookWords } from '../lib/book-stats';
 import { useState } from 'react';
 import { useBookStore } from '../store/useBookStore';
@@ -12,6 +14,10 @@ import { GlassInput } from '../components/ui/GlassInput';
 export function Dashboard() {
   const { books, isLoading, error, fetchBooks, createBook, deleteBook, duplicateBook } = useBookStore();
   const navigate = useNavigate();
+  const integrations = useIntegrationStore();
+  const provider = PROVIDERS.find(p => p.id === integrations.provider)!;
+  const hasKey = !!readCredential(integrations.provider);
+  const latestBook = books[0];
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newBookTitle, setNewBookTitle] = useState('');
@@ -53,6 +59,11 @@ export function Dashboard() {
       </div>
 
       {error && <GlassCard className="p-6 border-amber-500/30"><p role="alert" className="text-amber-200">{error}</p><GlassButton variant="secondary" onClick={fetchBooks}>Retry loading books</GlassButton></GlassCard>}
+
+      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-5">
+        <GlassCard className="p-7 bg-gradient-to-br from-emerald-400/[0.07] to-transparent"><p className="text-xs text-emerald-300 uppercase tracking-[.18em]">Your next chapter</p><h2 className="text-2xl font-semibold text-white mt-3">{latestBook ? 'Pick up where you left off' : 'Start with an idea'}</h2><p className="text-sm text-slate-400 mt-3">{latestBook ? latestBook.title : 'Plan chapters, write at your pace, and bring your own cover.'}</p><div className="flex flex-wrap gap-4 mt-5">{latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div></GlassCard>
+        <GlassCard className="p-7"><div className="flex justify-between items-center"><h2 className="text-white font-semibold">Your AI setup</h2><span className={`text-xs ${hasKey ? 'text-emerald-300' : 'text-slate-500'}`}>{hasKey && integrations.providers[integrations.provider].testedAt ? 'Key verified' : hasKey ? 'Key saved · untested' : 'Optional'}</span></div><p className="text-xl text-white mt-4">{provider.name}</p><p className="text-xs text-slate-400 mt-2 break-all">{integrations.providers[integrations.provider].model}</p><p className="text-sm text-slate-400 mt-4">{hasKey ? 'Writing requests use your selected provider and API credits.' : 'Add your own key for AI assistance. Manual writing and cover upload work without one.'}</p><Link to="/settings?section=providers" className="inline-flex text-emerald-300 text-sm mt-5">{hasKey ? 'Manage AI settings →' : 'Set up AI assistance →'}</Link></GlassCard>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -134,6 +145,7 @@ export function Dashboard() {
                 updatedAt={book.updated_at}
                 wordCount={book.wordCount || 0}
                 coverUrl={book.metadata?.coverUrl}
+                coverPath={book.metadata?.coverPath}
                 onDelete={deleteBook}
                 onDuplicate={duplicateBook}
               />

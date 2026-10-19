@@ -1,3 +1,4 @@
+import { useIntegrationStore } from '../store/useIntegrationStore';
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase, handleSupabaseError, supabaseConfigError } from '../lib/supabase'
@@ -46,6 +47,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!active) return
       authEventReceived = true
       window.clearTimeout(timeout)
+      useIntegrationStore.getState().configureOwner(nextSession?.user?.id || null)
       setSession(nextSession)
       setUser(nextSession?.user ?? null)
       setAuthError(null)
@@ -54,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getSession().then(({ data, error }) => {
       if (!active || authEventReceived) return
       if (error) throw error
+      useIntegrationStore.getState().configureOwner(data.session?.user?.id || null)
       setSession(data.session)
       setUser(data.session?.user ?? null)
     }).catch(() => {

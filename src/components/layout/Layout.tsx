@@ -1,3 +1,4 @@
+import { useIntegrationStore } from '../../store/useIntegrationStore';
 import { useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
@@ -14,9 +15,10 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
   const { user } = useAuth();
   const fetchBooks = useBookStore(state => state.fetchBooks);
   useEffect(() => {
+    useIntegrationStore.getState().configureOwner(user?.id || null);
     useBookStore.getState().reset();
     if (user?.id) void fetchBooks();
-    return () => { useBookStore.getState().reset(); };
+    return () => { useBookStore.getState().reset(); useIntegrationStore.getState().configureOwner(null); };
   }, [user?.id, fetchBooks]);
   return (
     <div className="min-h-screen bg-[#0f0c1b] text-slate-100 flex overflow-hidden">

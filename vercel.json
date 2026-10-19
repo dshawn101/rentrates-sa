@@ -11,10 +11,17 @@
       },
       "continue": true
     },
-    { "handle": "filesystem" },
+    {
+      "handle": "filesystem"
+    },
     {
       "src": "/(.*)",
       "dest": "/index.html"
     }
-  ]
+  ],
+  "functions": {
+    "api/ai.ts": {
+      "maxDuration": 180
+    }
+  }
 }
