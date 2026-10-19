@@ -79,7 +79,7 @@ export function buildPDF(data: ExportData, tier: string = 'free') {
        doc.setFont('times', 'italic');
        doc.setFontSize(8);
        doc.setTextColor(200, 200, 200);
-       doc.text("Generated with Puble Studio Free Tier", 148 / 2, 205, { align: 'center' });
+       doc.text("Generated with Publé Studio Free Tier", 148 / 2, 205, { align: 'center' });
        doc.setTextColor(0, 0, 0); // reset
     }
   }

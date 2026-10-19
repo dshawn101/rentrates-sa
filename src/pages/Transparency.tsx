@@ -10,7 +10,7 @@ export function Transparency() {
       <div>
         <span className="inline-flex px-3 py-1 text-xs font-semibold tracking-wide rounded-full bg-purple-400/10 text-purple-200 border border-purple-400/25">FREE BETA · AVAILABLE NOW</span>
         <h2 className="text-2xl font-semibold text-white mt-4">Free beta access. Optional AI costs are separate.</h2>
-        <p className="mt-3 text-sm leading-7">PubleStudio is not charging a subscription during this beta. There is no paid checkout or automatic paid trial.</p>
+        <p className="mt-3 text-sm leading-7">PubléStudio is not charging a subscription during this beta. There is no paid checkout or automatic paid trial.</p>
       </div>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">Included in the current beta</h3>
@@ -19,7 +19,7 @@ export function Transparency() {
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">You pay your provider only when you use its AI</h3>
         <p className="mt-2 text-sm leading-7">Bring your own Gemini, OpenAI, or OpenRouter API key for optional writing assistance. OpenAI artwork generation also uses your provider account. Your provider sets the rates and may charge API credits; a chat-app subscription does not include those credits.</p>
-        <p className="mt-2 text-sm text-slate-400 leading-7">PubleStudio does not currently track tokens or estimate AI costs. Check your provider dashboard for actual usage and charges.</p>
+        <p className="mt-2 text-sm text-slate-400 leading-7">PubléStudio does not currently track tokens or estimate AI costs. Check your provider dashboard for actual usage and charges.</p>
       </section>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">Why paid tiers are disabled</h3>

@@ -23,7 +23,7 @@ export function Welcome() {
   return <div className="welcome">
     <a className="welcome-skip" href="#main">Skip to content</a>
     <header className="welcome-nav welcome-container">
-      <Link to="/" aria-label="PubleStudio home"><Brand /></Link>
+      <Link to="/" aria-label="PubléStudio home"><Brand /></Link>
       <nav aria-label="Main navigation"><a className="welcome-desktop-link" href="#how-it-works">How it works</a><a className="welcome-desktop-link" href="#questions">Questions</a><Link className="welcome-signin" to={user ? '/dashboard' : '/auth/login'}>{user ? 'My dashboard' : 'Sign in'} <ArrowRight size={16} /></Link></nav>
     </header>
     <main id="main">
