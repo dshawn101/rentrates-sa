@@ -99,7 +99,8 @@
 .welcome-typewriter-fixed, .welcome-typewriter-line { display: block; }
 .welcome-typewriter-line {
   min-height: 1.08em;
-  color: #c4a0ef;
+  color: #35c8ac;
+  font-style: italic;
   white-space: nowrap;
   font-size: inherit;
   font-weight: inherit;
@@ -110,7 +111,7 @@
   height: .72em;
   margin-left: 8px;
   vertical-align: -.02em;
-  background: #d9b8ff;
+  background: #35c8ac;
   animation: puble-caret-blink 1s step-end infinite;
 }
 @keyframes puble-caret-blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
