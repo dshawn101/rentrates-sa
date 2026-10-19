@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Brand } from '../components/ui/Brand';
 import { PublicFooter } from '../components/legal/PublicFooter';
@@ -54,6 +55,12 @@ const policies: Record<string, { title: string; intro: string; sections: { title
 export function Legal() {
   const { document = '' } = useParams();
   const policy = policies[document];
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const previousTitle = window.document.title;
+    window.document.title = `${policy?.title || 'Page not found'} — PubleStudio`;
+    return () => { window.document.title = previousTitle; };
+  }, [document, policy?.title]);
   return <div className="welcome puble-legal-page">
     <header className="welcome-nav welcome-container"><Link to="/" aria-label="PubleStudio home"><Brand /></Link><Link className="welcome-signin" to="/">Back to home</Link></header>
     <main className="puble-legal-content welcome-container">

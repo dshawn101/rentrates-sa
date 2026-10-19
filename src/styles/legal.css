@@ -39,3 +39,5 @@
  .puble-legal-content { padding: 40px 0 55px; }
 }
 @media(max-width:400px) { .puble-footer-grid { grid-template-columns: 1fr; } }
+
+.puble-footer-brand .puble-brand { color: #fff; }
