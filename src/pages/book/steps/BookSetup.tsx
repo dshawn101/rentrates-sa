@@ -47,7 +47,8 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
     genre: book.metadata?.genre || useIntegrationStore.getState().preferences.genre,
     targetWordCount: book.metadata?.targetWordCount || useIntegrationStore.getState().preferences.targetWordCount,
     tone: book.metadata?.tone || useIntegrationStore.getState().preferences.tone,
-    synopsis: book.metadata?.synopsis || ''
+    synopsis: book.metadata?.synopsis || '',
+    bookNotes: book.metadata?.bookNotes || ''
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -76,7 +77,8 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
             genre: formData.genre,
             targetWordCount: targetWordCount,
             tone: formData.tone,
-            synopsis: formData.synopsis
+            synopsis: formData.synopsis,
+            bookNotes: formData.bookNotes
           }
         });
 
@@ -102,6 +104,7 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
           </div>
 
           <div className="space-y-6">
+            <GlassTextArea label="Book notes / voice guide (optional)" name="bookNotes" value={formData.bookNotes} onChange={handleChange} maxLength={20000} placeholder="Character details, research reminders, continuity notes or how you want your writing to sound. These notes are not exported; AI receives them only if you explicitly include them in the editor."/>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <GlassInput
                 label="Book Title *"

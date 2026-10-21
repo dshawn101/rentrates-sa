@@ -14,7 +14,7 @@ export function Transparency() {
       </div>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">Included in the current beta</h3>
-        <p className="mt-2 text-sm leading-7">Book setup, chapter planning, manual writing and saving, private cover imports, and manuscript PDF export. Free-tier PDFs include a watermark. No AI key is needed for these features.</p>
+        <p className="mt-2 text-sm leading-7">Book setup, manuscript import (DOCX, TXT and Markdown), chapter planning and reordering, writing with autosave and saved history, private cover imports, and DOCX, EPUB, PDF, TXT and Markdown export. Free-tier PDFs include a watermark. No AI key is needed for these features.</p>
       </section>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">You pay your provider only when you use its AI</h3>
@@ -26,7 +26,7 @@ export function Transparency() {
         <p className="mt-2 text-sm leading-7">Paid tiers are not available to purchase during beta. Checkout, subscription updates, and paid feature access are not connected yet. Upgrades will open when the full purchase-to-access process is ready.</p>
         <p className="mt-2 text-sm text-purple-200 leading-7">Disabled tiers are previews, not active offers. No paid price, trial, or launch date is confirmed here.</p>
       </section>
-      <p className="border-t border-white/10 pt-5 text-xs text-slate-400 leading-6">PDF is a manuscript export; check printer or publishing-platform requirements separately. EPUB and DOCX are not available yet. <Link to="/legal/privacy" className="text-purple-300 underline underline-offset-4">How your data and AI keys are handled</Link></p>
+      <p className="border-t border-white/10 pt-5 text-xs text-slate-400 leading-6">Imports preserve text and basic formatting, not complex page layouts, comments or footnotes. DOCX is for further editing; EPUB is reflowable; PDF is a reading copy. Check publishing-platform requirements separately. Cloud history keeps the last 50 changed text versions per chapter; device drafts are not a full offline mode. <Link to="/legal/privacy" className="text-purple-300 underline underline-offset-4">How your data and AI keys are handled</Link></p>
     </GlassCard>
   </Container>;
 }

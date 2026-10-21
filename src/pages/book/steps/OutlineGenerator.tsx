@@ -1,3 +1,5 @@
+import { ManuscriptImport } from '../../../components/book/ManuscriptImport';
+import type { ContentFormat } from '../../../lib/manuscript-format';
 import { useState, useEffect } from 'react';
 import type { Book } from '../../../store/useBookStore';
 import { GlassCard } from '../../../components/ui/GlassCard';
@@ -19,6 +21,9 @@ interface ChapterOutline {
   description: string;
   order_index: number;
   content?: string;
+  revision?: number;
+  format?: ContentFormat;
+  deleted_at?: string | null;
   ai_contribution?: Record<string, unknown>;
 }
 
@@ -27,6 +32,8 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
   const [outline, setOutline] = useState<ChapterOutline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  const [archived,setArchived] = useState<ChapterOutline[]>([]);
+  const [baseline,setBaseline] = useState<ChapterOutline[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,23 +47,18 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
     setLoadFailed(false);
     const { data, error } = await supabase
       .from('chapters')
-      .select('*')
+      .select('id,title,content,content_format,revision,deleted_at,order_index,ai_contribution')
       .eq('book_id', book.id)
       .order('order_index', { ascending: true });
 
     if (!error && data) {
-      setSavedIds(data.map(ch => ch.id));
-      setOutline(data.map(ch => ({
-        id: ch.id,
-        content: ch.content,
-        ai_contribution: ch.ai_contribution,
-        title: ch.title,
-        description: ch.ai_contribution?.outline_description || '',
-        order_index: ch.order_index
-      })));
+      const rows:ChapterOutline[]=data.map(ch=>({id:ch.id,content:ch.content,format:ch.content_format,revision:ch.revision,deleted_at:ch.deleted_at,ai_contribution:ch.ai_contribution,title:ch.title,description:ch.ai_contribution?.outline_description || '',order_index:ch.order_index}));
+      const active=rows.filter(ch=>!ch.deleted_at);
+      setSavedIds(active.map(ch=>ch.id));setBaseline(active);setOutline(active);setArchived(rows.filter(ch=>ch.deleted_at));
     }
     if (error) setLoadFailed(true);
     setIsLoading(false);
+    return !error;
   };
 
   const addStarterOutline = async () => {
@@ -114,27 +116,15 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
       if (isLoading || loadFailed) return;
       if (!outline.length || outline.some(ch => !ch.title.trim())) throw new Error("Every chapter needs a title.");
 
-      if (outline.length > 0) {
-        const { error: insError } = await supabase.from('chapters').upsert(
-          outline.map((ch, index) => ({
-            id: ch.id,
-            book_id: book.id,
-            title: ch.title,
-            content: ch.content || '',
-            order_index: index,
-            ai_contribution: { ...ch.ai_contribution, outline_description: ch.description }
-          }))
-        );
-        if (insError) throw insError;
-      }
+      const {error}=await supabase.rpc('save_book_outline',{
+        p_book:book.id,p_known_ids:savedIds,
+        p_items:outline.map(ch=>({id:ch.id,title:ch.title,description:ch.description,revision:ch.revision??null,content:ch.content||'',format:ch.format||'plain'})),
+        p_removed:baseline.filter(ch=>!outline.some(item=>item.id===ch.id)).map(ch=>({id:ch.id,revision:ch.revision})),
+      });
+      if(error)throw error;
+      if(!await fetchOutline())throw new Error('Outline saved, but it could not be reloaded. Retry loading before continuing.');
+      addToast('Outline saved. Removed chapters are archived, not deleted.', 'success');
 
-      const removed = savedIds.filter(id => !outline.some(ch => ch.id === id));
-      if (removed.length) {
-        const { error } = await supabase.from('chapters').delete().eq('book_id', book.id).in('id', removed);
-        if (error) throw error;
-      }
-      addToast('Outline saved successfully', 'success');
-      setSavedIds(outline.map(ch => ch.id));
       await onNext();
     } catch (error: any) {
       addToast(error.message || 'Failed to save outline', 'error');
@@ -170,6 +160,8 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
           </div>
         </GlassCard>
 
+        <ManuscriptImport disabled={isLoading||isSaving||loadFailed} onImport={chapters=>setOutline(prev=>[...prev,...chapters.map((ch,i)=>({id:crypto.randomUUID(),title:ch.title,content:ch.content,format:ch.format,description:'',order_index:prev.length+i}))])}/>
+        {archived.length>0&&<details className="border border-white/10 rounded-xl p-4"><summary className="text-purple-200 cursor-pointer">Archived chapters · restore from here</summary>{archived.filter(ch=>!outline.some(item=>item.id===ch.id)).map(ch=><div key={ch.id} className="flex justify-between gap-3 mt-3"><span className="text-slate-300">{ch.title}</span><GlassButton size="sm" variant="secondary" onClick={()=>setOutline(prev=>[...prev,{...ch,deleted_at:null,order_index:prev.length}])}>Restore to outline</GlassButton></div>)}</details>}
         {/* Outline Editor */}
         <div className="space-y-4">
           {isLoading ? (
@@ -188,6 +180,8 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
               <GlassCard key={chapter.id} className="p-4 flex gap-4 group">
                 <div className="flex flex-col items-center justify-center text-slate-500">
                   <span className="text-xs font-bold mt-1">{index + 1}</span>
+                  <button aria-label={`Move ${chapter.title} up`} disabled={index===0||isSaving} onClick={()=>setOutline(prev=>{const next=[...prev];[next[index-1],next[index]]=[next[index],next[index-1]];return next;})} className="p-2 disabled:opacity-20">↑</button>
+                  <button aria-label={`Move ${chapter.title} down`} disabled={index===outline.length-1||isSaving} onClick={()=>setOutline(prev=>{const next=[...prev];[next[index],next[index+1]]=[next[index+1],next[index]];return next;})} className="p-2 disabled:opacity-20">↓</button>
                 </div>
 
                 <div className="flex-1 space-y-3">
@@ -208,7 +202,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
                 <div className="flex items-start">
                   <button
                     aria-label={`Remove ${chapter.title}`}
-                    title="Removes this chapter and its prose when you save the outline"
+                    title="Archives this chapter when you save; it can be restored later"
                     onClick={() => removeChapter(chapter.id)}
                     className="p-2 text-slate-500 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                   >

@@ -1,5 +1,7 @@
-export function countWords(content: string | null | undefined): number {
-  return content?.trim().split(/\s+/).filter(Boolean).length || 0;
+import {plainManuscript} from './manuscript-format';
+import type {ContentFormat} from './manuscript-format';
+export function countWords(content: string | null | undefined, format:ContentFormat='plain'): number {
+  return plainManuscript(content||'',format).trim().split(/\s+/).filter(Boolean).length;
 }
 
 export function totalBookWords(books: { wordCount?: number }[]): number {

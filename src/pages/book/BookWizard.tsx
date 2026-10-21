@@ -134,7 +134,7 @@ export function BookWizard() {
       <div key={book.id} className="flex-1 min-h-0 relative">
         {currentStep === 1 && <BookSetup key={book.id} book={book} onNext={handleNextStep} />}
         {currentStep === 2 && <OutlineGenerator book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
-        {currentStep === 3 && <ChapterEditor book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
+        {currentStep === 3 && <ChapterEditor initialChapterId={searchParams.get('chapter')||undefined} book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 4 && <CoverDesigner book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 5 && <ExportFormatter book={book} onPrev={handlePrevStep} />}
       </div>

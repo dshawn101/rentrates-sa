@@ -9,13 +9,15 @@ import '../styles/welcome.css';
 const steps = [
   { number: '01', icon: BookOpen, title: 'Give your idea a home.', description: 'Set up your book, shape an outline, and organise your chapters. Start small. Make it yours.' },
   { number: '02', icon: Feather, title: 'Find your writing rhythm.', description: 'Write at your own pace. Connect your own AI provider whenever you want help with a draft or rewrite.' },
-  { number: '03', icon: Download, title: 'Make it a manuscript.', description: 'Import your cover design, bring your chapters together, and download a manuscript PDF.' },
+  { number: '03', icon: Download, title: 'Make it a manuscript.', description: 'Bring an existing DOCX or text manuscript, add your own cover, and download DOCX, EPUB, PDF or text.' },
 ];
 const questions = [
-  ['Do I need an AI key to start?', 'No. You can plan, write, and export without AI. Connect a Gemini, OpenAI, or OpenRouter API key only when you want AI assistance.'],
+  ['Do I need an AI key to start?', 'No. You can plan, write, and export without AI. Connect your preferred provider only when you want AI assistance.'],
   ['How does AI billing work?', 'AI is optional. When you connect your own API key, your chosen provider bills your usage. Provider charges are separate from the app; a ChatGPT subscription does not include API credits. You can remember provider keys on this device, or choose session-only use. Remembered keys survive refresh and sign-out until you forget them or clear site data.'],
   ['Can I use a cover I already designed?', 'Yes. Upload a PNG, JPG, or WebP front cover, including a design made in Canva or another tool. You can also skip the cover and add one later.'],
-  ['What can I export?', 'You can download a manuscript PDF. Free-tier exports include a watermark. EPUB, DOCX, and direct publishing are not available yet; print production requirements need a separate check.'],
+  ['Can I bring my existing manuscript?', 'Yes. Import DOCX, UTF-8 TXT or Markdown, review the detected chapters, then append them to your outline. Basic headings and emphasis transfer; complex layouts, comments and footnotes do not.'],
+  ['How is my writing saved?', 'The editor autosaves after a pause and keeps a recovery draft on this device. Saved history retains the last 50 changed cloud text versions per chapter. Review AI suggestions before accepting, and download regular backups. Device recovery is not a full offline mode.'],
+  ['What can I export?', 'Download editable DOCX, EPUB, PDF, TXT or Markdown. DOCX and EPUB retain basic formatting; PDF is a reading copy and free-tier PDFs include a watermark. Complex layouts and direct publishing are not supported.'],
 ];
 
 export function Welcome() {
@@ -49,7 +51,7 @@ export function Welcome() {
         { icon: Feather, title: 'Author-led writing', detail: 'Your story. Your voice. Your pace.' },
         { icon: Sparkles, title: 'Optional AI assistance', detail: 'A little help, on your terms.' },
         { icon: Image, title: 'Your own cover designs', detail: 'Bring the cover you love.' },
-        { icon: Download, title: 'Manuscript PDF exports', detail: 'From chapters to a manuscript.' },
+        { icon: Download, title: 'Portable manuscript exports', detail: 'DOCX, EPUB, PDF and text backups.' },
       ].map(({ icon: Icon, title, detail }) => <article className="welcome-feature-glass" key={title}><div className="welcome-feature-icon"><Icon size={23} aria-hidden="true" /></div><h2>{title}</h2><p>{detail}</p></article>)}</div></section>
       <section id="how-it-works" className="welcome-section welcome-container"><div className="welcome-section-heading"><p className="welcome-eyebrow">FROM THE FIRST IDEA TO THE LAST PAGE</p><h2>One book. A few clear steps.</h2><p>You don’t need every answer before you start.<br />Just a place to put the first words.</p></div><div className="welcome-step-grid">{steps.map(({ number, icon: Icon, title, description }) => <article className="welcome-step" key={number}><div className="welcome-step-top"><Icon size={25} /><span>{number}</span></div><h3>{title}</h3><p>{description}</p></article>)}</div></section>
       <section className="welcome-choice welcome-container"><div><p className="welcome-eyebrow">SUPPORT FOR YOUR PROCESS</p><h2>Your creativity.<br />Your choice of tools.</h2><p>Write on your own, or bring your own API key for help drafting, expanding, and rewriting.</p><p>You choose the provider and when to use it.</p><p>Already made a cover you love? Bring it with you. Your writing workflow shouldn’t ask you to start over.</p></div><div className="welcome-tool-card"><span className="welcome-mini-label">KEEP IT SIMPLE</span><div><Feather /><span><strong>Start with your words</strong><small>No AI setup needed to begin.</small></span><Check size={18} /></div><div><Sparkles /><span><strong>Add AI when it helps</strong><small>Gemini · OpenAI · OpenRouter</small></span><Check size={18} /></div><div><Image /><span><strong>Bring your own cover</strong><small>PNG · JPG · WebP</small></span><Check size={18} /></div><p>Provider API usage is billed separately by your provider.</p></div></section>

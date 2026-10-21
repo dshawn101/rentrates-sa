@@ -81,7 +81,7 @@ export function Dashboard() {
               <p>{progress.nextStep}</p>
             </div>}
           </>}
-          <div className="flex flex-wrap gap-4 mt-5">{!error && !isLoading && latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div>
+          <div className="flex flex-wrap gap-4 mt-5">{!error && !isLoading && latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter ? 3 : latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}${latestBook.lastEditedChapter?'&chapter='+encodeURIComponent(latestBook.lastEditedChapter.id):''}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div>
           <DashboardHelper key={`${user?.id}:${firstName}:${latestBook?.id}:${latestBook?.updated_at}:${latestBook?.lastEditedChapter?.updatedAt}:${latestBook?.wordCount}`} book={latestBook} firstName={firstName} unavailable={!!error || isLoading} />
         </GlassCard>
         <GlassCard className="p-7"><div className="flex justify-between items-center"><h2 className="text-white font-semibold">Your AI setup</h2><span className={`text-xs ${hasKey ? 'text-emerald-300' : 'text-slate-500'}`}>{hasKey && integrations.providers[integrations.provider].testedAt ? 'Key verified' : hasKey ? 'Key saved · untested' : 'Optional'}</span></div><p className="text-xl text-white mt-4">{provider.name}</p><p className="text-xs text-slate-400 mt-2 break-all">{integrations.providers[integrations.provider].model}</p><p className="text-sm text-slate-400 mt-4">{hasKey ? 'Writing requests use your selected provider and API credits.' : 'Add your own key for AI assistance. Manual writing and cover upload work without one.'}</p><Link to="/settings?section=providers" className="inline-flex text-emerald-300 text-sm mt-5">{hasKey ? 'Manage AI settings →' : 'Set up AI assistance →'}</Link></GlassCard>
@@ -150,7 +150,7 @@ export function Dashboard() {
             </div>
             <h3 className="text-xl font-semibold text-white mb-2">No projects yet</h3>
             <p className="text-slate-400 max-w-sm mb-6">
-              Create your first book project to plan chapters, write your manuscript, and export a PDF.
+              Create your first book project to plan chapters, write your manuscript, and download an editable document, ebook or PDF.
             </p>
             <GlassButton disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>
               Create First Project

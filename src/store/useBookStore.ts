@@ -44,17 +44,17 @@ export const useBookStore = create<BookStore>((set, get) => ({
     try {
       const { data, error } = await supabase
         .from('books')
-        .select('*, chapters(id, title, content, updated_at, order_index)')
+        .select('*, chapters(id, title, content, content_format, deleted_at, updated_at, order_index)')
         .order('updated_at', { ascending: false });
 
       if (request !== latestBookRequest) return;
       if (error) throw error;
       set({ books: (data || []).map(({ chapters, ...book }) => {
-        const savedChapters = (chapters || []) as { id: string; title: string; content: string | null; updated_at: string; order_index: number }[];
+        const savedChapters = (chapters || []).filter((ch:{deleted_at?:string|null})=>!ch.deleted_at) as { id: string; title: string; content: string | null; content_format?: 'plain'|'markdown'; deleted_at?: string|null; updated_at: string; order_index: number }[];
         const latest = savedChapters.filter(ch => ch.content?.trim() && Number.isFinite(Date.parse(ch.updated_at)))
           .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0];
         return { ...book,
-          wordCount: savedChapters.reduce((sum, chapter) => sum + countWords(chapter.content), 0),
+          wordCount: savedChapters.reduce((sum, chapter) => sum + countWords(chapter.content,chapter.content_format), 0),
           lastEditedChapter: latest ? { id: latest.id, title: latest.title, updatedAt: latest.updated_at, orderIndex: latest.order_index } : undefined,
         };
       }).sort((a, b) => Math.max(Date.parse(b.updated_at) || 0, Date.parse(b.lastEditedChapter?.updatedAt || '') || 0) - Math.max(Date.parse(a.updated_at) || 0, Date.parse(a.lastEditedChapter?.updatedAt || '') || 0)) });
