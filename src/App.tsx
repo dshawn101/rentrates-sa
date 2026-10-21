@@ -14,6 +14,7 @@ import { Signup } from './pages/auth/Signup';
 
 // Protected Pages
 import { Profile } from './pages/Profile';
+import { MyBooks } from './pages/MyBooks';
 import { Dashboard } from './pages/Dashboard';
 import { BookWizard } from './pages/book/BookWizard';
 import { Transparency } from './pages/Transparency';
@@ -34,7 +35,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/books" element={<Dashboard />} />
+            <Route path="/books" element={<MyBooks />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/settings" element={<Profile />} />
