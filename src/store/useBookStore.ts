@@ -7,6 +7,7 @@ export interface Book {
   id: string;
   user_id: string;
   title: string;
+  folder_id?: string|null;
   status: 'draft' | 'outline' | 'writing' | 'formatting' | 'published';
   tier_created: string;
   wordCount?: number;
@@ -23,7 +24,7 @@ interface BookStore {
   reset: () => void;
   setWordCount: (id: string, count: number) => void;
   fetchBooks: () => Promise<void>;
-  createBook: (title: string, metadata?: Record<string, any>) => Promise<Book | null>;
+  createBook: (title: string, metadata?: Record<string, any>, folderId?:string|null) => Promise<Book | null>;
   updateBook: (id: string, changes: Partial<Pick<Book, 'title' | 'metadata' | 'status'>>) => Promise<void>;
   deleteBook: (id: string) => Promise<void>;
   duplicateBook: (id: string) => Promise<void>;
@@ -65,7 +66,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
     }
   },
 
-  createBook: async (title, metadata = {}) => {
+  createBook: async (title, metadata = {}, folderId = null) => {
     set({ isLoading: true });
     try {
       const { data: userResponse } = await supabase.auth.getUser();
@@ -77,6 +78,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
           title,
           user_id: userResponse.user.id,
           metadata,
+          folder_id:folderId,
           status: 'draft',
           tier_created: 'free' // Should ideally pull from profile
         }])
