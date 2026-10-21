@@ -31,3 +31,11 @@ it('does not persist MCP tokens or accept local or credential-bearing MCP endpoi
   expect(validateMCPUrl('https://tools.example/mcp')).toBe('https://tools.example/mcp');
   for (const url of ['http://localhost:3000', 'https://127.0.0.1/mcp', 'https://name:secret@tools.example/mcp', 'https://tools.example/mcp?token=secret']) expect(() => validateMCPUrl(url)).toThrow();
 });
+it('restores Other endpoint preferences without keeping its key after sign-out',()=>{
+  const store=useIntegrationStore.getState();store.configureOwner('author');
+  store.saveProvider('other','model-id','other-secret','https://api.example.com/v1/');store.selectProvider('other');
+  expect(localStorage.getItem('puble:integrations:author')).not.toContain('other-secret');
+  store.configureOwner(null);store.configureOwner('author');
+  expect(useIntegrationStore.getState().providers.other).toMatchObject({model:'model-id',baseUrl:'https://api.example.com/v1'});
+  expect(readCredential('other')).toBe('');
+});

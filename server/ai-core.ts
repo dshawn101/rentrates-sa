@@ -1,16 +1,20 @@
-export type Provider = 'gemini' | 'openai' | 'openrouter';
-export interface AIRequest { provider: Provider; action: 'test' | 'generate' | 'image'; apiKey: string; model?: string; prompt?: string; maxOutputTokens?: number }
+import { normalizeOtherBaseUrl } from '../src/lib/other-provider.js';
+import { sendOther } from './other-provider.js';
+export type Provider = 'gemini' | 'openai' | 'openrouter' | 'anthropic' | 'xai' | 'other';
+export interface AIRequest { provider: Provider; action: 'test' | 'generate' | 'image'; apiKey: string; model?: string; prompt?: string; maxOutputTokens?: number; baseUrl?: string }
 export function validateAIRequest(input: unknown): AIRequest {
   if (!input || typeof input !== 'object') throw new Error('Invalid request.');
   const r = input as AIRequest;
-  if (!['gemini', 'openai', 'openrouter'].includes(r.provider) || !['test', 'generate', 'image'].includes(r.action)) throw new Error('Unsupported provider or action.');
+  if (!['gemini', 'openai', 'openrouter', 'anthropic', 'xai', 'other'].includes(r.provider) || !['test', 'generate', 'image'].includes(r.action)) throw new Error('Unsupported provider or action.');
   if (typeof r.apiKey !== 'string' || r.apiKey.length < 8 || r.apiKey.length > 1024 || /[\r\n]/.test(r.apiKey)) throw new Error('Enter a valid API key.');
   if (r.action !== 'test' && (typeof r.prompt !== 'string' || !r.prompt.trim() || r.prompt.length > 100000)) throw new Error('Enter a prompt of up to 100,000 characters.');
   if (r.action !== 'test' && (typeof r.model !== 'string' || !/^[a-zA-Z0-9_.:/-]{1,160}$/.test(r.model))) throw new Error('Enter a valid model ID.');
   if (r.action === 'image' && (r.provider !== 'openai' || !['gpt-image-1.5', 'gpt-image-1', 'gpt-image-1-mini', 'gpt-image-2'].includes(r.model!))) throw new Error('Choose a supported OpenAI image model.');
+  if (r.provider === 'other') r.baseUrl = normalizeOtherBaseUrl(r.baseUrl);
   return r;
 }
 interface UpstreamResponse {
+  content?: { type?: string; text?: string }[];
   models?: { name: string; supportedGenerationMethods?: string[] }[];
   data?: { id: string; b64_json?: string; architecture?: { output_modalities?: string[] } }[];
   candidates?: { content?: { parts?: { text?: string }[] } }[];
@@ -29,9 +33,20 @@ async function readJSON(response: Response): Promise<UpstreamResponse> {
 }
 export async function runAI(r: AIRequest, send: typeof fetch = fetch) {
   const budget = Math.max(128, Math.min(8000, Number(r.maxOutputTokens) || 2500));
-  const root = r.provider === 'openai' ? 'https://api.openai.com/v1' : 'https://openrouter.ai/api/v1';
+  const root = r.provider === 'openai' ? 'https://api.openai.com/v1' : r.provider === 'xai' ? 'https://api.x.ai/v1' : r.provider === 'other' ? normalizeOtherBaseUrl(r.baseUrl) : 'https://openrouter.ai/api/v1';
+  // Other gets a pinned public-IP transport in production; injected fetch is for tests.
+  if (r.provider === 'other' && send === fetch) send = sendOther;
   const headers: Record<string, string> = { 'Content-Type': 'application/json', Authorization: `Bearer ${r.apiKey}` };
   const options = { redirect: 'error' as const, signal: AbortSignal.timeout(r.action === 'image' ? 170000 : 80000) };
+  if (r.provider === 'anthropic') {
+    const anthropicHeaders = { 'Content-Type':'application/json', 'x-api-key':r.apiKey, 'anthropic-version':'2023-06-01' };
+    if (r.action === 'test') {
+      const data = await readJSON(await send('https://api.anthropic.com/v1/models?limit=100', { ...options, headers:anthropicHeaders }));
+      return { models:(data.data || []).map(m => m.id) };
+    }
+    const data = await readJSON(await send('https://api.anthropic.com/v1/messages', { ...options, method:'POST', headers:anthropicHeaders, body:JSON.stringify({model:r.model,max_tokens:budget,messages:[{role:'user',content:r.prompt}]}) }));
+    return { text:(data.content || []).filter(part=>part.type === 'text').map(part=>part.text || '').join('') };
+  }
   if (r.provider === 'gemini') {
     const googleHeaders = { 'Content-Type': 'application/json', 'x-goog-api-key': r.apiKey };
     if (r.action === 'test') {

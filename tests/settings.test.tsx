@@ -1,11 +1,13 @@
 // @vitest-environment jsdom
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { webcrypto } from 'node:crypto';
+import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { MemoryRouter } from 'react-router-dom';
 import { Settings } from '../src/pages/Settings';
-import { useIntegrationStore } from '../src/store/useIntegrationStore';
+import { useIntegrationStore, waitForCredentials } from '../src/store/useIntegrationStore';
 vi.mock('../src/hooks/useAuth',()=>({useAuth:()=>({user:{email:'author@example.test'},profile:{tier:'free'},signOut:vi.fn()})}));
-beforeEach(()=>{localStorage.clear();useIntegrationStore.getState().configureOwner(null);useIntegrationStore.getState().configureOwner('author');});
+beforeEach(async()=>{vi.stubGlobal('indexedDB',new IDBFactory());vi.stubGlobal('IDBKeyRange',IDBKeyRange);vi.stubGlobal('crypto',webcrypto);localStorage.clear();useIntegrationStore.getState().configureOwner(null);useIntegrationStore.getState().configureOwner('author');await waitForCredentials();});
 afterEach(cleanup);
 it('shows only four author-facing settings sections with advanced tools collapsed',()=>{
   render(<MemoryRouter initialEntries={['/settings']}><Settings/></MemoryRouter>);
@@ -32,7 +34,7 @@ it('only allows saved BYOK providers as defaults and explains the Gemini fallbac
   fireEvent.click(screen.getByText('Save key & model'));
   expect(select.options[0].disabled).toBe(false);
   expect(select.options[1].disabled).toBe(true);
-  expect(screen.getByText(/Gemini fallback key saved/)).toBeTruthy();
+  expect(screen.getByText(/Gemini fallback key available/)).toBeTruthy();
 });
 it('selects a saved provider from the default dropdown',()=>{
   const store=useIntegrationStore.getState();
@@ -41,4 +43,19 @@ it('selects a saved provider from the default dropdown',()=>{
   fireEvent.change(screen.getByLabelText('Default AI provider'),{target:{value:'openai'}});
   expect(useIntegrationStore.getState().provider).toBe('openai');
   expect(screen.getByText('Default AI provider updated.')).toBeTruthy();
+});
+it('offers direct Anthropic and xAI connections and a configurable Other endpoint',()=>{
+ render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
+ fireEvent.click(screen.getByRole('button',{name:/Anthropic.*Use Claude/}));
+ expect(screen.getByLabelText('Anthropic API key')).toBeTruthy();
+ fireEvent.click(screen.getByRole('button',{name:/xAI.*Write with Grok/}));
+ expect(screen.getByLabelText('xAI API key')).toBeTruthy();
+ fireEvent.click(screen.getByRole('button',{name:/Other.*Connect a public/}));
+ fireEvent.change(screen.getByLabelText('API base URL'),{target:{value:'https://api.example.com/v1'}});
+ fireEvent.change(screen.getByLabelText('Other API key'),{target:{value:'other-secret'}});
+ fireEvent.change(screen.getByLabelText('Model ID'),{target:{value:'my-model'}});
+ fireEvent.click(screen.getByText('Save key & model'));
+ expect(useIntegrationStore.getState().providers.other.baseUrl).toBe('https://api.example.com/v1');
+ fireEvent.change(screen.getByLabelText('API base URL'),{target:{value:'https://another.example.com/v1'}});
+ expect((screen.getByLabelText('Other API key') as HTMLInputElement).value).toBe('');
 });

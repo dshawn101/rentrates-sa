@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { readCredential, useIntegrationStore } from '../store/useIntegrationStore';
+import { readCredential, useIntegrationStore, waitForCredentials } from '../store/useIntegrationStore';
 import type { ProviderId } from '../store/useIntegrationStore';
 export type AIProvider = ProviderId;
 class AISessionError extends Error {}
@@ -10,16 +10,20 @@ class AIRequestError extends Error {
 interface GenerationOptions { provider?: ProviderId; modelOverride?: string; temperature?: number }
 export async function requestAI(action: 'test' | 'generate' | 'image', provider: ProviderId, options: { prompt?: string; model?: string; apiKey?: string; maxOutputTokens?: number } = {}) {
   const owner = useIntegrationStore.getState().owner;
+  await waitForCredentials();
   const { data, error } = await supabase.auth.getSession();
   if (useIntegrationStore.getState().owner !== owner) throw new AISessionError('Your account changed. Please try again.');
   if (error || !data.session) throw new AISessionError('Please sign in to use AI tools.');
   const apiKey = options.apiKey ?? readCredential(provider);
-  if (!apiKey) throw new Error(`Add your ${provider} key in Settings → AI Providers. Keys are cleared when you reload or sign out.`);
-  const response = await fetch('/api/ai', {
+  if (!apiKey) throw new Error(`Add your ${provider} key in Settings → AI Providers. You can choose to remember it on this device.`);
+  let response: Response;
+  try { response = await fetch('/api/ai', {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${data.session.access_token}` },
-    body: JSON.stringify({ action, provider, apiKey, ...options }), signal: AbortSignal.timeout(action === 'image' ? 180000 : 90000),
-  });
+    body: JSON.stringify({ action, provider, apiKey, ...options, ...(provider === 'other' ? { baseUrl: useIntegrationStore.getState().providers.other.baseUrl } : {}) }), signal: AbortSignal.timeout(action === 'image' ? 180000 : 90000),
+  }); } catch (error) { if (useIntegrationStore.getState().owner === owner) useIntegrationStore.getState().recordProviderResult(provider, false); throw error; }
   const body = await response.json().catch(() => ({ error: 'The AI service returned an invalid response.' }));
+  if (useIntegrationStore.getState().owner !== owner) throw new AISessionError('Your account changed. Please try again.');
+  if (response.ok || ![400,401,403,413].includes(response.status)) useIntegrationStore.getState().recordProviderResult(provider,response.ok);
   if (!response.ok) throw new AIRequestError(body.error || 'AI request failed.', response.status);
   return body as { text?: string; models?: string[]; image?: string };
 }

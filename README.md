@@ -96,7 +96,7 @@ coverage and is a manuscript export, not guaranteed publisher-specific print out
 
 ### Default writing provider and fallback
 
-In Settings → AI Providers, save a BYOK key and model, then choose **Default AI provider**. This choice is saved per account in this browser; API keys stay in page memory and clear on refresh or sign-out.
+In Settings → AI Providers, save a BYOK key and model, then choose **Default AI provider**. This choice is saved per account in this browser; Provider keys can be remembered in encrypted browser storage or used for the current session only.
 
 Chapter drafting and editing first use the chosen provider. If a non-Gemini provider fails, the app retries once using the author's separate Gemini key and saved Gemini model. On success, Gemini becomes the default and the editor reports the fallback. If Gemini has no key, or both requests fail, the app shows a clear error without changing chapter text or the default. Session and input errors do not trigger fallback. Key tests and cover artwork generation do not fall back. Both attempts may incur provider charges; this feature does not use a platform-funded key.
 
@@ -106,4 +106,18 @@ Settings → Account (also available at Profile Settings) lets authors save a di
 
 Dashboard progress uses saved chapter word counts and the latest non-empty chapter timestamp. Chapter content saves now write `updated_at`; merely continuing without edits does not update it. Books are ranked by their latest book or chapter activity, and dashboard entry reloads saved progress. No edit-history or word-change claims are inferred.
 
-The optional **Suggest my next step** button always uses the author's saved OpenRouter model and session-only OpenRouter key, independently of the writing default. It sends only their first name, bounded book/chapter titles, saved word target/count, stage and last chapter timestamp. It never sends manuscript prose or runs automatically, and it does not switch providers or alter the manuscript. The card discloses prompt sharing and provider billing before use.
+The optional **Suggest my next step** button always uses the author's saved OpenRouter model and OpenRouter key, independently of the writing default. It sends only their first name, bounded book/chapter titles, saved word target/count, stage and last chapter timestamp. It never sends manuscript prose or runs automatically, and it does not switch providers or alter the manuscript. The card discloses prompt sharing and provider billing before use.
+
+### Additional BYOK providers
+
+Anthropic uses its direct Messages API and authenticated model listing; xAI uses its OpenAI-compatible text API. For new connections, Test key lists accessible models without paid generation, then the author saves a chosen model ID. Both participate in the existing single Gemini fallback for chapter writing. The dashboard helper remains OpenRouter-only.
+
+**Other** accepts one public OpenAI-compatible base URL, its own Bearer key, and model ID. The API must support `GET /models` and `POST /chat/completions`. This does not automatically support every vendor's proprietary API, OAuth, local Ollama/LM Studio or private network endpoints. The relay requires HTTPS on port 443, blocks URL credentials/queries/fragments and local/reserved addresses, resolves public IPv4 and pins that address for TLS requests, rejects redirects, limits response size and timeouts. IPv6-only custom services are not supported. Changing the URL clears the key input and requires saving the replacement configuration; non-secret URL/model preferences persist, provider credentials are remembered only when the author chooses that option.
+
+### Remembering provider keys on a device
+
+Each author chooses **Remember this key on this device** when saving or testing a provider. The default checkbox is on and visible before saving. Unchecking it keeps the key in page memory and removes any older remembered copy for that provider. Explicit **Forget key on this device** removes both the remembered copy and current in-memory key. Sign-out clears decrypted page memory but retains remembered ciphertext; signing in as the same account restores it. Keys are device/browser local and are not synced to Supabase.
+
+Remembered keys use AES-256-GCM with fresh IVs and per-record non-extractable Web Crypto keys in IndexedDB, authenticated to account/provider/Other endpoint. Browser origin access can still decrypt/use them: this is not a password-protected vault or an XSS defence. Clearing site data, private-session expiry or browser storage eviction can remove them. MCP tokens retain their existing session-only behaviour. The UI reports storage/restore failures; it does not silently fall back to plaintext storage.
+
+After three consecutive provider request failures, AI Providers shows a nudge to check connection, model permissions, quota/billing and key validity. Success resets the counter. Failures never erase remembered keys. Account-session/input errors do not count as provider failures.

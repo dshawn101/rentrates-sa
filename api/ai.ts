@@ -24,7 +24,7 @@ export default async function handler(req: IncomingMessage & { body?: unknown },
     }
     let input;
     try { input = validateAIRequest(body); } catch (error) { return reply(400, { error: error instanceof Error ? error.message : 'Invalid request.' }); }
-    // User keys are held only for this request, sent only to the selected fixed provider,
+    // User keys are held only for this request, sent only to the selected provider (custom endpoints require public-IP validation),
     // and never logged, cached, written to Supabase, or shared with another provider by this relay.
     return reply(200, await runAI(input));
   } catch (error) {
