@@ -13,7 +13,7 @@ const steps = [
 ];
 const questions = [
   ['Do I need an AI key to start?', 'No. You can plan, write, and export without AI. Connect a Gemini, OpenAI, or OpenRouter API key only when you want AI assistance.'],
-  ['How does AI billing work?', 'AI is optional. When you connect your own API key, your chosen provider bills your usage. Provider charges are separate from the app; a ChatGPT subscription does not include API credits. Keys are held temporarily in memory and clear when you refresh or sign out.'],
+  ['How does AI billing work?', 'AI is optional. When you connect your own API key, your chosen provider bills your usage. Provider charges are separate from the app; a ChatGPT subscription does not include API credits. You can remember provider keys on this device, or choose session-only use. Remembered keys survive refresh and sign-out until you forget them or clear site data.'],
   ['Can I use a cover I already designed?', 'Yes. Upload a PNG, JPG, or WebP front cover, including a design made in Canva or another tool. You can also skip the cover and add one later.'],
   ['What can I export?', 'You can download a manuscript PDF. Free-tier exports include a watermark. EPUB, DOCX, and direct publishing are not available yet; print production requirements need a separate check.'],
 ];
