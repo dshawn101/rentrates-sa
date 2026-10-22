@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { RouteScroll } from './components/navigation/RouteScroll';
 import { AuthProvider } from './hooks/useAuth';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { ToastContainer } from './components/ui/ToastContainer';
@@ -26,6 +27,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <RouteScroll />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Welcome />} />
