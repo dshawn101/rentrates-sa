@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
 import { totalBookWords } from '../../lib/book-stats';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, User, Settings, CreditCard, Menu } from 'lucide-react';
+import { Home, BookOpen, User, Settings, CreditCard, Menu, LifeBuoy } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 
@@ -12,6 +12,7 @@ const navigation = [
   { name: 'My Books', href: '/books', icon: BookOpen },
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Billing & Usage', href: '/billing', icon: CreditCard },
+  { name: 'Contact & Support', href: '/contact', icon: LifeBuoy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
