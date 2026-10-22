@@ -1,0 +1,35 @@
+/* One action colour throughout the app; brand and informational colours stay separate. */
+:root {
+  --button-background: #14b8a6;
+  --button-hover: #45d5bf;
+  --button-foreground: #062c27;
+  --button-focus: #99f6e4;
+}
+:is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin) {
+  background-color: var(--button-background) !important;
+  background-image: none !important;
+  color: var(--button-foreground) !important;
+  border-color: var(--button-background) !important;
+  --tw-ring-color: var(--button-focus);
+  box-shadow: none !important;
+}
+:is(button, summary, a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin) :is(span, p, small, strong, svg) {
+  color: inherit !important;
+}
+:is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin):hover:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--button-hover) !important;
+  border-color: var(--button-hover) !important;
+}
+:is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin):focus-visible {
+  outline: 2px solid var(--button-focus) !important;
+  outline-offset: 3px;
+}
+button:is([aria-pressed='true'], [aria-selected='true'], [aria-current='page'], [aria-current='true']) {
+  outline: 2px solid var(--button-focus);
+  outline-offset: 3px;
+}
+:is(button, input[type='submit'], input[type='button']):disabled,
+:is(a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost)[aria-disabled='true'] {
+  opacity: .5;
+  cursor: not-allowed;
+}
