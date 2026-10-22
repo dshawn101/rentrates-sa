@@ -6,6 +6,7 @@ import { ToastContainer } from './components/ui/ToastContainer';
 import { CookieNotice } from './components/legal/CookieNotice';
 import { Legal } from './pages/Legal';
 import './styles/legal.css';
+import { Features } from './pages/Features';
 import { Contact } from './pages/Contact';
 import { Welcome } from './pages/Welcome';
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/signup" element={<Signup />} />
           <Route path="/legal/:document" element={<Legal />} />
+          <Route path="/features" element={<Features />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/transparency" element={<Transparency />} />
 
