@@ -44,7 +44,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed md:relative w-64 h-screen bg-[#0f0c1b]/80 border-r border-white/10 backdrop-blur-2xl z-40 transition-transform duration-300 ease-in-out transform flex flex-col",
+          "fixed md:relative w-80 max-w-[calc(100vw-1rem)] shrink-0 h-screen bg-[#0f0c1b]/80 border-r border-white/10 backdrop-blur-2xl z-40 transition-transform duration-300 ease-in-out transform flex flex-col",
           isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
