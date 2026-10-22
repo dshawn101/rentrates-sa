@@ -49,7 +49,7 @@ export function ProviderSettings() {
     <div className="grid sm:grid-cols-3 gap-4">{PROVIDERS.map(p => {
       const configured = !!readCredential(p.id);
       const tested = configured && !!settings.providers[p.id].testedAt;
-      return <button key={p.id} disabled={busy || settings.credentialsLoading} onClick={() => choose(p.id)} className={`text-left rounded-2xl border p-5 transition ${editing === p.id ? 'border-emerald-400/60 bg-emerald-400/5' : 'border-white/10 bg-white/[0.025] hover:bg-white/5'}`}>
+      return <button aria-pressed={editing === p.id} key={p.id} disabled={busy || settings.credentialsLoading} onClick={() => choose(p.id)} className={`text-left rounded-2xl border p-5 transition ${editing === p.id ? 'border-emerald-400/60 bg-emerald-400/5' : 'border-white/10 bg-white/[0.025] hover:bg-white/5'}`}>
         <div className="flex justify-between gap-2"><span className="font-semibold text-white">{p.name}</span>{settings.provider === p.id && <span className="text-[10px] text-emerald-300">DEFAULT</span>}</div>
         <p className="text-xs text-slate-400 mt-3 min-h-10">{p.description}</p>
         <span className={`mt-4 inline-flex items-center gap-1 text-xs ${tested ? 'text-emerald-300' : 'text-slate-400'}`}>{tested ? <CheckCircle2 size={13} /> : <KeyRound size={13} />}{tested ? 'Key verified' : configured ? 'Key saved · untested' : 'Needs key'}</span>
