@@ -33,3 +33,24 @@ button:is([aria-pressed='true'], [aria-selected='true'], [aria-current='page'], 
   opacity: .5;
   cursor: not-allowed;
 }
+
+/* FAQ disclosures retain their quiet, transparent treatment. */
+#questions.welcome-faq summary,
+#questions.welcome-faq summary:hover,
+#questions.welcome-faq details[open] summary {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: #fff !important;
+  border-color: #ffffff24 !important;
+}
+.welcome-faq summary span { color: #fff !important; }
+.welcome-faq h2 { color: #fff; }
+.welcome-faq-illustration {
+  display: block;
+  width: min(260px, 100%);
+  height: auto;
+  margin-top: 28px;
+}
+@media (max-width:760px) {
+  .welcome-faq-illustration { width: 180px; margin-top: 20px; }
+}
