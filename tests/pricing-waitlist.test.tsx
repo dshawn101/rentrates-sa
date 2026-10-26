@@ -6,12 +6,12 @@ import {PricingPlans} from '../src/components/pricing/PricingPlans';
 import {joinWaitlist} from '../src/lib/waitlist';
 const mocks=vi.hoisted(()=>({insert:vi.fn()}));
 vi.mock('../src/lib/supabase',()=>({supabase:{from:()=>({insert:mocks.insert})}}));
-beforeEach(()=>{vi.clearAllMocks();mocks.insert.mockResolvedValue({error:null});HTMLElement.prototype.scrollIntoView=vi.fn();});afterEach(cleanup);
+beforeEach(()=>{vi.clearAllMocks();mocks.insert.mockResolvedValue({error:null});HTMLElement.prototype.scrollIntoView=vi.fn();HTMLDialogElement.prototype.showModal=vi.fn(function(this:HTMLDialogElement){this.setAttribute('open','');});HTMLDialogElement.prototype.close=vi.fn(function(this:HTMLDialogElement){this.removeAttribute('open');});});afterEach(cleanup);
 it('offers free signup and Lite interest while keeping higher-tier purchases disabled',()=>{
  render(<MemoryRouter><PricingPlans/></MemoryRouter>);
- expect(screen.getByText('$9')).toBeTruthy();expect(screen.getByText('$19')).toBeTruthy();expect(screen.getByText('$49')).toBeTruthy();expect(screen.getByText('Join free beta').getAttribute('href')).toBe('/auth/signup');
+ expect(screen.getByText('$9')).toBeTruthy();expect(screen.queryByText('$19')).toBeNull();expect(screen.queryByText('$49')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Planned Premium Tiers'}));expect(screen.getByText('$19')).toBeTruthy();expect(screen.getByText('$49')).toBeTruthy();expect(screen.getByText('Join free beta').getAttribute('href')).toBe('/auth/signup');
  for(const name of ['Author plan','Pro plan'])expect((within(screen.getByRole('article',{name})).getByRole('button',{name:'Opens after Product Hunt'}) as HTMLButtonElement).disabled).toBe(true);
- fireEvent.click(screen.getByText('Register Lite beta interest'));expect((screen.getByLabelText('What interests you?') as HTMLSelectElement).value).toBe('lite');
+ fireEvent.click(screen.getByLabelText('Close premium tiers'));fireEvent.click(screen.getByText('Register Lite beta interest'));expect((screen.getByLabelText('What interests you?') as HTMLSelectElement).value).toBe('lite');
 });
 it('records explicit notification consent and does not create an account or subscription',async()=>{
  render(<MemoryRouter><PricingPlans source="landing"/></MemoryRouter>);
@@ -27,4 +27,14 @@ it('rejects missing consent, malformed email and the honeypot before sending',as
  const base={email:'author@example.invalid',interest:'lite' as const,source:'pricing' as const,consent:true};
  for(const change of [{consent:false},{email:'bad'},{website:'spam'}])await expect(joinWaitlist({...base,...change})).rejects.toThrow();
  await waitFor(()=>expect(mocks.insert).not.toHaveBeenCalled());
+});
+
+it('closes premium tiers with cancellation and restores focus to the launcher',()=>{
+ render(<MemoryRouter><PricingPlans/></MemoryRouter>);const trigger=screen.getByRole('button',{name:'Planned Premium Tiers'});
+ fireEvent.click(trigger);const dialog=screen.getByRole('dialog');expect(document.activeElement).toBe(screen.getByLabelText('Close premium tiers'));expect(document.body.style.overflow).toBe('hidden');
+ fireEvent(dialog,new Event('cancel',{bubbles:false,cancelable:true}));expect(screen.queryByRole('dialog')).toBeNull();expect(document.activeElement).toBe(trigger);expect(document.body.style.overflow).toBe('');
+});
+it('routes a premium notification choice back to the existing waitlist and focuses email',()=>{
+ render(<MemoryRouter><PricingPlans/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Planned Premium Tiers'}));fireEvent.click(screen.getByText('Notify me about Pro'));
+ expect(screen.queryByRole('dialog')).toBeNull();expect((screen.getByLabelText('What interests you?') as HTMLSelectElement).value).toBe('pro');expect(document.activeElement).toBe(screen.getByLabelText('Email address'));
 });
