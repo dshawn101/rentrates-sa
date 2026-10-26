@@ -64,6 +64,8 @@ it('keeps the editor open when saving fails', async () => {
 it('exports saved ordered chapters and does not mark the book published', async () => {
   render(<ExportFormatter book={book} onPrev={vi.fn()} />);
   fireEvent.click(screen.getByText('PDF manuscript'));
+  fireEvent.click(screen.getByText('Preview & check saved manuscript'));
+  fireEvent.click(await screen.findByLabelText('I have reviewed this saved manuscript and the format limitations.'));
   fireEvent.click(screen.getByText('Download PDF'));
   await waitFor(() => expect(mocks.pdf).toHaveBeenCalledWith(expect.objectContaining({ title: 'My Book', author: 'Author', chapters: [{ title: 'Opening', content: 'Existing prose',format:'plain' }] }), 'free'));
   expect(update).not.toHaveBeenCalled();
@@ -72,8 +74,9 @@ it('rejects empty chapters instead of downloading an empty manuscript', async ()
   result = { data: [{ ...chapter, content: ' ' }], error: null };
   render(<ExportFormatter book={book} onPrev={vi.fn()} />);
   fireEvent.click(screen.getByText('PDF manuscript'));
-  fireEvent.click(screen.getByText('Download PDF'));
-  await waitFor(() => expect(mocks.toast).toHaveBeenCalledWith(expect.stringContaining('at least one chapter'), 'error'));
+  fireEvent.click(screen.getByText('Preview & check saved manuscript'));
+  await screen.findByText(/1 empty chapters omitted/);
+  expect((screen.getByText('Download PDF').closest('button') as HTMLButtonElement).disabled).toBe(true);
   expect(mocks.pdf).not.toHaveBeenCalled();
 });
 
@@ -136,4 +139,43 @@ it('recovers legacy tab drafts through an explicit cloud comparison',async()=>{
  await screen.findByText('Review the cloud version');
  expect((screen.getByLabelText('Chapter content') as HTMLTextAreaElement).value).toBe('Legacy writing');expect(mocks.rpc).not.toHaveBeenCalled();
  expect(localStorage.getItem('puble:draft:user-1:book-1:chapter-1')).toContain('Legacy writing');
+});
+
+it('replaces only the selected passage after explicit approval',async()=>{
+ mocks.ai.mockResolvedValue({text:JSON.stringify({replacement:'Revised',reason:'Makes the opening clearer.'}),providerUsed:'openrouter',fallbackUsed:false});
+ render(<ChapterEditor book={book} onNext={vi.fn()} onPrev={vi.fn()}/>);
+ const editor=await screen.findByLabelText('Chapter content') as HTMLTextAreaElement;
+ editor.setSelectionRange(0,8);fireEvent.select(editor);
+ fireEvent.click(screen.getByText('Clarify'));
+ await screen.findByText('Why: Makes the opening clearer.');
+ expect(editor.value).toBe('Existing prose');expect(mocks.rpc).not.toHaveBeenCalled();
+ expect(mocks.ai.mock.calls[0][0]).toContain('Selected passage:\nExisting');
+ fireEvent.click(screen.getByText('Accept suggestion'));
+ await waitFor(()=>expect(mocks.rpc).toHaveBeenCalledWith('save_chapter_draft',expect.objectContaining({p_content:'Revised prose'})));
+});
+it('keeps writing unchanged when passage output is malformed',async()=>{
+ mocks.ai.mockResolvedValue({text:'Not a JSON suggestion',providerUsed:'openrouter',fallbackUsed:false});
+ render(<ChapterEditor book={book} onNext={vi.fn()} onPrev={vi.fn()}/>);
+ const editor=await screen.findByLabelText('Chapter content') as HTMLTextAreaElement;
+ editor.setSelectionRange(0,8);fireEvent.select(editor);fireEvent.click(screen.getByText('Tighten'));
+ await waitFor(()=>expect(mocks.toast).toHaveBeenCalledWith(expect.stringContaining('unreadable'),'error'));
+ expect(editor.value).toBe('Existing prose');expect(mocks.rpc).not.toHaveBeenCalled();
+});
+it('requires a new preview when cloud-saved text changes',async()=>{
+ render(<ExportFormatter book={book} onPrev={vi.fn()}/>);
+ fireEvent.click(screen.getByText('PDF manuscript'));fireEvent.click(screen.getByText('Preview & check saved manuscript'));
+ fireEvent.click(await screen.findByLabelText('I have reviewed this saved manuscript and the format limitations.'));
+ result={data:[{...chapter,content:'Changed on another device'}],error:null};
+ fireEvent.click(screen.getByText('Download PDF'));
+ await waitFor(()=>expect(mocks.toast).toHaveBeenCalledWith(expect.stringContaining('Saved chapters changed'),'error'));
+ expect(mocks.pdf).not.toHaveBeenCalled();
+});
+it('exports optional front and back pages in the reviewed order',async()=>{
+ render(<ExportFormatter book={book} onPrev={vi.fn()}/>);
+ fireEvent.change(screen.getByLabelText('Dedication'),{target:{value:'For my family.'}});
+ fireEvent.change(screen.getByLabelText('About the author'),{target:{value:'Author biography.'}});
+ fireEvent.click(screen.getByText('PDF manuscript'));fireEvent.click(screen.getByText('Preview & check saved manuscript'));
+ fireEvent.click(await screen.findByLabelText('I have reviewed this saved manuscript and the format limitations.'));
+ fireEvent.click(screen.getByText('Download PDF'));
+ await waitFor(()=>expect(mocks.pdf).toHaveBeenCalledWith(expect.objectContaining({chapters:[{title:'Dedication',content:'For my family.',format:'plain'},{title:'Opening',content:'Existing prose',format:'plain'},{title:'About the author',content:'Author biography.',format:'plain'}]}),'free'));
 });
