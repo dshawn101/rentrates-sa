@@ -1,0 +1,29 @@
+.signin-page{min-height:100svh;display:grid;grid-template-columns:1fr 1.12fr;background:#100d1b;color:#f5f3ff}
+.signin-form-panel{padding:40px clamp(28px,5vw,88px) 26px;display:flex;flex-direction:column;position:relative;z-index:1}
+.signin-brand{align-self:flex-start;display:inline-flex;margin-bottom:70px}
+.signin-form-content{width:100%;max-width:440px;margin:auto}
+.signin-eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:11px;font-weight:600;color:#c4b5fd;margin-bottom:16px}
+.signin-form-content h1{font-family:Georgia,serif;font-weight:400;font-size:clamp(38px,4.2vw,62px);line-height:1.08;letter-spacing:-.04em;margin:0 0 20px}
+.signin-form-content h1>span{color:#c4b5fd}
+.signin-intro{font-size:15px;line-height:1.7;color:#b7b0c7;margin-bottom:36px;max-width:330px}
+.signin-form-content .glass-input{min-height:52px;background:rgba(255,255,255,.035);border-color:#ffffff24}
+.signin-password-options{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:12px;color:#c3bbd2}
+.signin-password-options label{display:flex;align-items:center;gap:7px;cursor:pointer}
+.signin-password-options input{accent-color:#a78bfa}
+.signin-password-options a,.signin-signup a{color:#ddd6fe;text-underline-offset:4px}
+.signin-password-options a:hover,.signin-signup a:hover{text-decoration:underline}
+.signin-signup{text-align:center;color:#a9a1bc;font-size:13px;line-height:1.8;margin-top:26px}
+.signin-signup a{font-weight:600;margin-left:4px}
+.signin-footer{display:flex;gap:24px;font-size:12px;color:#b7b0c7;margin-top:70px;padding-top:26px}
+.signin-footer a:hover{color:#fff}
+.signin-art-panel{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:50px 30px 35px;background:radial-gradient(ellipse at 55% 45%,#35234f80,transparent 65%),#181221;border-left:1px solid #c4b5fd18}
+.signin-art-caption{position:relative;z-index:1}
+.signin-art-caption h2{font-family:Georgia,serif;font-weight:400;font-size:clamp(27px,2.7vw,40px);line-height:1.3;letter-spacing:-.025em}
+.signin-art-caption h2 em{color:#c4b5fd;font-weight:400}
+.signin-art-orbit{position:absolute;width:650px;height:650px;border:1px solid #c4b5fd10;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-40%);pointer-events:none}
+.signin-art-orbit:after{content:'';position:absolute;inset:38px;border:1px solid #c4b5fd0b;border-radius:50%}
+.signin-illustration{width:100%;max-width:600px;height:auto;position:relative;margin:-5px 0 -24px}
+.signin-art-note{color:#b7a9ce;font-size:12px;letter-spacing:.13em;position:relative}
+@media(min-width:1500px){.signin-page{padding:0 max(0px,calc((100vw - 1600px)/2));}.signin-form-panel{padding-top:56px;padding-bottom:36px}}
+@media(max-width:900px){.signin-page{grid-template-columns:1fr 1fr}.signin-form-panel{padding:30px 26px}.signin-brand .puble-brand{gap:10px;font-size:28px}.signin-brand .puble-brand img{width:48px;height:48px}.signin-art-panel{padding:40px 18px}.signin-art-caption h2{font-size:28px}}
+@media(max-width:680px){.signin-page{grid-template-columns:1fr}.signin-form-panel{min-height:100svh;padding:26px 24px}.signin-brand{margin-bottom:48px}.signin-form-content{max-width:440px}.signin-footer{margin-top:48px}.signin-art-panel{padding:42px 24px 32px;border-left:0;border-top:1px solid #c4b5fd18}.signin-illustration{max-width:440px}.signin-art-caption h2{font-size:30px}.signin-art-note{font-size:11px}}
