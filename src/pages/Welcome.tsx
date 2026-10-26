@@ -7,9 +7,9 @@ import { useAuth } from '../hooks/useAuth';
 import '../styles/welcome.css';
 
 const steps = [
-  { number: '01', icon: BookOpen, title: 'Give your idea a home.', description: 'Set up your book, shape an outline, and organise your chapters. Start small. Make it yours.' },
+  { number: '01', icon: BookOpen, title: 'Give your idea a home.', description: 'Start fresh or import DOCX, TXT or Markdown. Review, split and organise chapters before you save.' },
   { number: '02', icon: Feather, title: 'Find your writing rhythm.', description: 'Write at your own pace. Connect your own AI provider whenever you want help with a draft or rewrite.' },
-  { number: '03', icon: Download, title: 'Make it a manuscript.', description: 'Bring an existing DOCX or text manuscript, add your own cover, and download DOCX, EPUB, PDF or text.' },
+  { number: '03', icon: Download, title: 'Make it a manuscript.', description: 'Add your own cover and optional front/back pages. Preview saved writing before downloading DOCX, EPUB, PDF or text.' },
 ];
 const questions = [
   ['Do I need an AI key to start?', 'No. You can plan, write, and export without AI. Connect your preferred provider only when you want AI assistance.'],
@@ -22,7 +22,7 @@ const questions = [
 
 export function Welcome() {
   const { user } = useAuth();
-  const start = user ? '/dashboard' : '/auth/signup';
+  const start = user ? '/books' : '/auth/signup';
   return <div className="welcome">
     <a className="welcome-skip" href="#main">Skip to content</a>
     <header className="welcome-nav welcome-container">
@@ -54,7 +54,7 @@ export function Welcome() {
         { icon: Download, title: 'Portable manuscript exports', detail: 'DOCX, EPUB, PDF and text backups.' },
       ].map(({ icon: Icon, title, detail }) => <article className="welcome-feature-glass" key={title}><div className="welcome-feature-icon"><Icon size={23} aria-hidden="true" /></div><h2>{title}</h2><p>{detail}</p></article>)}</div></section>
       <section id="how-it-works" className="welcome-section welcome-container"><div className="welcome-section-heading"><p className="welcome-eyebrow">FROM THE FIRST IDEA TO THE LAST PAGE</p><h2>One book. A few clear steps.</h2><p>You don’t need every answer before you start.<br />Just a place to put the first words.</p></div><div className="welcome-step-grid">{steps.map(({ number, icon: Icon, title, description }) => <article className="welcome-step" key={number}><div className="welcome-step-top"><Icon size={25} /><span>{number}</span></div><h3>{title}</h3><p>{description}</p></article>)}</div></section>
-      <section className="welcome-choice welcome-container"><div><p className="welcome-eyebrow">SUPPORT FOR YOUR PROCESS</p><h2>Your creativity.<br />Your choice of tools.</h2><p>Write on your own, or bring your own API key for help drafting, expanding, and rewriting.</p><p>You choose the provider and when to use it.</p><p>Already made a cover you love? Bring it with you. Your writing workflow shouldn’t ask you to start over.</p></div><div className="welcome-tool-card"><span className="welcome-mini-label">KEEP IT SIMPLE</span><div><Feather /><span><strong>Start with your words</strong><small>No AI setup needed to begin.</small></span><Check size={18} /></div><div><Sparkles /><span><strong>Add AI when it helps</strong><small>Gemini · OpenAI · OpenRouter</small></span><Check size={18} /></div><div><Image /><span><strong>Bring your own cover</strong><small>PNG · JPG · WebP</small></span><Check size={18} /></div><p>Provider API usage is billed separately by your provider.</p></div></section>
+      <section className="welcome-choice welcome-container"><div><p className="welcome-eyebrow">SUPPORT FOR YOUR PROCESS</p><h2>Your creativity.<br />Your choice of tools.</h2><p>Write on your own, or bring your own API key for help drafting or editing a selected passage. Preview suggestions and accept only what works for you.</p><p>You choose the provider and when to use it.</p><p>Already made a cover you love? Bring it with you. Your writing workflow shouldn’t ask you to start over.</p></div><div className="welcome-tool-card"><span className="welcome-mini-label">KEEP IT SIMPLE</span><div><Feather /><span><strong>Start with your words</strong><small>No AI setup needed to begin.</small></span><Check size={18} /></div><div><Sparkles /><span><strong>Add AI when it helps</strong><small>Gemini · OpenAI · OpenRouter</small></span><Check size={18} /></div><div><Image /><span><strong>Bring your own cover</strong><small>PNG · JPG · WebP</small></span><Check size={18} /></div><p>Provider API usage is billed separately by your provider.</p></div></section>
       <section id="questions" className="welcome-section welcome-container welcome-faq"><div><p className="welcome-eyebrow">A FEW THINGS TO KNOW</p><h2>Before your<br />first chapter.</h2><img className="welcome-faq-illustration" src="/faq-questions.png" alt="" width="512" height="512" loading="lazy" /></div><div>{questions.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
       <section className="welcome-final welcome-container"><div className="welcome-final-quill"><Brand compact /></div><p className="welcome-eyebrow">THERE’S A BOOK IN THAT IDEA.</p><h2>Let’s give it a first page.</h2><p>Start with a title. The rest can take shape as you go.</p><Link className="welcome-primary" to={start}>{user ? 'Open your dashboard' : 'Start your book'} <ArrowRight size={19} /></Link></section>
     </main>

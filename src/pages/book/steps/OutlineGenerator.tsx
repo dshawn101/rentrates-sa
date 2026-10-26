@@ -13,6 +13,7 @@ interface OutlineGeneratorProps {
   book: Book;
   onNext: () => void;
   onPrev: () => void;
+  importing?: boolean;
 }
 
 interface ChapterOutline {
@@ -27,7 +28,7 @@ interface ChapterOutline {
   ai_contribution?: Record<string, unknown>;
 }
 
-export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps) {
+export function OutlineGenerator({ book, onNext, onPrev, importing=false }: OutlineGeneratorProps) {
   const { addToast } = useToastStore();
   const [outline, setOutline] = useState<ChapterOutline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -160,7 +161,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
           </div>
         </GlassCard>
 
-        <ManuscriptImport disabled={isLoading||isSaving||loadFailed} onImport={chapters=>setOutline(prev=>[...prev,...chapters.map((ch,i)=>({id:crypto.randomUUID(),title:ch.title,content:ch.content,format:ch.format,description:'',order_index:prev.length+i}))])}/>
+        <ManuscriptImport initialOpen={importing} disabled={isLoading||isSaving||loadFailed} onImport={chapters=>setOutline(prev=>[...prev,...chapters.map((ch,i)=>({id:crypto.randomUUID(),title:ch.title,content:ch.content,format:ch.format,description:'',order_index:prev.length+i}))])}/>
         {archived.length>0&&<details className="border border-white/10 rounded-xl p-4"><summary className="text-purple-200 cursor-pointer">Archived chapters · restore from here</summary>{archived.filter(ch=>!outline.some(item=>item.id===ch.id)).map(ch=><div key={ch.id} className="flex justify-between gap-3 mt-3"><span className="text-slate-300">{ch.title}</span><GlassButton size="sm" variant="secondary" onClick={()=>setOutline(prev=>[...prev,{...ch,deleted_at:null,order_index:prev.length}])}>Restore to outline</GlassButton></div>)}</details>}
         {/* Outline Editor */}
         <div className="space-y-4">
@@ -170,7 +171,7 @@ export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps
             </div>
           ) : outline.length === 0 ? (
             <div className="text-center p-12 bg-white/5 border border-dashed border-white/20 rounded-xl">
-              <p className="text-slate-400 mb-4">No chapters yet. Generate an outline or add one manually.</p>
+              <p className="text-slate-400 mb-4">No chapters yet. Import your draft above, use a starter template, or add one manually.</p>
               <GlassButton variant="secondary" onClick={addChapter}>
                 <Plus className="w-4 h-4 mr-2" /> Add First Chapter
               </GlassButton>

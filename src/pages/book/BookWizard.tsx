@@ -28,7 +28,8 @@ export function BookWizard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedStep = Number(searchParams.get('step') || 1);
   const currentStep = Number.isInteger(requestedStep) && requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1;
-  const setCurrentStep = (step: number) => setSearchParams({ step: String(step) });
+  const setCurrentStep = (step: number) => setSearchParams({ step: String(step), ...(searchParams.get('intent')==='import'?{intent:'import'}:{}) });
+  const [showGuide,setShowGuide]=useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
   // Find current book
@@ -130,10 +131,11 @@ export function BookWizard() {
         </div>
       </div>
 
+      {showGuide&&<aside className="mb-4 rounded-xl border border-white/10 p-4 text-sm text-slate-300"><div className="flex justify-between gap-4"><strong className="text-white">{searchParams.get('intent')==='import'?'Bring your draft into its new home':'Your first book, one step at a time'}</strong><button onClick={()=>setShowGuide(false)}>Hide guide</button></div><p className="mt-2">{currentStep===1?'Save a title, author and genre. Next, import a draft or add your first chapter.':currentStep===2?'Import and review chapter splits, or add chapters manually. Save the outline to begin writing.':currentStep===3?'Write and save a chapter. Select a passage for optional AI editing; review before accepting.':currentStep===4?'Upload your own front cover, or continue without one. You can add it later.':'Preview the saved manuscript, check warnings and download your chosen format.'}</p><p className="mt-2 text-xs text-slate-400">Setup → Chapters → Write & revise → Optional cover → Preview & export. No AI key is needed.</p></aside>}
       {/* Step Content Area */}
       <div key={book.id} className="flex-1 min-h-0 relative">
         {currentStep === 1 && <BookSetup key={book.id} book={book} onNext={handleNextStep} />}
-        {currentStep === 2 && <OutlineGenerator book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
+        {currentStep === 2 && <OutlineGenerator importing={searchParams.get('intent')==='import'} book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 3 && <ChapterEditor initialChapterId={searchParams.get('chapter')||undefined} book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 4 && <CoverDesigner book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 5 && <ExportFormatter book={book} onPrev={handlePrevStep} />}

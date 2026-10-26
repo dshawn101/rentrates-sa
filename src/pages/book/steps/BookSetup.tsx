@@ -48,7 +48,8 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
     targetWordCount: book.metadata?.targetWordCount || useIntegrationStore.getState().preferences.targetWordCount,
     tone: book.metadata?.tone || useIntegrationStore.getState().preferences.tone,
     synopsis: book.metadata?.synopsis || '',
-    bookNotes: book.metadata?.bookNotes || ''
+    bookNotes: book.metadata?.bookNotes || '',
+    bookGuide: book.metadata?.bookGuide || {voice:'',facts:'',chapterNotes:''}
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -78,7 +79,8 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
             targetWordCount: targetWordCount,
             tone: formData.tone,
             synopsis: formData.synopsis,
-            bookNotes: formData.bookNotes
+            bookNotes: formData.bookNotes,
+            bookGuide: formData.bookGuide
           }
         });
 
@@ -104,6 +106,7 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
           </div>
 
           <div className="space-y-6">
+            <details className="border border-white/10 rounded-xl p-4"><summary className="text-white">Optional book guide</summary><p className="text-sm text-slate-400 my-3">Keep a voice sample, character names, terminology and chapter reminders together. These are not exported. Passage editing receives them only when you check Include my book guide.</p>{([['voice','Voice preferences and writing sample'],['facts','Characters, terminology and important facts'],['chapterNotes','Chapter summaries and unresolved points']] as const).map(([field,label])=><GlassTextArea key={field} label={label} value={formData.bookGuide[field]||''} maxLength={6000} onChange={e=>setFormData(prev=>({...prev,bookGuide:{...prev.bookGuide,[field]:e.target.value}}))}/>)}</details>
             <GlassTextArea label="Book notes / voice guide (optional)" name="bookNotes" value={formData.bookNotes} onChange={handleChange} maxLength={20000} placeholder="Character details, research reminders, continuity notes or how you want your writing to sound. These notes are not exported; AI receives them only if you explicitly include them in the editor."/>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <GlassInput

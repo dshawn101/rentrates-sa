@@ -34,6 +34,7 @@ function MyBookLibrary() {
   useEffect(() => { void fetchBooks(); }, [fetchBooks]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [startMode,setStartMode]=useState<'new'|'import'>('new');
   const [newBookTitle, setNewBookTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -49,7 +50,7 @@ function MyBookLibrary() {
     if (newBook) {
       setIsCreateModalOpen(false);
       setNewBookTitle('');
-      navigate(`/book/${newBook.id}`);
+      navigate(`/book/${newBook.id}${startMode==='import'?'?intent=import':''}`);
     }
   };
 
@@ -103,6 +104,7 @@ function MyBookLibrary() {
         </GlassCard>
       </div>
 
+      <GlassCard className="p-5 space-y-3"><h2 className="text-xl font-semibold text-white">Where would you like to start?</h2><p className="text-sm text-slate-400">Write manually from the first word. AI setup is optional.</p><div className="flex flex-wrap gap-3"><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('new');setIsCreateModalOpen(true);}}>Start a book</GlassButton><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('import');setIsCreateModalOpen(true);}}>Import a draft</GlassButton>{latestBook&&<Link className="glass-button" to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter?3:1}`}>Continue writing</Link>}</div></GlassCard>
       <BookFolders onFolders={setFolders} userId={user?.id} books={books} selected={folder} onSelect={setFolder} onMove={moveBook} moving={moving} />
 
       {/* Projects Grid */}
@@ -163,6 +165,7 @@ function MyBookLibrary() {
             <h2 className="text-2xl font-bold text-white mb-2">Start new book</h2>
             <p className="text-slate-400 text-sm mb-6">Give your new book a working title. You can change this later.</p>
 
+            <label className="block text-slate-300 mb-4">Starting point<select className="block w-full bg-slate-900 p-3 rounded mt-2" value={startMode} onChange={e=>setStartMode(e.target.value as 'new'|'import')}><option value="new">Start a new manuscript</option><option value="import">Import an existing draft after setup</option></select></label>
             <form onSubmit={handleCreateBook} className="space-y-4">
               <GlassInput
                 label="Book Title"
