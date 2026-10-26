@@ -3,7 +3,8 @@ import { supabaseConfigError } from '../../lib/supabase';
 import { getAuthErrorMessage } from '../../lib/supabase-config';
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { GlassCard } from '../../components/ui/GlassCard';
+import { WritingIllustration } from '../../components/auth/WritingIllustration';
+import '../../styles/signin.css';
 import { GlassInput } from '../../components/ui/GlassInput';
 import { GlassButton } from '../../components/ui/GlassButton';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ export function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const { signIn, loading } = useAuth();
   const navigate = useNavigate();
   const { addToast } = useToastStore();
@@ -32,63 +34,35 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
-      <div className="absolute inset-0 bg-[#0f0c1b]" />
-      <div className="absolute -top-[40%] -right-[40%] w-full h-full bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-[40%] -left-[40%] w-full h-full bg-purple-900/20 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-md relative z-10">
-        <div className="mb-8 text-center">
-          <Link to="/" className="inline-flex mb-6" aria-label="PubléStudio home"><Brand /></Link>
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-primary mb-2 tracking-tight">
-            Welcome back
-          </h1>
-          <p className="text-slate-400 text-lg">Sign in to continue to Publé Studio</p>
-        </div>
-
-        <GlassCard className="p-8">
+    <main className="signin-page">
+      <section className="signin-form-panel" aria-labelledby="signin-heading">
+        <Link to="/" className="signin-brand" aria-label="PubléStudio home"><Brand /></Link>
+        <div className="signin-form-content">
+          <p className="signin-eyebrow">A space for your story</p>
+          <h1 id="signin-heading">Welcome back<span>.</span></h1>
+          <p className="signin-intro">Your words are waiting. Pick up where you left off.</p>
           {supabaseConfigError && <p role="alert" className="mb-6 text-amber-200">{supabaseConfigError}</p>}
           <form onSubmit={handleSubmit} className="space-y-6">
-            <GlassInput
-              label="Email"
-              type="email"
-              placeholder="you@example.com"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <GlassInput
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center text-slate-300">
-                <input type="checkbox" className="mr-2 rounded border-white/20 bg-white/5 text-primary focus:ring-primary focus:ring-offset-slate-950" />
-                Remember me
-              </label>
-              <a href="#" className="text-primary hover:text-purple-400 font-medium transition-colors">
-                Forgot password?
-              </a>
+            <GlassInput label="Email" type="email" autoComplete="username" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            <div>
+              <GlassInput label="Password" type={showPassword ? 'text' : 'password'} autoComplete="current-password" placeholder="Enter your password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <div className="signin-password-options">
+                <label><input type="checkbox" checked={showPassword} onChange={(e) => setShowPassword(e.target.checked)} /> Show password</label>
+                <Link to="/contact">Need help signing in?</Link>
+              </div>
             </div>
-
-            <GlassButton type="submit" className="w-full py-3 text-lg" disabled={!!supabaseConfigError} isLoading={loading || isSubmitting}>
-              Sign in
-            </GlassButton>
+            <GlassButton type="submit" className="w-full py-3 text-lg" disabled={!!supabaseConfigError} isLoading={loading || isSubmitting}>Sign in</GlassButton>
           </form>
-
-          <p className="mt-6 text-center text-sm text-slate-400">
-            Don't have an account?{' '}
-            <Link to="/auth/signup" className="text-primary hover:text-purple-400 font-medium transition-colors">
-              Sign up
-            </Link>
-          </p>
-        </GlassCard>
-      </div>
-    </div>
+          <p className="signin-signup">New to PubléStudio? <Link to="/auth/signup">Create your account</Link></p>
+        </div>
+        <nav className="signin-footer" aria-label="Sign-in information"><Link to="/">Back to home</Link><Link to="/legal/privacy">Privacy</Link></nav>
+      </section>
+      <aside className="signin-art-panel" aria-labelledby="signin-art-heading">
+        <div className="signin-art-orbit" aria-hidden="true" />
+        <div className="signin-art-caption"><p className="signin-eyebrow">The author is you</p><h2 id="signin-art-heading">A world of possibilities.<br /><em>One page at a time.</em></h2></div>
+        <WritingIllustration />
+        <p className="signin-art-note">Your story. Your voice. Your book.</p>
+      </aside>
+    </main>
   );
 }
