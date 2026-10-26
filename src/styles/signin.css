@@ -22,7 +22,7 @@
 .signin-art-caption h2 em{color:#c4b5fd;font-weight:400}
 .signin-art-orbit{position:absolute;width:650px;height:650px;border:1px solid #c4b5fd10;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-40%);pointer-events:none}
 .signin-art-orbit:after{content:'';position:absolute;inset:38px;border:1px solid #c4b5fd0b;border-radius:50%}
-.signin-illustration{width:100%;max-width:600px;height:auto;position:relative;margin:-5px 0 -24px}
+.signin-illustration{width:100%;max-width:600px;height:auto;position:relative;margin:38px 0 32px}
 .signin-art-note{color:#b7a9ce;font-size:12px;letter-spacing:.13em;position:relative}
 @media(min-width:1500px){.signin-page{padding:0 max(0px,calc((100vw - 1600px)/2));}.signin-form-panel{padding-top:56px;padding-bottom:36px}}
 @media(max-width:900px){.signin-page{grid-template-columns:1fr 1fr}.signin-form-panel{padding:30px 26px}.signin-brand .puble-brand{gap:10px;font-size:28px}.signin-brand .puble-brand img{width:48px;height:48px}.signin-art-panel{padding:40px 18px}.signin-art-caption h2{font-size:28px}}
