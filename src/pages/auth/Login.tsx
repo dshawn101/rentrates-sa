@@ -3,7 +3,6 @@ import { supabaseConfigError } from '../../lib/supabase';
 import { getAuthErrorMessage } from '../../lib/supabase-config';
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { WritingIllustration } from '../../components/auth/WritingIllustration';
 import '../../styles/signin.css';
 import { GlassInput } from '../../components/ui/GlassInput';
 import { GlassButton } from '../../components/ui/GlassButton';
@@ -60,7 +59,7 @@ export function Login() {
       <aside className="signin-art-panel" aria-labelledby="signin-art-heading">
         <div className="signin-art-orbit" aria-hidden="true" />
         <div className="signin-art-caption"><p className="signin-eyebrow">The author is you</p><h2 id="signin-art-heading">A world of possibilities.<br /><em>One page at a time.</em></h2></div>
-        <WritingIllustration />
+        <img className="signin-illustration" src="/signin-books.webp" width="1400" height="788" alt="Purple books, a cup of coffee and a quill in an ink bottle. The open book reads: Keep dreaming. Keep writing." />
         <p className="signin-art-note">Your story. Your voice. Your book.</p>
       </aside>
     </main>
