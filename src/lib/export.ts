@@ -1,3 +1,4 @@
+import {validateEPUBStructure} from './epub-validation';
 import { fitCover } from './covers';
 import { saveAs } from 'file-saver';
 import jsPDF from 'jspdf';
@@ -134,7 +135,7 @@ export function buildEPUB(data:ExportData) {
  zip.file('OEBPS/content.opf',`<?xml version="1.0" encoding="UTF-8"?><package version="3.0" unique-identifier="pub-id" xmlns="http://www.idpf.org/2007/opf"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="pub-id">${e(uid)}</dc:identifier><dc:title>${e(data.title)}</dc:title><dc:creator>${e(data.author)}</dc:creator><dc:language>en</dc:language><meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d{3}Z$/,'Z')}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="style" href="style.css" media-type="text/css"/><item id="title" href="title.xhtml" media-type="application/xhtml+xml"/>${coverManifest}${data.chapters.map((_,i)=>`<item id="ch${i}" href="chap_${i}.xhtml" media-type="application/xhtml+xml"/>`).join('')}</manifest><spine>${coverSpine}<itemref idref="title"/>${data.chapters.map((_,i)=>`<itemref idref="ch${i}"/>`).join('')}</spine></package>`);
  return zip;
 }
-export async function exportToEPUB(data:ExportData){saveAs(await buildEPUB(data).generateAsync({type:'blob'}),`${filename(data.title)}.epub`);}
+export async function exportToEPUB(data:ExportData){const zip=buildEPUB(data);await validateEPUBStructure(zip);saveAs(await zip.generateAsync({type:'blob'}),`${filename(data.title)}.epub`);}
 export async function exportToDOCX(data:ExportData){saveAs(await buildDOCX(data).generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}),`${filename(data.title)}.docx`);}
 export async function exportToTXT(data:ExportData){saveAs(new Blob([buildTXT(data)],{type:'text/plain;charset=utf-8'}),`${filename(data.title)}.txt`);}
 export async function exportToMarkdown(data:ExportData){saveAs(new Blob([buildMarkdown(data)],{type:'text/markdown;charset=utf-8'}),`${filename(data.title)}.md`);}

@@ -32,3 +32,10 @@ it('rejects XML entities and oversized DOCX archives before parsing',async()=>{
  await expect(importManuscript('bad.docx',await zip.generateAsync({type:'arraybuffer'}))).rejects.toThrow(/Unsupported XML/);
  await expect(importManuscript('large.txt',new ArrayBuffer(10_000_001))).rejects.toThrow(/10 MB/);
 });
+it('preserves footnote text as a notes chapter and reports unsupported objects before import',async()=>{
+ const zip=buildDOCX({title:'Sample',author:'Author',chapters:[{title:'Chapter 1',content:'A sourced claim.'}]});
+ const xml=await zip.file('word/document.xml')!.async('string');zip.file('word/document.xml',xml.replace('A sourced claim.</w:t>','A sourced claim.</w:t><w:footnoteReference w:id="1"/>').replace('</w:body>','<w:p><w:r><w:drawing/></w:r></w:p></w:body>'));
+ zip.file('word/footnotes.xml','<w:footnotes xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:footnote w:id="1"><w:p><w:r><w:t>Source and supporting detail.</w:t></w:r></w:p></w:footnote></w:footnotes>');
+ const result=await importManuscript('notes.docx',await zip.generateAsync({type:'arraybuffer'}));
+ expect(result.chapters[0].content).toContain('[Note 1]');expect(result.chapters.at(-1)?.content).toContain('Source and supporting detail.');expect(result.warnings.some(w=>w.includes('drawing/image'))).toBe(true);
+});

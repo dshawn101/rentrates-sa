@@ -1,0 +1,38 @@
+name: Manuscript and publication checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: sudo apt-get update && sudo apt-get install -y poppler-utils
+      - run: npm ci
+      - name: Install pinned EPUBCheck
+        run: |
+          curl --fail --location --retry 2 https://github.com/w3c/epubcheck/releases/download/v5.4.0/epubcheck-5.4.0.zip -o /tmp/epubcheck.zip
+          echo '33350c61038e71dfb3d45a76aed04bf5481e6d5500cb780f6e98db8bbd15a28c  /tmp/epubcheck.zip' | sha256sum --check
+          unzip -q /tmp/epubcheck.zip -d /tmp/epubcheck
+      - name: Test manuscript safety and publication output
+        run: npm test
+        env:
+          PUBLE_VALIDATION_DIR: /tmp/puble-publication-check
+          EPUBCHECK_JAR: /tmp/epubcheck/epubcheck-5.4.0/epubcheck.jar
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: generated-publication-test-samples
+          path: /tmp/puble-publication-check
+          retention-days: 7

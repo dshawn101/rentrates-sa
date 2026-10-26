@@ -1,3 +1,4 @@
+import { AIUsagePanel } from '../book/AIUsagePanel';
 import { useEffect, useState } from 'react';
 import { CheckCircle2, ExternalLink, KeyRound, ShieldCheck } from 'lucide-react';
 import { PROVIDERS, readCredential, useIntegrationStore } from '../../store/useIntegrationStore';
@@ -36,7 +37,7 @@ export function ProviderSettings() {
     } catch (error) { setFailure(true); setMessage(error instanceof Error ? error.message : 'Connection test failed.'); }
     finally { setBusy(false); }
   };
-  return <div className="space-y-6">
+  return <div className="space-y-6"><AIUsagePanel/>
     <GlassCard className="p-6 space-y-3">
       <label className="block text-white font-semibold" htmlFor="default-writing-provider">Default AI provider</label>
       <select id="default-writing-provider" className="glass-select w-full" value={settings.provider} onChange={e => { settings.selectProvider(e.target.value as ProviderId); setFailure(false); setMessage('Default AI provider updated.'); }}>
