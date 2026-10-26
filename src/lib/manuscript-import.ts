@@ -40,12 +40,12 @@ export async function importManuscript(name:string,bytes:ArrayBuffer):Promise<Ma
   const flush=()=>{if(lines.join('').trim())chapters.push({title,content:lines.join('\n\n'),format:'markdown'});lines=[];};
   for(const p of Array.from(doc.getElementsByTagNameNS(W,'p'))){
    const style=p.getElementsByTagNameNS(W,'pStyle')[0]?.getAttributeNS(W,'val')||'';
-   if(/^(Title|Subtitle)$/i.test(style))continue;
+   if(/^(Title|Subtitle)$/i.test(style)){warnings.push('Title/subtitle paragraphs are not imported as chapters. Add them in Book Setup.');continue;}
    const plain=Array.from(p.getElementsByTagNameNS(W,'t')).map(t=>t.textContent||'').join('');
    if(!plain.trim())continue;
    if(/^heading\s?1$/i.test(style)||chapterHeading.test(plain.trim())){flush();title=plain.trim().slice(0,300);continue;}
    const runs=Array.from(p.getElementsByTagNameNS(W,'r')).map(r=>{
-    let t=Array.from(r.childNodes).map(n=>(n as Element).localName==='t'?n.textContent||'':(n as Element).localName==='br'?'\n':(n as Element).localName==='tab'?'\t':'').join('');
+    let t=Array.from(r.childNodes).map(n=>(n as Element).localName==='t'?n.textContent||'':(n as Element).localName==='br'?'\n':(n as Element).localName==='tab'?'\t':(n as Element).localName==='footnoteReference'?`[Note ${(n as Element).getAttributeNS(W,'id')}]`:'').join('');
     // Imported literal asterisks are retained; complex emphasis is flagged below.
     const b=r.getElementsByTagNameNS(W,'b')[0],i=r.getElementsByTagNameNS(W,'i')[0];
     if(b && !['0','false','off'].includes(b.getAttributeNS(W,'val')||''))t=`**${t}**`;
@@ -56,10 +56,24 @@ export async function importManuscript(name:string,bytes:ArrayBuffer):Promise<Ma
    lines.push(heading?`${'#'.repeat(Number(heading[1])-1)} ${runs}`:p.getElementsByTagNameNS(W,'numPr').length?`- ${runs}`:runs);
   }
   flush();
-  warnings=['Imports preserve main-body text, common headings and basic bold/italic. Review the preview: custom styles, page layout, comments, tracked changes, footnotes, images and advanced formatting are not preserved.'];
+  warnings.push('Imports preserve main-body text, common headings and basic bold/italic. Review the preview: custom styles, page layout, comments, tracked changes, native footnotes, images and advanced formatting are not preserved.');
+  const count=(tag:string)=>doc.getElementsByTagNameNS(W,tag).length;
+  if(count('drawing')||count('pict'))warnings.push(`${count('drawing')+count('pict')} drawing/image objects detected. Images are not imported; retain the original DOCX.`);
+  if(count('ins')||count('del'))warnings.push('Tracked changes detected. Inserted text is imported; deleted text is omitted. Accept or reject changes in Word first for a clean source.');
+  if(count('commentRangeStart'))warnings.push('Comments detected. Comments are not imported.');
+  if(count('hyperlink'))warnings.push('Hyperlink labels are imported; link destinations are not retained.');
+  if(count('footnoteReference')){
+   const notes=zip.file('word/footnotes.xml');
+   if(notes){const source=await notes.async('string');if(/<!DOCTYPE|<!ENTITY/i.test(source))throw new Error('Unsupported XML in footnotes.');const notesDoc=new DOMParser().parseFromString(source,'application/xml');if(notesDoc.getElementsByTagName('parsererror').length)throw new Error('Could not read footnotes.');
+    const lines=Array.from(notesDoc.getElementsByTagNameNS(W,'footnote')).filter(n=>Number(n.getAttributeNS(W,'id'))>0).map(n=>`[Note ${n.getAttributeNS(W,'id')}] `+Array.from(n.getElementsByTagNameNS(W,'t')).map(t=>t.textContent||'').join(''));
+    if(lines.length)chapters.push({title:'Imported notes',content:lines.join('\n\n'),format:'plain'});
+   }
+   warnings.push('Footnote references become [Note n] markers. Available note text is appended as an Imported notes chapter, not native linked footnotes. Review all references.');
+  }
+  if(zip.file(/^word\/(?:header|footer|endnotes)/).length)warnings.push('Headers, footers or endnotes detected. Their text is not imported; review the original file.');
   if(doc.getElementsByTagNameNS(W,'tbl').length)warnings.push('Tables were flattened into paragraphs. Review their reading order.');
  }else throw new Error('Choose a DOCX, UTF-8 TXT or Markdown (.md) file. PDF and legacy .doc are not editable manuscript imports.');
  if(!chapters.length)throw new Error('No manuscript text was found.');
  if(chapters.length>200 || chapters.some(c=>c.content.length>1_000_000))throw new Error('Split this manuscript into smaller files before importing.');
- return {chapters,warnings};
+ return {chapters,warnings:[...new Set(warnings)]};
 }

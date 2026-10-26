@@ -48,3 +48,17 @@ it.each(['xai','other'] as const)('uses the configured %s endpoint with its own 
 it.each(['anthropic','xai','other'])('rejects image generation for %s',provider=>{
   expect(()=>validateAIRequest({provider,action:'image',apiKey:'provider-secret',model:'gpt-image-1',prompt:'Cover',baseUrl:'https://api.example.com/v1'})).toThrow();
 });
+it('reports only normalized provider usage fields, with missing cost kept unknown',async()=>{
+ const send=vi.fn().mockResolvedValue(new Response(JSON.stringify({choices:[{message:{content:'Draft'}}],usage:{prompt_tokens:123,completion_tokens:45,cost:0.002,secret:'must-not-return'}})));
+ const result=await runAI({provider:'openrouter',action:'generate',apiKey:'provider-secret',model:'author/model',prompt:'Write'},send);
+ expect(result.usage).toEqual({inputTokens:123,outputTokens:45,costUSD:0.002});expect(JSON.stringify(result)).not.toContain('must-not-return');
+});
+it('looks up OpenRouter prices without sending manuscript text or generating',async()=>{
+ const send=vi.fn().mockResolvedValue(new Response(JSON.stringify({data:[{id:'author/model',pricing:{prompt:'0.000001',completion:'0.000002',request:'0'}}]})));
+ const input=validateAIRequest({provider:'openrouter',action:'pricing',apiKey:'provider-secret',model:'author/model'});
+ const result=await runAI(input,send);expect(result.pricing).toMatchObject({inputUSD:0.000001,outputUSD:0.000002,requestUSD:0});expect(send.mock.calls[0][0]).toBe('https://openrouter.ai/api/v1/models');expect(send.mock.calls[0][1].body).toBeUndefined();
+});
+it('does not interpret missing or negative rates as a free model',async()=>{
+ const send=vi.fn().mockResolvedValue(new Response(JSON.stringify({data:[{id:'author/model',pricing:{prompt:'-1'}}]})));
+ expect((await runAI({provider:'openrouter',action:'pricing',apiKey:'provider-secret',model:'author/model'},send)).pricing).toBeNull();
+});

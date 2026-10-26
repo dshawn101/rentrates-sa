@@ -17,7 +17,7 @@ const questions = [
   ['Can I use a cover I already designed?', 'Yes. Upload a PNG, JPG, or WebP front cover, including a design made in Canva or another tool. You can also skip the cover and add one later.'],
   ['Can I bring my existing manuscript?', 'Yes. Import DOCX, UTF-8 TXT or Markdown, review the detected chapters, then append them to your outline. Basic headings and emphasis transfer; complex layouts, comments and footnotes do not.'],
   ['How is my writing saved?', 'The editor autosaves after a pause and keeps a recovery draft on this device. Saved history retains the last 50 changed cloud text versions per chapter. Review AI suggestions before accepting, and download regular backups. Device recovery is not a full offline mode.'],
-  ['What can I export?', 'Download editable DOCX, EPUB, PDF, TXT or Markdown. DOCX and EPUB retain basic formatting; PDF is a reading copy and free-tier PDFs include a watermark. Complex layouts and direct publishing are not supported.'],
+  ['What can I export?', 'Download editable DOCX, EPUB, PDF, TXT or Markdown. DOCX and EPUB retain basic formatting; Standard PDF is a reading copy. A separate beta 6 × 9 inch text-only print interior includes built-in checks but needs printer proofing. Free-tier PDFs include a watermark. Complex layouts and direct publishing are not supported.'],
 ];
 
 export function Welcome() {

@@ -1,3 +1,4 @@
+import { recordUsage, type AIUsage, type ModelPrice } from './ai-usage';
 import { supabase } from './supabase';
 import { readCredential, useIntegrationStore, waitForCredentials } from '../store/useIntegrationStore';
 import type { ProviderId } from '../store/useIntegrationStore';
@@ -7,8 +8,8 @@ class AIRequestError extends Error {
   readonly status: number;
   constructor(message: string, status: number) { super(message); this.status = status; }
 }
-interface GenerationOptions { provider?: ProviderId; modelOverride?: string; temperature?: number }
-export async function requestAI(action: 'test' | 'generate' | 'image', provider: ProviderId, options: { prompt?: string; model?: string; apiKey?: string; maxOutputTokens?: number } = {}) {
+interface GenerationOptions { provider?: ProviderId; modelOverride?: string; temperature?: number; maxOutputTokens?:number; allowFallback?:boolean }
+export async function requestAI(action: 'test' | 'generate' | 'image' | 'pricing', provider: ProviderId, options: { prompt?: string; model?: string; apiKey?: string; maxOutputTokens?: number } = {}) {
   const owner = useIntegrationStore.getState().owner;
   await waitForCredentials();
   const { data, error } = await supabase.auth.getSession();
@@ -25,7 +26,8 @@ export async function requestAI(action: 'test' | 'generate' | 'image', provider:
   if (useIntegrationStore.getState().owner !== owner) throw new AISessionError('Your account changed. Please try again.');
   if (response.ok || ![400,401,403,413].includes(response.status)) useIntegrationStore.getState().recordProviderResult(provider,response.ok);
   if (!response.ok) throw new AIRequestError(body.error || 'AI request failed.', response.status);
-  return body as { text?: string; models?: string[]; image?: string };
+  if(action==='generate'&&owner&&body.usage)recordUsage(owner,{...body.usage,provider,model:options.model||'',at:new Date().toISOString()});
+  return body as { text?: string; models?: string[]; image?: string;usage?:AIUsage;pricing?:ModelPrice|null };
 }
 export class MultiProviderAI {
   static async generate(prompt: string, options?: GenerationOptions): Promise<{ text: string; providerUsed: ProviderId; fallbackUsed: boolean }> {
@@ -37,7 +39,7 @@ export class MultiProviderAI {
     };
     const generate = async (id: ProviderId, model: string) => {
       assertOwner();
-      const result = await requestAI('generate', id, { prompt, model, maxOutputTokens: settings.preferences.maxOutputTokens });
+      const result = await requestAI('generate', id, { prompt, model, maxOutputTokens: options?.maxOutputTokens??settings.preferences.maxOutputTokens });
       assertOwner();
       if (!result.text?.trim()) throw new Error('The provider returned no text. Try a different model.');
       return result.text;
@@ -48,7 +50,7 @@ export class MultiProviderAI {
     } catch (error) {
       // Never retry an expired session, invalid input, or a request under another account.
       assertOwner();
-      if (error instanceof AISessionError || (error instanceof AIRequestError && [400, 401, 403, 413].includes(error.status)) || provider === 'gemini') throw error;
+      if (options?.allowFallback===false || error instanceof AISessionError || (error instanceof AIRequestError && [400, 401, 403, 413].includes(error.status)) || provider === 'gemini') throw error;
       if (!readCredential('gemini')) throw new Error('Your selected provider failed. Gemini fallback needs your own Gemini key in Settings → AI Providers. Your writing has not changed.');
       try {
         // Gemini uses its own credential and saved model, never the failed provider's key/model.
