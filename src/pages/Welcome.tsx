@@ -1,3 +1,4 @@
+import { PricingPlans } from '../components/pricing/PricingPlans';
 import { TypewriterHeadline } from '../components/ui/TypewriterHeadline';
 import { PublicFooter } from '../components/legal/PublicFooter';
 import { Link } from 'react-router-dom';
@@ -27,7 +28,7 @@ export function Welcome() {
     <a className="welcome-skip" href="#main">Skip to content</a>
     <header className="welcome-nav welcome-container">
       <Link to="/" aria-label="PubléStudio home"><Brand /></Link>
-      <nav aria-label="Main navigation"><a className="welcome-desktop-link" href="#how-it-works">How it works</a><a className="welcome-desktop-link" href="#questions">Questions</a><Link className="welcome-signin" to={user ? '/dashboard' : '/auth/login'}>{user ? 'My dashboard' : 'Sign in'} <ArrowRight size={16} /></Link></nav>
+      <nav aria-label="Main navigation"><a className="welcome-desktop-link" href="#how-it-works">How it works</a><Link className="welcome-desktop-link" to="/pricing">Pricing</Link><a className="welcome-desktop-link" href="#questions">Questions</a><Link className="welcome-signin" to={user ? '/dashboard' : '/auth/login'}>{user ? 'My dashboard' : 'Sign in'} <ArrowRight size={16} /></Link></nav>
     </header>
     <main id="main">
       <section className="welcome-hero welcome-container">
@@ -55,6 +56,7 @@ export function Welcome() {
       ].map(({ icon: Icon, title, detail }) => <article className="welcome-feature-glass" key={title}><div className="welcome-feature-icon"><Icon size={23} aria-hidden="true" /></div><h2>{title}</h2><p>{detail}</p></article>)}</div></section>
       <section id="how-it-works" className="welcome-section welcome-container"><div className="welcome-section-heading"><p className="welcome-eyebrow">FROM THE FIRST IDEA TO THE LAST PAGE</p><h2>One book. A few clear steps.</h2><p>You don’t need every answer before you start.<br />Just a place to put the first words.</p></div><div className="welcome-step-grid">{steps.map(({ number, icon: Icon, title, description }) => <article className="welcome-step" key={number}><div className="welcome-step-top"><Icon size={25} /><span>{number}</span></div><h3>{title}</h3><p>{description}</p></article>)}</div></section>
       <section className="welcome-choice welcome-container"><div><p className="welcome-eyebrow">SUPPORT FOR YOUR PROCESS</p><h2>Your creativity.<br />Your choice of tools.</h2><p>Write on your own, or bring your own API key for help drafting or editing a selected passage. Preview suggestions and accept only what works for you.</p><p>You choose the provider and when to use it.</p><p>Already made a cover you love? Bring it with you. Your writing workflow shouldn’t ask you to start over.</p></div><div className="welcome-tool-card"><span className="welcome-mini-label">KEEP IT SIMPLE</span><div><Feather /><span><strong>Start with your words</strong><small>No AI setup needed to begin.</small></span><Check size={18} /></div><div><Sparkles /><span><strong>Add AI when it helps</strong><small>Gemini · OpenAI · OpenRouter</small></span><Check size={18} /></div><div><Image /><span><strong>Bring your own cover</strong><small>PNG · JPG · WebP</small></span><Check size={18} /></div><p>Provider API usage is billed separately by your provider.</p></div></section>
+      <div className="welcome-container"><PricingPlans source="landing"/></div>
       <section id="questions" className="welcome-section welcome-container welcome-faq"><div><p className="welcome-eyebrow">A FEW THINGS TO KNOW</p><h2>Before your<br />first chapter.</h2><img className="welcome-faq-illustration" src="/faq-questions.png" alt="" width="512" height="512" loading="lazy" /></div><div>{questions.map(([question, answer]) => <details key={question}><summary>{question}<span aria-hidden="true">+</span></summary><p>{answer}</p></details>)}</div></section>
       <section className="welcome-final welcome-container"><div className="welcome-final-quill"><Brand compact /></div><p className="welcome-eyebrow">THERE’S A BOOK IN THAT IDEA.</p><h2>Let’s give it a first page.</h2><p>Start with a title. The rest can take shape as you go.</p><Link className="welcome-primary" to={start}>{user ? 'Open your dashboard' : 'Start your book'} <ArrowRight size={19} /></Link></section>
     </main>

@@ -1,5 +1,5 @@
 import { AIUsagePanel } from '../../../components/book/AIUsagePanel';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useBookStore, type Book } from '../../../store/useBookStore';
 import { countWords } from '../../../lib/book-stats';
 import { GlassCard } from '../../../components/ui/GlassCard';
@@ -40,7 +40,7 @@ export function ChapterEditor({book,onNext,onPrev,initialChapterId}:{initialChap
   let last='';try{last=localStorage.getItem(`puble:resume:${book.user_id}:${book.id}`)||'';}catch{/* optional */}
   setChapters(rows);setSelected(rows.find(c=>c.id===initialChapterId)?.id||rows.find(c=>c.id===last)?.id||rows[0]?.id||'');setLoading(false);
  })();return()=>{active=false;mounted.current=false;};},[book.id]);
- useEffect(()=>{
+ useLayoutEffect(()=>{
   if(!selected)return;const c=ref.current.chapters.find(v=>v.id===selected);if(!c)return;
   setSelection({start:0,end:0});setHistory(null);setRestore(null);setProposal(null);setConflict(null);setPaused(false);setDirty(false);setStatus('Saved');
   try{
