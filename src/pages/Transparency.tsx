@@ -22,10 +22,11 @@ export function Transparency() {
         <p className="mt-2 text-sm text-slate-400 leading-7">AI usage shows up to 50 successful request records on this device, including token counts and costs when providers return them. OpenRouter supports a manual rate lookup and approximate text-cost scenarios. These are not exact quotes or spending caps; failed requests, reasoning and retries can add charges. Your provider dashboard and invoice remain authoritative.</p>
       </section>
       <section className="border-t border-white/10 pt-6">
-        <h3 className="text-white font-semibold">Why paid tiers are disabled</h3>
-        <p className="mt-2 text-sm leading-7">Paid tiers are not available to purchase during beta. Checkout, subscription updates, and paid feature access are not connected yet. Upgrades will open when the full purchase-to-access process is ready.</p>
-        <p className="mt-2 text-sm text-purple-200 leading-7">Disabled tiers are previews, not active offers. No paid price, trial, or launch date is confirmed here.</p>
+        <h3 className="text-white font-semibold">Our preliminary pricing structure</h3>
+        <p className="mt-2 text-sm leading-7">Free beta signup is open. Lite is our intended $9 USD/month entry tier, with beta interest registration open while checkout is connected and tested. Author ($19 USD/month) and Pro ($49 USD/month) are preliminary later tiers, greyed out until a phase after the Product Hunt launch. Their benefits and limits are not confirmed.</p>
+        <p className="mt-2 text-sm text-purple-200 leading-7">Joining the launch waitlist or registering Lite interest creates no subscription and takes no payment. Paid access requires a separate checkout once available. No automatic paid trial or upgrade. See the pricing page for the current structure and register for launch notifications.</p>
       </section>
+      <Link to="/pricing" className="glass-button inline-flex">View tiers & join the launch waitlist</Link>
       <p className="border-t border-white/10 pt-5 text-xs text-slate-400 leading-6">Imports preserve text and basic formatting, not complex page layouts, comments or native linked footnotes. Available DOCX footnotes become a separate notes chapter with reference markers. DOCX is for further editing; EPUB is reflowable and gets built-in structure checks before download. Standard PDF is a reading copy. A separate beta 6 × 9 inch print-interior template checks page size, embedded font and margins, but still needs printer preview/proof approval; it is not certified print-ready. Check publishing-platform requirements separately. Cloud history keeps the last 50 changed text versions per chapter; device drafts are not a full offline mode. <Link to="/legal/privacy" className="text-purple-300 underline underline-offset-4">How your data and AI keys are handled</Link></p>
     </GlassCard>
   </Container>;

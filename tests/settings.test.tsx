@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { webcrypto } from 'node:crypto';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { MemoryRouter } from 'react-router-dom';
@@ -26,12 +26,13 @@ it('offers imported cover workflow without asking authors to connect external to
   expect(screen.getByText(/No API key or tool connection is needed/)).toBeTruthy();
   expect(screen.getByRole('link',{name:/Canva/})).toBeTruthy();
 });
-it('only allows saved BYOK providers as defaults and explains the Gemini fallback',()=>{
+it('only allows saved BYOK providers as defaults and explains the Gemini fallback',async()=>{
   render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
   const select=screen.getByLabelText('Default AI provider') as HTMLSelectElement;
   expect(Array.from(select.options).every(option=>option.disabled)).toBe(true);
   fireEvent.change(screen.getByLabelText('Google Gemini API key'),{target:{value:'gemini-session-key'}});
   fireEvent.click(screen.getByText('Save key & model'));
+  await waitFor(()=>expect(screen.getByText('Key remembered on this device. Test it to verify access.')).toBeTruthy());
   expect(select.options[0].disabled).toBe(false);
   expect(select.options[1].disabled).toBe(true);
   expect(screen.getByText(/Gemini fallback key available/)).toBeTruthy();
@@ -44,7 +45,7 @@ it('selects a saved provider from the default dropdown',()=>{
   expect(useIntegrationStore.getState().provider).toBe('openai');
   expect(screen.getByText('Default AI provider updated.')).toBeTruthy();
 });
-it('offers direct Anthropic and xAI connections and a configurable Other endpoint',()=>{
+it('offers direct Anthropic and xAI connections and a configurable Other endpoint',async()=>{
  render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
  fireEvent.click(screen.getByRole('button',{name:/Anthropic.*Use Claude/}));
  expect(screen.getByLabelText('Anthropic API key')).toBeTruthy();
@@ -55,6 +56,7 @@ it('offers direct Anthropic and xAI connections and a configurable Other endpoin
  fireEvent.change(screen.getByLabelText('Other API key'),{target:{value:'other-secret'}});
  fireEvent.change(screen.getByLabelText('Model ID'),{target:{value:'my-model'}});
  fireEvent.click(screen.getByText('Save key & model'));
+  await waitFor(()=>expect(screen.getByText('Key remembered on this device. Test it to verify access.')).toBeTruthy());
  expect(useIntegrationStore.getState().providers.other.baseUrl).toBe('https://api.example.com/v1');
  fireEvent.change(screen.getByLabelText('API base URL'),{target:{value:'https://another.example.com/v1'}});
  expect((screen.getByLabelText('Other API key') as HTMLInputElement).value).toBe('');
