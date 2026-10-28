@@ -30,13 +30,13 @@ export function Header() {
               </span>
             </div>
             <div className="relative group">
-              <Link to="/profile" aria-label="Profile settings" className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-medium border-2 border-white/10 hover:border-primary/50 transition-colors">
+              <Link to="/settings?section=account" aria-label="Account settings" className="w-9 h-9 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-medium border-2 border-white/10 hover:border-primary/50 transition-colors">
                 <User className="w-4 h-4" />
               </Link>
 
               <div className="absolute right-0 mt-2 w-48 py-2 bg-[#1a1625] border border-white/10 rounded-xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all duration-200 ease-out transform origin-top-right">
-                <Link to="/profile" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
-                  Profile Settings
+                <Link to="/settings?section=account" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
+                  Account Settings
                 </Link>
                 <Link to="/billing" className="block px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-white/5 transition-colors">
                   Billing

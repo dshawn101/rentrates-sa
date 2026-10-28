@@ -32,7 +32,7 @@ export function DashboardHelper({ book, firstName, unavailable }: { book?: Book;
   return <div className="border-t border-white/10 pt-5 mt-5 space-y-3">
     <h3 className="text-sm font-semibold text-purple-200 flex items-center gap-2"><Sparkles size={16} />Writing helper · optional</h3>
     <p className="text-xs text-slate-400">Get one next-step suggestion through OpenRouter. Clicking shares your first name, book and chapter titles, and saved progress — no manuscript text. Uses your API credits.</p>
-    {hasKey ? <><p className="text-xs text-slate-500 break-all">OpenRouter · {model}</p><GlassButton variant="secondary" size="sm" onClick={suggest} isLoading={busy} disabled={unavailable}>Suggest my next step</GlassButton></> : <Link to="/settings?section=providers" className="inline-flex text-sm text-purple-300">Add your OpenRouter key to use the helper →</Link>}
+    {hasKey ? <><p className="text-xs text-slate-500 break-all">OpenRouter · {model}</p><GlassButton variant="secondary" size="sm" onClick={suggest} isLoading={busy} disabled={unavailable}>Suggest my next step</GlassButton></> : <Link to="/ai-providers" className="inline-flex text-sm text-purple-300">Add your OpenRouter key to use the helper →</Link>}
     {advice && <p role="status" className="text-sm text-slate-200 leading-relaxed whitespace-pre-wrap">{advice}<span className="block text-xs text-slate-500 mt-2">AI suggestion · based on the saved progress above</span></p>}
     {error && <p role="alert" className="text-sm text-amber-200">{error} You can continue writing without the helper.</p>}
   </div>;
