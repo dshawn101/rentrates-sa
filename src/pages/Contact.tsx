@@ -1,3 +1,4 @@
+import {useAuth} from '../hooks/useAuth';
 import {useRef,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Brand} from '../components/ui/Brand';
@@ -8,12 +9,14 @@ import {SUPPORT_CATEGORIES,submitSupportRequest} from '../lib/support';
 const empty={name:'',email:'',category:'',subject:'',book_title:'',message:'',website:''};
 const field='w-full rounded-xl border border-white/15 bg-[#161222] p-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-400';
 export function Contact(){
+ const {user}=useAuth();
+ const returnTo=user?'/dashboard':'/';
  const [form,setForm]=useState(empty),[busy,setBusy]=useState(false),[error,setError]=useState(''),[reference,setReference]=useState('');
  const requestId=useRef<string|null>(null),pending=useRef(false);
  const change=(name:keyof typeof empty,value:string)=>{setForm(current=>({...current,[name]:value}));requestId.current=null;};
  const submit=async(e:React.FormEvent)=>{e.preventDefault();if(pending.current)return;pending.current=true;setBusy(true);setError('');
  try{requestId.current??=crypto.randomUUID();setReference(await submitSupportRequest(form,requestId.current));setForm(empty);}catch(e){setError(e instanceof Error?e.message:'Could not send your request. Please retry.');}finally{pending.current=false;setBusy(false);}};
- return <div className="min-h-screen bg-[#0f0c1b] text-slate-200"><header className="max-w-4xl mx-auto px-6 py-7 flex flex-wrap gap-4 items-center justify-between"><Link to="/" aria-label="PubléStudio home"><Brand/></Link><Link to="/" className="text-sm text-purple-300">Back to home</Link></header>
+ return <div className="min-h-screen bg-[#0f0c1b] text-slate-200"><header className="max-w-4xl mx-auto px-6 py-7 flex flex-wrap gap-4 items-center justify-between"><Link to={returnTo} aria-label={user?"PubléStudio dashboard":"PubléStudio home"}><Brand/></Link><Link to={returnTo} className="text-sm text-purple-300">{user?"Back to dashboard":"Back to home"}</Link></header>
  <main className="max-w-3xl mx-auto px-6 py-8 space-y-6"><div><p className="text-sm uppercase tracking-widest text-purple-300 mb-3">For authors & writers</p><h1 className="text-4xl font-bold text-white">Contact & Support</h1><p className="text-slate-400 mt-4 leading-7">Need help with your manuscript or have an idea for PubléStudio? Choose a query type and tell us what happened. You can contact us without signing in.</p></div>
  <GlassCard className="p-6 sm:p-8">{reference?<section role="status" className="space-y-4"><h2 className="text-2xl font-semibold text-white">Your request has been saved</h2><p>It is in our private support queue. Keep this reference for any follow-up:</p><p className="rounded-xl bg-purple-400/10 p-4 text-purple-200 break-all font-mono">PS-{reference}</p><p className="text-sm text-slate-400">If a reply is needed, we’ll use the email address you provided. No automatic confirmation email is sent.</p><GlassButton onClick={()=>{setReference('');requestId.current=null;}}>Send another request</GlassButton></section>:<form onSubmit={submit} className="space-y-5">
  {error&&<p role="alert" className="rounded-xl border border-amber-400/30 p-4 text-amber-200">{error}</p>}
