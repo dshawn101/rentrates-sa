@@ -1,0 +1,11 @@
+// @vitest-environment jsdom
+import {afterEach,beforeEach,expect,it,vi} from 'vitest';
+import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {MemoryRouter} from 'react-router-dom';
+import {PayPalBilling} from '../src/components/pricing/PayPalBilling';
+const m=vi.hoisted(()=>({availability:vi.fn(),action:vi.fn(),refresh:vi.fn()}));
+vi.mock('../src/lib/billing',()=>({billingAvailability:m.availability,billingAction:m.action}));vi.mock('../src/hooks/useAuth',()=>({useAuth:()=>({refreshProfile:m.refresh})}));
+beforeEach(()=>{vi.clearAllMocks();history.replaceState(null,'','/billing');});afterEach(cleanup);
+it('keeps purchase unavailable when merchant setup is missing',async()=>{m.availability.mockResolvedValue({available:false,environment:null});render(<MemoryRouter><PayPalBilling/></MemoryRouter>);await screen.findByText(/PayPal setup and payment testing/);expect(screen.queryByText('Continue to PayPal · $9/month')).toBeNull();expect(m.action).not.toHaveBeenCalled();});
+it('requires an explicit cancellation choice and keeps management available while new checkout is paused',async()=>{m.availability.mockResolvedValue({available:false,managementAvailable:true,environment:'live'});m.action.mockResolvedValue({tier:'lite',environment:'live',subscription:{status:'ACTIVE',paidUntil:'2099-01-01T00:00:00Z'}});render(<MemoryRouter><PayPalBilling/></MemoryRouter>);await screen.findByText('Current plan: Lite');const cancel=screen.getByRole('button',{name:'Cancel renewal'}) as HTMLButtonElement;expect(cancel.disabled).toBe(true);fireEvent.click(screen.getByLabelText('Cancel future PayPal renewals for this subscription.'));fireEvent.click(cancel);await waitFor(()=>expect(m.action).toHaveBeenCalledWith('cancel',{confirmCancel:true}));});
+it('does not interpret a PayPal return as paid access',async()=>{history.replaceState(null,'','/billing?paypal=returned');m.availability.mockResolvedValue({available:true,environment:'sandbox'});m.action.mockResolvedValue({tier:'free',environment:'sandbox',subscription:{status:'ACTIVE',paidUntil:null}});render(<MemoryRouter><PayPalBilling/></MemoryRouter>);await screen.findByText('Current plan: Free beta');expect(m.action).toHaveBeenCalledWith('refresh');expect(screen.getByText(/Sandbox payments do not activate live/)).toBeTruthy();});

@@ -5,7 +5,7 @@ import type { Session, User } from '@supabase/supabase-js'
 import { supabase, handleSupabaseError, supabaseConfigError } from '../lib/supabase'
 
 interface UserProfile {
-  tier: 'free' | 'express' | 'craft'
+  tier: 'free' | 'lite' | 'express' | 'craft'
   subscription_status: string
   trial_ends_at: string | null
 }
@@ -90,6 +90,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .abortSignal(controller.signal).single()
           if (error) throw error
           if (active) setProfile(data)
+          if (typeof supabase.rpc === 'function') {
+            try {
+              const entitlement = await supabase.rpc('paypal_has_lite').abortSignal(controller.signal)
+              if (active && !entitlement.error && entitlement.data === true) setProfile({...data, tier: 'lite'})
+            } catch { /* A billing lookup must not block free writing access. */ }
+          }
         } catch (error) {
           if (active) {
             handleSupabaseError(error)

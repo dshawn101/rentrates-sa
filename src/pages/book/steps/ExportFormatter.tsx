@@ -1,3 +1,4 @@
+import {pdfExportTier} from '../../../lib/billing';
 import {useEffect} from 'react';
 import type {PrintReport} from '../../../lib/print-export';
 import {BookReview} from '../../../components/book/BookReview';
@@ -43,8 +44,9 @@ export function ExportFormatter({book,onPrev}:{book:Book;onPrev:()=>void}) {
    if(!preview||JSON.stringify(chapters)!==JSON.stringify(preview.chapters))throw new Error('Saved chapters changed. Preview and check the manuscript again before downloading.');
    const payload={title:book.title,author:book.metadata?.author||'Unknown',chapters:assembled(chapters),isbn,cover};
    const exports=await import('../../../lib/export');
-   if(format==='print'){const {preparePrintPDF}=await import('../../../lib/print-export');const result=await preparePrintPDF({...payload,cover:undefined},(profile?.tier||'free')==='free');setPrintProof({url:URL.createObjectURL(result.doc.output('blob')),report:result.report});setStatus('Print candidate prepared. Review the PDF and checks below before downloading.');return;}
-   if(format==='pdf')await exports.exportToPDF(payload,profile?.tier||'free');
+   const exportTier=(format==='print'||format==='pdf')?await pdfExportTier(profile?.tier||'free'):'free';
+   if(format==='print'){const {preparePrintPDF}=await import('../../../lib/print-export');const result=await preparePrintPDF({...payload,cover:undefined},exportTier==='free');setPrintProof({url:URL.createObjectURL(result.doc.output('blob')),report:result.report});setStatus('Print candidate prepared. Review the PDF and checks below before downloading.');return;}
+   if(format==='pdf')await exports.exportToPDF(payload,exportTier);
    else if(format==='docx')await exports.exportToDOCX(payload);
    else if(format==='epub')await exports.exportToEPUB(payload);
    else if(format==='md')await exports.exportToMarkdown(payload);

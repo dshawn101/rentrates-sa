@@ -1,3 +1,4 @@
+import {IntroVideo} from '../components/onboarding/IntroVideo';
 import { PricingPlans } from '../components/pricing/PricingPlans';
 import { TypewriterHeadline } from '../components/ui/TypewriterHeadline';
 import { PublicFooter } from '../components/legal/PublicFooter';
@@ -36,7 +37,7 @@ export function Welcome() {
           <p className="welcome-eyebrow"><span /> A little structure. A lot of possibility.</p>
           <TypewriterHeadline />
           <p className="welcome-intro">A calm space to turn your ideas into a manuscript. Plan your chapters, find your words, and bring it all together — with AI help when you want it.</p>
-          <div className="welcome-actions"><Link className="welcome-primary" to={start}>{user ? 'Continue writing' : 'Start your book'} <ArrowRight size={19} /></Link><a className="welcome-text-link" href="#how-it-works">Take a look around <span>↗</span></a></div>
+          <div className="welcome-actions"><Link className="welcome-primary" to={start}>{user ? 'Continue writing' : 'Start your book'} <ArrowRight size={19} /></Link><IntroVideo /></div>
           <p className="welcome-small"><Check size={14} /> Write without AI. Connect your own key anytime.</p>
         </div>
         <div className="welcome-studio-preview" aria-label="Illustrative preview of the book-writing workflow">
