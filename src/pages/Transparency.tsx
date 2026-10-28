@@ -10,7 +10,7 @@ export function Transparency() {
       <div>
         <span className="inline-flex px-3 py-1 text-xs font-semibold tracking-wide rounded-full bg-purple-400/10 text-purple-200 border border-purple-400/25">FREE BETA · AVAILABLE NOW</span>
         <h2 className="text-2xl font-semibold text-white mt-4">Free beta access. Optional AI costs are separate.</h2>
-        <p className="mt-3 text-sm leading-7">PubléStudio is not charging a subscription during this beta. There is no paid checkout or automatic paid trial.</p>
+        <p className="mt-3 text-sm leading-7">Free beta access remains available. Optional Lite PayPal checkout is shown in Plan & Usage when merchant setup and testing are complete. There is no automatic paid trial.</p>
       </div>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">Included in the current beta</h3>
@@ -23,7 +23,7 @@ export function Transparency() {
       </section>
       <section className="border-t border-white/10 pt-6">
         <h3 className="text-white font-semibold">Our preliminary pricing structure</h3>
-        <p className="mt-2 text-sm leading-7">Free beta signup is open. Lite is our intended $9 USD/month entry tier, with beta interest registration open while checkout is connected and tested. Author ($19 USD/month) and Pro ($49 USD/month) are preliminary later tiers, greyed out until a phase after the Product Hunt launch. Their benefits and limits are not confirmed.</p>
+        <p className="mt-2 text-sm leading-7">Free beta signup is open. Lite is our $9 USD/month entry tier. When PayPal checkout is enabled, it includes PDFs without PubléStudio attribution alongside the free beta writing tools. No new project limit is introduced during beta. Interest registration remains available while merchant setup and testing are completed. Author ($19 USD/month) and Pro ($49 USD/month) are preliminary later tiers, greyed out until a phase after the Product Hunt launch. Their benefits and limits are not confirmed.</p>
         <p className="mt-2 text-sm text-purple-200 leading-7">Joining the launch waitlist or registering Lite interest creates no subscription and takes no payment. Paid access requires a separate checkout once available. No automatic paid trial or upgrade. See the pricing page for the current structure and register for launch notifications.</p>
       </section>
       <Link to="/pricing" className="glass-button inline-flex">View tiers & join the launch waitlist</Link>

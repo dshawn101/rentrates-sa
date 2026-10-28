@@ -6,7 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import '../../styles/signin.css';
 import { GlassInput } from '../../components/ui/GlassInput';
 import { GlassButton } from '../../components/ui/GlassButton';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useToastStore } from '../../store/useToastStore';
 
 export function Login() {
@@ -16,6 +16,7 @@ export function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const { signIn, loading } = useAuth();
   const navigate = useNavigate();
+  const [search] = useSearchParams();
   const { addToast } = useToastStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,7 +25,7 @@ export function Login() {
     try {
       await signIn(email, password);
       addToast('Welcome back!', 'success');
-      navigate('/dashboard');
+      navigate(search.get('next') === 'billing' ? '/billing' : '/dashboard');
     } catch (error: unknown) {
       addToast(getAuthErrorMessage(error), 'error');
     } finally {

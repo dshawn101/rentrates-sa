@@ -1,5 +1,7 @@
 # Beta pricing and launch handoff
 
+Update: the PayPal integration is now implemented behind server configuration. See [PayPal setup](paypal-setup.md) for the current activation and acceptance checklist. Lite remains interest-only until merchant setup/testing are complete; no real checkout was executed during implementation. The older checklist below records launch intent; verified payments now grant Lite through separate RLS-protected billing records while legacy profile values are preserved.
+
 Public intentions: Free $0; Lite $9 USD/month beta entry tier; Author $19 and Pro $49 USD/month preliminary tiers planned for a phase after Product Hunt. No release date is promised. Free account signup is live. Lite registration records interest and does not activate a paid subscription. Author/Pro purchase controls remain disabled, with separate notification signup.
 
 ## Gateway activation checklist (owner-managed)
