@@ -14,7 +14,7 @@ Add these in the Vercel project environment settings. Do not paste secrets in ch
 | PAYPAL_ENVIRONMENT | `sandbox` initially; `live` after successful testing |
 | PAYPAL_CLIENT_ID | REST app client ID from the matching PayPal environment |
 | PAYPAL_CLIENT_SECRET | REST app secret; server secret |
-| PAYPAL_LITE_PLAN_ID | Active plan ID for exactly $9 USD every month, indefinite regular cycle, quantity unsupported, no trial, no setup fee or extra percentage tax |
+| PAYPAL_LITE_PLAN_ID (or PAYPAL_PLAN_ID) | Active plan ID for exactly $9 USD every month, indefinite regular cycle, quantity unsupported, no trial, no setup fee or extra percentage tax |
 | PAYPAL_WEBHOOK_ID | Matching REST app's webhook ID |
 | APP_ORIGIN | `https://www.publestudio.com` |
 | SUPABASE_SECRET_KEY | Server-only Supabase secret (`sb_secret_…`) or legacy service_role key |
