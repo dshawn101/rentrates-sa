@@ -81,3 +81,17 @@ it('keeps the same complete settings menu when moving from Profile to AI Provide
  expect(account.getAttribute('aria-current')).toBe('page');
  expect(screen.getByLabelText('Display name')).toBeTruthy();
 });
+
+it('keeps the section menu outside the scrolling panel and resets the panel when changing sections',()=>{
+ render(<MemoryRouter initialEntries={['/settings?section=providers']}><Settings/></MemoryRouter>);
+ const nav=screen.getByRole('navigation',{name:'Settings sections'});
+ const panel=screen.getByRole('region',{name:'AI Providers'});
+ expect(panel.contains(nav)).toBe(false);
+ panel.scrollTop=650;
+ fireEvent.scroll(panel);
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
+ fireEvent.click(within(nav).getByRole('button',{name:/Writing Defaults/}));
+ expect(screen.getByRole('region',{name:'Writing Defaults'})).toBe(panel);
+ expect(panel.scrollTop).toBe(0);
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
+});
