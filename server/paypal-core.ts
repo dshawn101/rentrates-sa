@@ -2,10 +2,11 @@ import {randomUUID} from 'node:crypto';
 export type PayPalConfig={environment:'sandbox'|'live';clientId:string;secret:string;planId:string;webhookId:string;origin:string;supabaseUrl:string;adminKey:string;anonKey:string};
 export function paymentConfig(env:NodeJS.ProcessEnv=process.env,requireEnabled=true):PayPalConfig|null{
  if((requireEnabled&&env.PAYPAL_CHECKOUT_ENABLED!=='true')||!['sandbox','live'].includes(env.PAYPAL_ENVIRONMENT||''))return null;
- const required=['PAYPAL_CLIENT_ID','PAYPAL_CLIENT_SECRET','PAYPAL_LITE_PLAN_ID','PAYPAL_WEBHOOK_ID','APP_ORIGIN','VITE_SUPABASE_URL','SUPABASE_SECRET_KEY','VITE_SUPABASE_ANON_KEY'];
- if(required.some(k=>!env[k]?.trim()))return null;
+ const planId=(env.PAYPAL_LITE_PLAN_ID||env.PAYPAL_PLAN_ID||'').trim();
+ const required=['PAYPAL_CLIENT_ID','PAYPAL_CLIENT_SECRET','PAYPAL_WEBHOOK_ID','APP_ORIGIN','VITE_SUPABASE_URL','SUPABASE_SECRET_KEY','VITE_SUPABASE_ANON_KEY'];
+ if(!planId||required.some(k=>!env[k]?.trim()))return null;
  try{const u=new URL(env.APP_ORIGIN!);if(u.protocol!=='https:'||u.username||u.password||u.pathname!=='/'||u.search||u.hash)return null;}catch{return null;}
- return {environment:env.PAYPAL_ENVIRONMENT as 'sandbox'|'live',clientId:env.PAYPAL_CLIENT_ID!,secret:env.PAYPAL_CLIENT_SECRET!,planId:env.PAYPAL_LITE_PLAN_ID!,webhookId:env.PAYPAL_WEBHOOK_ID!,origin:new URL(env.APP_ORIGIN!).origin,supabaseUrl:env.VITE_SUPABASE_URL!.replace(/\/$/,''),adminKey:env.SUPABASE_SECRET_KEY!,anonKey:env.VITE_SUPABASE_ANON_KEY!};
+ return {environment:env.PAYPAL_ENVIRONMENT as 'sandbox'|'live',clientId:env.PAYPAL_CLIENT_ID!,secret:env.PAYPAL_CLIENT_SECRET!,planId,webhookId:env.PAYPAL_WEBHOOK_ID!,origin:new URL(env.APP_ORIGIN!).origin,supabaseUrl:env.VITE_SUPABASE_URL!.replace(/\/$/,''),adminKey:env.SUPABASE_SECRET_KEY!,anonKey:env.VITE_SUPABASE_ANON_KEY!};
 }
 export function validateLitePlan(p:any){
  const c=p.billing_cycles;
