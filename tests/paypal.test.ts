@@ -27,3 +27,9 @@ it('checks subscription ownership and plan before updating a snapshot',async()=>
 it('requires a real authenticated session instead of trusting a return query or decoded token',async()=>{
  const send=vi.fn().mockResolvedValue(json({error:'invalid'},401));await expect(new PayPalService(c,send).authenticate('Bearer forged')).rejects.toThrow('Sign in');expect(send.mock.calls[0][0]).toBe(`${c.supabaseUrl}/auth/v1/user`);
 });
+
+it('checks credentials, fixed Lite pricing and the billing database without creating a subscription',async()=>{
+ const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(plan())).mockResolvedValueOnce(json([])).mockResolvedValueOnce(json([]));
+ expect(await new PayPalService(c,send).readiness()).toBe(true);expect(send.mock.calls).toHaveLength(4);expect(send.mock.calls.slice(1).every(call=>call[1].method==='GET')).toBe(true);expect(send.mock.calls.every(call=>!String(call[0]).includes('/v1/billing/subscriptions'))).toBe(true);
+});
+it('does not report readiness for a mismatched plan',async()=>{const wrong=plan();wrong.billing_cycles[0].pricing_scheme.fixed_price.value='19';const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(wrong));await expect(new PayPalService(c,send).readiness()).rejects.toThrow('USD 9');expect(send).toHaveBeenCalledTimes(2);});
