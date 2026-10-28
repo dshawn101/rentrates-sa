@@ -7,12 +7,12 @@ export default async function handler(req:IncomingMessage&{body?:unknown;query?:
  const c=paymentConfig(process.env,false),enabled=process.env.PAYPAL_CHECKOUT_ENABLED==='true';
  if(req.method==='GET'){
   let ready=false,message:string|undefined;
-  if(c&&enabled){
+  if(c){
    const key=[c.environment,c.planId,c.clientId,c.supabaseUrl].join('|');
    if(readinessCache?.key===key&&readinessCache.expires>Date.now()){ready=readinessCache.ready;message=readinessCache.message;}
    else{try{ready=await new PayPalService(c).readiness();}catch(error){ready=false;message=error instanceof Error?error.message:'Checkout verification failed.';}readinessCache={key,ready,message,expires:Date.now()+(ready?300000:30000)};}
   }
-  return reply(200,{available:ready,managementAvailable:!!c,environment:c?.environment||null,priceUSD:9,...(c&&enabled&&!ready?{message:message||'Checkout verification failed.'}:{})});
+  return reply(200,{available:ready&&enabled,checkoutReady:ready,managementAvailable:!!c,environment:c?.environment||null,priceUSD:9,...(c&&!ready?{message:message||'Checkout verification failed.'}:{})});
  }
  if(req.method!=='POST'){res.setHeader('Allow','GET, POST');return reply(405,{error:'Use GET or POST.'});}
  if(!c)return reply(503,{error:'PayPal checkout is not available yet. Free beta access remains open.'});
