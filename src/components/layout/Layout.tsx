@@ -1,3 +1,4 @@
+import {WorkspaceFooter} from './WorkspaceFooter';
 import { useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
@@ -24,8 +25,9 @@ export function Layout({ children, showSidebar = true }: LayoutProps) {
       <div className="flex-1 min-h-0 min-w-0 flex flex-col relative w-full overflow-hidden">
         <Header />
         <main data-route-scroll className="flex-1 min-h-0 overflow-y-auto p-6 md:p-8">
-          <div className="max-w-7xl mx-auto w-full h-full">
-            {children}
+          <div className="max-w-7xl mx-auto w-full min-h-full flex flex-col">
+            <div className="flex-1 min-w-0">{children}</div>
+            <WorkspaceFooter />
           </div>
         </main>
       </div>

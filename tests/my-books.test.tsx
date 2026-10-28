@@ -17,7 +17,7 @@ beforeEach(()=>{vi.clearAllMocks();useBookStore.setState({books,isLoading:false,
 afterEach(cleanup);
 it('keeps the dashboard overview separate from manuscript and resume cards',async()=>{
  render(<MemoryRouter><Dashboard/></MemoryRouter>);
- expect(screen.queryByText('Recent Projects')).toBeNull();expect(screen.queryByText('Pick up where you left off')).toBeNull();expect(screen.getByText('Open My Books →')).toBeTruthy();
+ expect(screen.queryByText('Recent Projects')).toBeNull();expect(screen.queryByText('Pick up where you left off')).toBeNull();expect(screen.getByRole('link',{name:/^Open My Books/})).toBeTruthy();
 });
 it('shows the resume card in My Books and filters manuscripts by folder',async()=>{
  render(<MemoryRouter><MyBooks/></MemoryRouter>);await waitFor(()=>expect(screen.getAllByRole('option',{name:'Thriller'}).length).toBe(2));
