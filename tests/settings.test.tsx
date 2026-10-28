@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { webcrypto } from 'node:crypto';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { MemoryRouter } from 'react-router-dom';
@@ -60,4 +60,24 @@ it('offers direct Anthropic and xAI connections and a configurable Other endpoin
  expect(useIntegrationStore.getState().providers.other.baseUrl).toBe('https://api.example.com/v1');
  fireEvent.change(screen.getByLabelText('API base URL'),{target:{value:'https://another.example.com/v1'}});
  expect((screen.getByLabelText('Other API key') as HTMLInputElement).value).toBe('');
+});
+
+it('keeps the same complete settings menu when moving from Profile to AI Providers and back',()=>{
+ render(<MemoryRouter initialEntries={['/profile']}><Settings/></MemoryRouter>);
+ const nav=screen.getByRole('navigation',{name:'Settings sections'});
+ const account=within(nav).getByRole('button',{name:/Account.*Your profile/});
+ const providers=within(nav).getByRole('button',{name:/AI Providers.*Keys/});
+ expect(account.getAttribute('aria-current')).toBe('page');
+ fireEvent.click(providers);
+ expect(screen.getByRole('navigation',{name:'Settings sections'})).toBe(nav);
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
+ expect(providers.getAttribute('aria-current')).toBe('page');
+ expect(screen.getByLabelText('Default AI provider')).toBeTruthy();
+ fireEvent.click(within(nav).getByRole('button',{name:/Writing Defaults.*Start/}));
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
+ expect(screen.getByLabelText('Target book words')).toBeTruthy();
+ fireEvent.click(account);
+ expect(screen.getByRole('navigation',{name:'Settings sections'})).toBe(nav);
+ expect(account.getAttribute('aria-current')).toBe('page');
+ expect(screen.getByLabelText('Display name')).toBeTruthy();
 });

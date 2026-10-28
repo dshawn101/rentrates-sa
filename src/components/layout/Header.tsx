@@ -8,7 +8,7 @@ export function Header() {
   const { user, profile, signOut } = useAuth();
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-white/5 bg-[#0f0c1b]/50 backdrop-blur-xl sticky top-0 z-30">
+    <header className="h-16 shrink-0 flex items-center justify-between px-6 border-b border-white/5 bg-[#0f0c1b]/50 backdrop-blur-xl sticky top-0 z-30">
       <div className="flex-1 flex items-center md:hidden">
         {/* Placeholder to balance mobile layout with sidebar toggle */}
         <div className="w-10 h-10" />
