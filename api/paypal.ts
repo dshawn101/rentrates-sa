@@ -8,7 +8,7 @@ export default async function handler(req:IncomingMessage&{body?:unknown;query?:
  if(req.method==='GET'){
   let ready=false,message:string|undefined;
   if(c){
-   const key=[c.environment,c.planId,c.clientId,c.supabaseUrl].join('|');
+   const key=[c.environment,c.planId,c.clientId,c.webhookId,c.supabaseUrl].join('|');
    if(readinessCache?.key===key&&readinessCache.expires>Date.now()){ready=readinessCache.ready;message=readinessCache.message;}
    else{try{ready=await new PayPalService(c).readiness();}catch(error){ready=false;message=error instanceof Error?error.message:'Checkout verification failed.';}readinessCache={key,ready,message,expires:Date.now()+(ready?300000:30000)};}
   }

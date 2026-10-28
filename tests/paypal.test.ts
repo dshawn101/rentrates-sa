@@ -1,5 +1,5 @@
 import {expect,it,vi} from 'vitest';
-import {paymentConfig,validateLitePlan,approvalURL,paidMonthEnd,paymentEvent,PayPalService,type PayPalConfig} from '../server/paypal-core';
+import {paymentConfig,validatePaymentWebhook,PAYPAL_REQUIRED_EVENTS,validateLitePlan,approvalURL,paidMonthEnd,paymentEvent,PayPalService,type PayPalConfig} from '../server/paypal-core';
 const c:PayPalConfig={environment:'sandbox',clientId:'client',secret:'secret',planId:'P-TEST',webhookId:'WH-TEST',origin:'https://www.publestudio.com',supabaseUrl:'https://test.supabase.co',adminKey:'sb_secret_private',anonKey:'public'};
 const plan=()=>({status:'ACTIVE',billing_cycles:[{tenure_type:'REGULAR',frequency:{interval_unit:'MONTH',interval_count:1},total_cycles:0,pricing_scheme:{fixed_price:{currency_code:'USD',value:'9.00'}}}]});
 const json=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status});
@@ -29,7 +29,16 @@ it('requires a real authenticated session instead of trusting a return query or 
 });
 
 it('checks credentials, fixed Lite pricing and the billing database without creating a subscription',async()=>{
- const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(plan())).mockResolvedValueOnce(json([])).mockResolvedValueOnce(json([]));
- expect(await new PayPalService(c,send).readiness()).toBe(true);expect(send.mock.calls).toHaveLength(4);expect(send.mock.calls.slice(1).every(call=>call[1].method==='GET')).toBe(true);expect(send.mock.calls.every(call=>!String(call[0]).includes('/v1/billing/subscriptions'))).toBe(true);
+ const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(plan())).mockResolvedValueOnce(json({url:c.origin+'/api/paypal?action=webhook',event_types:PAYPAL_REQUIRED_EVENTS.map(name=>({name}))})).mockResolvedValueOnce(new Response(null,{status:405})).mockResolvedValueOnce(json([])).mockResolvedValueOnce(json([]));
+ expect(await new PayPalService(c,send).readiness()).toBe(true);expect(send.mock.calls).toHaveLength(6);expect(send.mock.calls.slice(1).every(call=>['GET','HEAD'].includes(call[1].method))).toBe(true);expect(send.mock.calls.every(call=>!String(call[0]).includes('/v1/billing/subscriptions'))).toBe(true);
 });
 it('does not report readiness for a mismatched plan',async()=>{const wrong=plan();wrong.billing_cycles[0].pricing_scheme.fixed_price.value='19';const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(wrong));await expect(new PayPalService(c,send).readiness()).rejects.toThrow('USD 9');expect(send).toHaveBeenCalledTimes(2);});
+
+it('checks the webhook app, callback destination, events and public reachability before reporting readiness',async()=>{
+ const webhook={url:c.origin+'/api/paypal?action=webhook',event_types:PAYPAL_REQUIRED_EVENTS.map(name=>({name}))};
+ expect(validatePaymentWebhook(webhook,c.origin)).toBe(webhook.url);
+ expect(()=>validatePaymentWebhook({...webhook,url:'https://elsewhere.invalid/api/paypal?action=webhook'},c.origin)).toThrow('endpoint');
+ expect(()=>validatePaymentWebhook({...webhook,event_types:[{name:'BILLING.SUBSCRIPTION.ACTIVATED'}]},c.origin)).toThrow('missing');
+ const send=vi.fn().mockResolvedValueOnce(json({access_token:'access'})).mockResolvedValueOnce(json(plan())).mockResolvedValueOnce(json(webhook)).mockResolvedValueOnce(new Response(null,{status:401}));
+ await expect(new PayPalService(c,send).readiness()).rejects.toThrow('blocked or unreachable');expect(send).toHaveBeenCalledTimes(4);
+});
