@@ -12,6 +12,8 @@ afterEach(cleanup);
 it('shows only four author-facing settings sections with advanced tools collapsed',()=>{
   render(<MemoryRouter initialEntries={['/settings']}><Settings/></MemoryRouter>);
   expect(screen.getByRole('navigation',{name:'Settings sections'}).querySelectorAll('button')).toHaveLength(4);
+  expect(screen.queryByRole('searchbox')).toBeNull();
+  expect(screen.queryByText('No matching section.')).toBeNull();
   expect(screen.getByRole('button',{name:/Advanced tools/}).getAttribute('aria-expanded')).toBe('false');
   expect(screen.queryByText('Remote MCP tools')).toBeNull();
 });
