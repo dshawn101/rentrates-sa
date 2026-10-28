@@ -1,21 +1,26 @@
 import {DashboardIntroVideo} from '../components/onboarding/DashboardIntroVideo';
+import {DashboardAnalytics} from '../components/dashboard/DashboardAnalytics';
 import {Link} from 'react-router-dom';
-import {useEffect} from 'react';
+import {useEffect,useState} from 'react';
+import {ArrowRight,Play,KeyRound,ChevronDown} from 'lucide-react';
 import {useAuth} from '../hooks/useAuth';
 import {authorFirstName} from '../lib/author-profile';
-import {totalBookWords} from '../lib/book-stats';
+import {readUsage} from '../lib/ai-usage';
 import {useBookStore} from '../store/useBookStore';
 import {PROVIDERS,readCredential,useIntegrationStore} from '../store/useIntegrationStore';
 import {Container} from '../components/layout/Container';
-import {GlassCard} from '../components/ui/GlassCard';
 import {GlassButton} from '../components/ui/GlassButton';
+import '../styles/dashboard.css';
 export function Dashboard(){
- const {books,isLoading,error,fetchBooks}=useBookStore();const {user}=useAuth();const first=authorFirstName(user?.user_metadata?.display_name);
+ const {books,isLoading,error}=useBookStore();const {user}=useAuth();const first=authorFirstName(user?.user_metadata?.display_name);
  const integrations=useIntegrationStore();const provider=PROVIDERS.find(p=>p.id===integrations.provider)!;const hasKey=!!readCredential(integrations.provider);
- useEffect(()=>{void fetchBooks();},[fetchBooks]);
- return <Container className="space-y-8"><div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-6"><div><h1 className="text-3xl font-bold text-white">Hello{first?`, ${first}`:''}</h1><p className="text-slate-400 mt-2">Your writing overview. Find manuscripts, folders and saved progress in My Books.</p></div><Link to="/books" className="glass-button inline-flex">Open My Books →</Link></div>
- <GlassCard className="p-6 sm:p-7"><DashboardIntroVideo /></GlassCard>
- {error&&<GlassCard className="p-6"><p role="alert">{error}</p><GlassButton onClick={fetchBooks}>Retry loading books</GlassButton></GlassCard>}
- <div className="grid md:grid-cols-3 gap-5">{[{label:'Total books',value:error?'—':isLoading?'…':books.length},{label:'Saved words',value:error?'—':isLoading?'…':totalBookWords(books).toLocaleString()},{label:'AI provider costs',value:'Not tracked'}].map(stat=><GlassCard key={stat.label} className="p-6"><p className="text-sm text-slate-400">{stat.label}</p><p className="text-3xl text-white mt-3">{stat.value}</p>{stat.label==='AI provider costs'&&<p className="text-xs text-slate-400 mt-3">Check your provider dashboard for usage and charges.</p>}</GlassCard>)}</div>
- <GlassCard className="p-7"><h2 className="text-xl font-semibold text-white">Your AI setup</h2><p className="text-white mt-4">{provider.name}</p><p className="text-sm text-slate-400 mt-2 break-all">{integrations.providers[integrations.provider].model}</p><p className="text-sm text-slate-400 mt-4">{hasKey?'Your key is saved. Optional writing requests use your provider’s API credits.':'AI is optional. Writing, manuscript imports and exports work without a key.'}</p><Link to="/ai-providers" className="text-purple-300 inline-block mt-5">Manage AI settings →</Link></GlassCard></Container>;
+ const [,updateUsage]=useState(0),[videoOpen,setVideoOpen]=useState(false);
+ useEffect(()=>{const update=()=>updateUsage(n=>n+1);window.addEventListener('puble:usage',update);window.addEventListener('storage',update);return()=>{window.removeEventListener('puble:usage',update);window.removeEventListener('storage',update);};},[]);
+ const usage=readUsage(user?.id||null);
+ return <Container className="dashboard-overview"><header className="dashboard-welcome"><div><p className="dashboard-eyebrow">YOUR WRITING ROOM</p><h1>Hello{first?`, ${first}`:''}<span aria-hidden="true">.</span></h1><p>A little perspective on the words you’re bringing to life.</p></div><Link to="/books" className="glass-button">Open My Books <ArrowRight size={17}/></Link></header>
+ {error&&<div className="dashboard-load-error"><p role="alert">{error}</p><GlassButton onClick={()=>void useBookStore.getState().fetchBooks()}>Retry loading books</GlassButton></div>}
+ <DashboardAnalytics books={books} usage={usage} loading={isLoading} error={error}/>
+ <section className="dashboard-provider-strip" aria-labelledby="dashboard-provider-title"><span className="dashboard-provider-icon"><KeyRound size={22}/></span><div><h2 id="dashboard-provider-title">Your AI setup · {provider.name}</h2><p>{hasKey?'Your key is saved. Optional requests use your provider account.':'Write freely without AI. Add a key only when you want assistance.'}</p></div><Link to="/ai-providers">Manage providers <ArrowRight size={15}/></Link></section>
+ <section className="dashboard-video-section"><button className="dashboard-video-toggle" aria-expanded={videoOpen} aria-controls="dashboard-video-content" onClick={()=>setVideoOpen(v=>!v)}><Play size={18}/><span>New here? Take a tour of PubléStudio.</span><ChevronDown size={18} className={videoOpen?'rotate-180':''}/></button>{videoOpen&&<div id="dashboard-video-content" className="dashboard-video-content"><DashboardIntroVideo/></div>}</section>
+ </Container>;
 }
