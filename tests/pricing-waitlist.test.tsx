@@ -7,11 +7,11 @@ import {joinWaitlist} from '../src/lib/waitlist';
 const mocks=vi.hoisted(()=>({insert:vi.fn()}));
 vi.mock('../src/lib/supabase',()=>({supabase:{from:()=>({insert:mocks.insert})}}));
 beforeEach(()=>{vi.clearAllMocks();mocks.insert.mockResolvedValue({error:null});HTMLElement.prototype.scrollIntoView=vi.fn();HTMLDialogElement.prototype.showModal=vi.fn(function(this:HTMLDialogElement){this.setAttribute('open','');});HTMLDialogElement.prototype.close=vi.fn(function(this:HTMLDialogElement){this.removeAttribute('open');});});afterEach(cleanup);
-it('offers free signup and Lite interest while keeping higher-tier purchases disabled',()=>{
+it('routes Lite to billing and keeps notifications separate from checkout',()=>{
  render(<MemoryRouter><PricingPlans/></MemoryRouter>);
  expect(screen.getByText('$9')).toBeTruthy();expect(screen.queryByText('$19')).toBeNull();expect(screen.queryByText('$49')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Planned Premium Tiers'}));expect(screen.getByText('$19')).toBeTruthy();expect(screen.getByText('$49')).toBeTruthy();expect(screen.getByText('Join free beta').getAttribute('href')).toBe('/auth/signup');
  for(const name of ['Author plan','Pro plan'])expect((within(screen.getByRole('article',{name})).getByRole('button',{name:'Opens after Product Hunt'}) as HTMLButtonElement).disabled).toBe(true);
- fireEvent.click(screen.getByLabelText('Close premium tiers'));fireEvent.click(screen.getByText('Register Lite beta interest'));expect((screen.getByLabelText('What interests you?') as HTMLSelectElement).value).toBe('lite');
+ fireEvent.click(screen.getByLabelText('Close premium tiers'));expect(screen.getByRole('link',{name:'View Lite & checkout status'}).getAttribute('href')).toBe('/billing');fireEvent.click(screen.getByText('Notify me when Lite checkout opens'));expect((screen.getByLabelText('What interests you?') as HTMLSelectElement).value).toBe('lite');
 });
 it('records explicit notification consent and does not create an account or subscription',async()=>{
  render(<MemoryRouter><PricingPlans source="landing"/></MemoryRouter>);
