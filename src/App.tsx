@@ -1,3 +1,5 @@
+import {AIProviders} from './pages/AIProviders';
+import {HelpCenter} from './pages/HelpCenter';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { RouteScroll } from './components/navigation/RouteScroll';
 import { AuthProvider } from './hooks/useAuth';
@@ -37,6 +39,7 @@ function App() {
           <Route path="/legal/:document" element={<Legal />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/features" element={<Features />} />
+          <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/transparency" element={<Transparency />} />
 
@@ -44,6 +47,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/books" element={<MyBooks />} />
+            <Route path="/ai-providers" element={<AIProviders />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/billing" element={<Billing />} />
             <Route path="/settings" element={<Profile />} />

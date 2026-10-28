@@ -1,18 +1,18 @@
+import {FeedbackButton} from '../help/FeedbackButton';
 import { Brand } from '../ui/Brand';
 import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
 import { totalBookWords } from '../../lib/book-stats';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, User, Settings, CreditCard, Menu, LifeBuoy } from 'lucide-react';
+import { Home, BookOpen, KeyRound, Settings, Menu, LifeBuoy } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'My Books', href: '/books', icon: BookOpen },
-  { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Billing & Usage', href: '/billing', icon: CreditCard },
-  { name: 'Contact & Support', href: '/contact', icon: LifeBuoy },
+  { name: 'AI Providers', href: '/ai-providers', icon: KeyRound },
+  { name: 'Help Center', href: '/help', icon: LifeBuoy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -29,7 +29,7 @@ export function Sidebar() {
       {/* Mobile Sidebar Toggle */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white/5 border border-white/10 rounded-lg backdrop-blur-md"
-        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Toggle dashboard navigation" aria-expanded={isOpen} onClick={() => setIsOpen(!isOpen)}
       >
         <Menu className="w-6 h-6 text-white" />
       </button>
@@ -82,7 +82,7 @@ export function Sidebar() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-white/5"><FeedbackButton className="mb-4 w-full"/>
           <Link to="/transparency" className="flex items-center gap-2 mb-4 text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
             <ShieldCheck className="w-4 h-4" />
             Features & Costs
