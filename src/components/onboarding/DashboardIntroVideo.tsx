@@ -3,8 +3,8 @@ import '../../styles/intro-video.css';
 export function DashboardIntroVideo() {
   return <section className="puble-dashboard-intro" aria-labelledby="dashboard-intro-title">
     <div className="puble-dashboard-intro-copy">
-      <p className="text-xs uppercase tracking-widest text-purple-200">Welcome to your writing room</p>
-      <h2 id="dashboard-intro-title" className="text-2xl text-white">A little guidance to begin.</h2>
+      <p className="text-xs uppercase tracking-widest text-purple-200">New here?</p>
+      <h2 id="dashboard-intro-title" className="text-2xl text-white">Take a tour of PubléStudio.</h2>
       <p className="text-slate-400">Meet PubléStudio and find your way from your first idea to your next chapter. Press Play whenever you’re ready.</p>
     </div>
     <div className="puble-dashboard-video-widget">
