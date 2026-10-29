@@ -9,7 +9,7 @@ import { useAuth } from '../hooks/useAuth';
 import '../styles/welcome.css';
 
 const steps = [
-  { number: '01', icon: BookOpen, title: 'Give your idea a home.', description: 'Start fresh or import DOCX, TXT or Markdown. Review, split and organise chapters before you save.' },
+  { number: '01', icon: BookOpen, title: 'Give your idea a home.', description: 'Start blank, choose a fiction/nonfiction/memoir template, or import DOCX, TXT or Markdown. Review, split and organise chapters before you save.' },
   { number: '02', icon: Feather, title: 'Find your writing rhythm.', description: 'Write at your own pace. Connect your own AI provider whenever you want help with a draft or rewrite.' },
   { number: '03', icon: Download, title: 'Make it a manuscript.', description: 'Add your own cover and optional front/back pages. Preview saved writing before downloading DOCX, EPUB, PDF or text.' },
 ];

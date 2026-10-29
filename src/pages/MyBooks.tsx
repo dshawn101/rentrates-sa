@@ -1,3 +1,6 @@
+import {BOOK_TEMPLATES,bookTemplate,templateMetadata} from '../lib/book-templates';
+import {WritingGoals} from '../components/author/WritingGoals';
+import {AuthorGuide} from '../components/author/AuthorGuide';
 import { Link } from 'react-router-dom';
 import type { BookFolder } from '../components/book/BookFolders';
 import { BookFolders } from '../components/book/BookFolders';
@@ -34,16 +37,17 @@ function MyBookLibrary() {
   useEffect(() => { void fetchBooks(); }, [fetchBooks]);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [template,setTemplate]=useState('blank');
   const [startMode,setStartMode]=useState<'new'|'import'>('new');
   const [newBookTitle, setNewBookTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateBook = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newBookTitle.trim()) return;
+    if (!newBookTitle.trim() || isCreating) return;
 
     setIsCreating(true);
-    const newBook = await createBook(newBookTitle,{},folder==='all'||folder==='unfiled'?null:folder);
+    const newBook = await createBook(newBookTitle,startMode==='import'?{}:templateMetadata(template),folder==='all'||folder==='unfiled'?null:folder);
     if(!active.current)return;
     setIsCreating(false);
 
@@ -100,11 +104,13 @@ function MyBookLibrary() {
             </div>}
           </>}
           <div className="flex flex-wrap gap-4 mt-5">{!error && !isLoading && latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter ? 3 : latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}${latestBook.lastEditedChapter?'&chapter='+encodeURIComponent(latestBook.lastEditedChapter.id):''}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div>
+          {latestBook&&!error&&!isLoading&&<WritingGoals key={latestBook.id} book={latestBook}/>}
           <DashboardHelper key={`${user?.id}:${firstName}:${latestBook?.id}:${latestBook?.updated_at}:${latestBook?.lastEditedChapter?.updatedAt}:${latestBook?.wordCount}`} book={latestBook} firstName={firstName} unavailable={!!error || isLoading} />
         </GlassCard>
       </div>
 
       <GlassCard className="p-5 space-y-3"><h2 className="text-xl font-semibold text-white">Where would you like to start?</h2><p className="text-sm text-slate-400">Write manually from the first word. AI setup is optional.</p><div className="flex flex-wrap gap-3"><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('new');setIsCreateModalOpen(true);}}>Start a book</GlassButton><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('import');setIsCreateModalOpen(true);}}>Import a draft</GlassButton>{latestBook&&<Link className="glass-button" to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter?3:1}`}>Continue writing</Link>}</div></GlassCard>
+      <div className="author-toolkit"><div><h2>A little guidance, at your pace.</h2><p>Try the walkthrough, choose a book template or set a goal in your manuscript.</p></div><AuthorGuide /></div>
       <BookFolders onFolders={setFolders} userId={user?.id} books={books} selected={folder} onSelect={setFolder} onMove={moveBook} moving={moving} />
 
       {/* Projects Grid */}
@@ -161,11 +167,12 @@ function MyBookLibrary() {
             className="absolute inset-0 bg-[#0f0c1b]/80 backdrop-blur-sm transition-opacity"
             onClick={() => setIsCreateModalOpen(false)}
           />
-          <GlassCard className="w-full max-w-md p-6 relative z-10 animate-in zoom-in-95 duration-200">
+          <GlassCard className="w-full max-w-md max-h-[90dvh] overflow-y-auto p-6 relative z-10 animate-in zoom-in-95 duration-200">
             <h2 className="text-2xl font-bold text-white mb-2">Start new book</h2>
             <p className="text-slate-400 text-sm mb-6">Give your new book a working title. You can change this later.</p>
 
             <label className="block text-slate-300 mb-4">Starting point<select className="block w-full bg-slate-900 p-3 rounded mt-2" value={startMode} onChange={e=>setStartMode(e.target.value as 'new'|'import')}><option value="new">Start a new manuscript</option><option value="import">Import an existing draft after setup</option></select></label>
+            {startMode==='new'&&<div className="mb-4"><label className="block text-sm text-slate-300">Book template<select value={template} onChange={e=>setTemplate(e.target.value)} className="block w-full bg-slate-900 p-3 rounded mt-2"><option value="blank">Blank manuscript</option>{BOOK_TEMPLATES.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>{bookTemplate(template)&&<div className="author-template-preview mt-3"><p>{bookTemplate(template)!.description}</p><ol>{bookTemplate(template)!.chapters.map(([title])=><li key={title}>{title}</li>)}</ol><p>Suggestions only. Edit them in Outline, then save to create blank chapters. Your own writing starts in the editor.</p></div>}</div>}
             <form onSubmit={handleCreateBook} className="space-y-4">
               <GlassInput
                 label="Book Title"

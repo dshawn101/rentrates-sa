@@ -11,6 +11,7 @@ export interface Book {
   status: 'draft' | 'outline' | 'writing' | 'formatting' | 'published';
   tier_created: string;
   wordCount?: number;
+  chapterCount?: number;
   lastEditedChapter?: { id: string; title: string; updatedAt: string; orderIndex: number };
   metadata: Record<string, any>;
   created_at: string;
@@ -22,6 +23,7 @@ interface BookStore {
   isLoading: boolean;
   error: string | null;
   reset: () => void;
+  setChapterCount: (id: string, count: number) => void;
   setWordCount: (id: string, count: number) => void;
   fetchBooks: () => Promise<void>;
   createBook: (title: string, metadata?: Record<string, any>, folderId?:string|null) => Promise<Book | null>;
@@ -37,6 +39,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
   isLoading: false,
   error: null,
   reset: () => { latestBookRequest++; set({ books: [], error: null, isLoading: false }); },
+  setChapterCount: (id,count) => set(state=>({books:state.books.map(book=>book.id===id?{...book,chapterCount:count}:book)})),
   setWordCount: (id, count) => set(state => ({ books: state.books.map(book => book.id === id ? { ...book, wordCount: count } : book) })),
 
   fetchBooks: async () => {
@@ -55,6 +58,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
         const latest = savedChapters.filter(ch => ch.content?.trim() && Number.isFinite(Date.parse(ch.updated_at)))
           .sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at))[0];
         return { ...book,
+          chapterCount:savedChapters.length,
           wordCount: savedChapters.reduce((sum, chapter) => sum + countWords(chapter.content,chapter.content_format), 0),
           lastEditedChapter: latest ? { id: latest.id, title: latest.title, updatedAt: latest.updated_at, orderIndex: latest.order_index } : undefined,
         };
@@ -102,7 +106,7 @@ export const useBookStore = create<BookStore>((set, get) => ({
     const { data, error } = await supabase.from('books')
       .update({ ...changes, updated_at: new Date().toISOString() }).eq('id', id).select().single();
     if (error) throw error;
-    set(state => ({ books: state.books.map(book => book.id === id ? { ...data, wordCount: book.wordCount } : book) }));
+    set(state => ({ books: state.books.map(book => book.id === id ? { ...book, ...data, wordCount: book.wordCount } : book) }));
   },
 
   deleteBook: async (id) => {

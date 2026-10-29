@@ -77,6 +77,7 @@ export function BookSetup({ book, onNext }: BookSetupProps) {
             author: formData.author,
             genre: formData.genre,
             targetWordCount: targetWordCount,
+            ...(book.metadata?.writingGoal?.enabled?{writingGoal:{...book.metadata.writingGoal,targetWords:targetWordCount}}:{}),
             tone: formData.tone,
             synopsis: formData.synopsis,
             bookNotes: formData.bookNotes,
