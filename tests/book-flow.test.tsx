@@ -179,3 +179,12 @@ it('exports optional front and back pages in the reviewed order',async()=>{
  fireEvent.click(screen.getByText('Download PDF'));
  await waitFor(()=>expect(mocks.pdf).toHaveBeenCalledWith(expect.objectContaining({chapters:[{title:'Dedication',content:'For my family.',format:'plain'},{title:'Opening',content:'Existing prose',format:'plain'},{title:'About the author',content:'Author biography.',format:'plain'}]}),'free'));
 });
+it('retains selection across toolbar clicks, toggles combined emphasis and immediately renders a live preview',async()=>{
+ render(<ChapterEditor book={book} onNext={vi.fn()} onPrev={vi.fn()}/>);const editor=await screen.findByLabelText('Chapter content') as HTMLTextAreaElement;editor.focus();editor.setSelectionRange(0,8);fireEvent.select(editor);
+ fireEvent.mouseDown(screen.getByText('Bold'));fireEvent.click(screen.getByText('Bold'));expect(editor.value).toBe('**Existing** prose');expect(editor.selectionStart).toBe(2);expect(editor.selectionEnd).toBe(10);expect(document.activeElement).toBe(editor);
+ fireEvent.mouseDown(screen.getByText('Italic'));fireEvent.click(screen.getByText('Italic'));expect(editor.value).toBe('***Existing*** prose');const preview=screen.getByRole('region',{name:'Live formatted preview'});await waitFor(()=>expect(preview.querySelector('strong em')).toBeTruthy());expect(preview.querySelector('strong em')?.textContent).toBe('Existing');
+ fireEvent.click(screen.getByText('Bold'));expect(editor.value).toBe('*Existing* prose');fireEvent.click(screen.getByText('Italic'));expect(editor.value).toBe('Existing prose');fireEvent.click(screen.getByText('Save'));await waitFor(()=>expect(mocks.rpc).toHaveBeenCalledWith('save_chapter_draft',expect.objectContaining({p_content:'Existing prose',p_format:'markdown'})));
+});
+it('applies headings, bullets and quotes to a line instead of injecting extra lines or placeholder words',async()=>{
+ render(<ChapterEditor book={book} onNext={vi.fn()} onPrev={vi.fn()}/>);const editor=await screen.findByLabelText('Chapter content') as HTMLTextAreaElement;editor.setSelectionRange(3,3);fireEvent.select(editor);fireEvent.click(screen.getByText('Heading'));expect(editor.value).toBe('# Existing prose');fireEvent.click(screen.getByText('Bullet'));expect(editor.value).toBe('- Existing prose');fireEvent.click(screen.getByText('Quote'));expect(editor.value).toBe('> Existing prose');fireEvent.click(screen.getByText('Quote'));expect(editor.value).toBe('Existing prose');
+});

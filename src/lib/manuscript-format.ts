@@ -3,8 +3,8 @@ export interface TextRun { text:string; bold?:boolean; italic?:boolean }
 export interface TextBlock { kind:'paragraph'|'heading'|'bullet'|'quote'; level?:number; runs:TextRun[] }
 export const escapeXML=(value:string)=>value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]!)).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,'');
 export function inlineRuns(text:string):TextRun[] {
- const result:TextRun[]=[];const pattern=/\*\*([^*]+)\*\*|\*([^*]+)\*/g;let from=0;
- for(const match of text.matchAll(pattern)){if(match.index!>from)result.push({text:text.slice(from,match.index)});result.push({text:match[1]||match[2],bold:!!match[1],italic:!!match[2]});from=match.index!+match[0].length;}
+ const result:TextRun[]=[];const pattern=/\*\*\*([^*]+)\*\*\*|\*\*([^*]+)\*\*|\*([^*]+)\*/g;let from=0;
+ for(const match of text.matchAll(pattern)){if(match.index!>from)result.push({text:text.slice(from,match.index)});result.push({text:match[1]||match[2]||match[3],bold:!!(match[1]||match[2]),italic:!!(match[1]||match[3])});from=match.index!+match[0].length;}
  if(from<text.length)result.push({text:text.slice(from)});return result.length?result:[{text}];
 }
 export function parseBlocks(content:string,format:ContentFormat='plain'):TextBlock[]{
