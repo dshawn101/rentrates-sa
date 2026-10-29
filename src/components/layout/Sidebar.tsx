@@ -4,15 +4,17 @@ import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
 import { totalBookWords } from '../../lib/book-stats';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, KeyRound, Settings, Menu, LifeBuoy, ShieldCheck } from 'lucide-react';
+import { Home, BookOpen, KeyRound, Settings, Menu, LifeBuoy, ShieldCheck, Compass, Target } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'My Books', href: '/books', icon: BookOpen },
+  { name: 'Writing Goals', href: '/writing-goals', icon: Target },
   { name: 'AI Providers', href: '/ai-providers', icon: KeyRound },
   { name: 'Features & Costs', href: '/transparency', icon: ShieldCheck },
+  { name: 'Author Guide', href: '/author-guide', icon: Compass },
   { name: 'Help Center', href: '/help', icon: LifeBuoy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

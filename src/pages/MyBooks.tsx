@@ -1,5 +1,4 @@
 import {BOOK_TEMPLATES,bookTemplate,templateMetadata} from '../lib/book-templates';
-import {WritingGoals} from '../components/author/WritingGoals';
 import {AuthorGuide} from '../components/author/AuthorGuide';
 import { Link } from 'react-router-dom';
 import type { BookFolder } from '../components/book/BookFolders';
@@ -104,7 +103,7 @@ function MyBookLibrary() {
             </div>}
           </>}
           <div className="flex flex-wrap gap-4 mt-5">{!error && !isLoading && latestBook && <Link to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter ? 3 : latestBook.status === 'draft' ? 1 : latestBook.status === 'outline' ? 2 : latestBook.status === 'writing' ? 3 : 5}${latestBook.lastEditedChapter?'&chapter='+encodeURIComponent(latestBook.lastEditedChapter.id):''}`} className="glass-button inline-flex">Continue writing</Link>}<GlassButton variant="secondary" disabled={!!error || isLoading} onClick={() => setIsCreateModalOpen(true)}>New book</GlassButton></div>
-          {latestBook&&!error&&!isLoading&&<WritingGoals key={latestBook.id} book={latestBook}/>}
+          {latestBook&&!error&&!isLoading&&<Link to={`/writing-goals?book=${encodeURIComponent(latestBook.id)}`} className="inline-flex text-sm text-purple-200 mt-4">View writing goal →</Link>}
           <DashboardHelper key={`${user?.id}:${firstName}:${latestBook?.id}:${latestBook?.updated_at}:${latestBook?.lastEditedChapter?.updatedAt}:${latestBook?.wordCount}`} book={latestBook} firstName={firstName} unavailable={!!error || isLoading} />
         </GlassCard>
       </div>
