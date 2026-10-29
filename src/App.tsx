@@ -1,3 +1,5 @@
+import {AuthorGuidePage} from './pages/AuthorGuidePage';
+import {WritingGoalsPage} from './pages/WritingGoalsPage';
 import {AIProviders} from './pages/AIProviders';
 import {HelpCenter} from './pages/HelpCenter';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -47,6 +49,8 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/books" element={<MyBooks />} />
+            <Route path="/author-guide" element={<AuthorGuidePage />} />
+            <Route path="/writing-goals" element={<WritingGoalsPage />} />
             <Route path="/ai-providers" element={<AIProviders />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/billing" element={<Billing />} />
