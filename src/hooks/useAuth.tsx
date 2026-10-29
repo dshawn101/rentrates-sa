@@ -1,3 +1,4 @@
+import { signupEmailRedirect } from '../lib/auth-destination';
 import { displayName } from '../lib/author-profile';
 import { useIntegrationStore } from '../store/useIntegrationStore';
 import React, { createContext, useContext, useEffect, useState } from 'react'
@@ -16,7 +17,7 @@ interface AuthContextType {
   profile: UserProfile | null
   loading: boolean
   signIn: (e: string, p: string) => Promise<void>
-  signUp: (e: string, p: string) => Promise<void>
+  signUp: (e: string, p: string, next?: 'billing') => Promise<{requiresConfirmation: boolean}>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
   updateDisplayName: (name: string) => Promise<void>
@@ -115,10 +116,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error
   }
 
-  const signUp = async (email: string, pass: string) => {
+  const signUp = async (email: string, pass: string, next?: 'billing') => {
     if (supabaseConfigError) throw new Error(supabaseConfigError)
-    const { error } = await supabase.auth.signUp({ email, password: pass })
+    const { data, error } = await supabase.auth.signUp({ email, password: pass, options: { emailRedirectTo: signupEmailRedirect(window.location.origin, next) } })
     if (error) throw error
+    return {requiresConfirmation: !data.session}
   }
 
   const updateDisplayName = async (name: string) => {
