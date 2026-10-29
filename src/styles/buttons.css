@@ -1,38 +1,47 @@
-/* One action colour throughout the app; brand and informational colours stay separate. */
+/* Teal belongs to explicit primary actions, not every clickable element. */
 :root {
   --button-background: #14b8a6;
   --button-hover: #45d5bf;
   --button-foreground: #062c27;
   --button-focus: #99f6e4;
 }
-:is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin) {
-  background-color: var(--button-background) !important;
-  background-image: none !important;
-  color: var(--button-foreground) !important;
-  border-color: var(--button-background) !important;
+:is(.glass-button, .welcome-primary, .welcome-signin) {
+  background-color: var(--button-background);
+  background-image: none;
+  color: var(--button-foreground);
+  border-color: var(--button-background);
   --tw-ring-color: var(--button-focus);
-  box-shadow: none !important;
+  box-shadow: none;
 }
-:is(button, summary, a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin) :is(span, p, small, strong, svg) {
-  color: inherit !important;
+:is(.glass-button, .welcome-primary, .welcome-signin):hover:not(:disabled):not([aria-disabled='true']) {
+  background-color: var(--button-hover);
+  border-color: var(--button-hover);
+  box-shadow: none;
 }
-:is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin):hover:not(:disabled):not([aria-disabled='true']) {
-  background-color: var(--button-hover) !important;
-  border-color: var(--button-hover) !important;
-}
+/* Secondary and ghost buttons keep the neutral treatments defined by their components. */
 :is(button, summary, input[type='submit'], input[type='button'], a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost, .welcome-primary, .welcome-signin):focus-visible {
-  outline: 2px solid var(--button-focus) !important;
-  outline-offset: 3px;
-}
-button:is([aria-pressed='true'], [aria-selected='true'], [aria-current='page'], [aria-current='true']) {
   outline: 2px solid var(--button-focus);
   outline-offset: 3px;
 }
+/* A selected row is not keyboard focus: its own border/tint conveys selection. */
 :is(button, input[type='submit'], input[type='button']):disabled,
 :is(a[role='button'], .glass-button, .glass-button-secondary, .glass-button-ghost)[aria-disabled='true'] {
   opacity: .5;
   cursor: not-allowed;
 }
+.manuscript-chapter {
+  border: 1px solid transparent;
+  color: #a9a1bb;
+  transition: background-color .15s, border-color .15s;
+}
+.manuscript-chapter:hover:not(:disabled) { background-color: #ffffff06; color: #f1edf7; }
+.manuscript-chapter[aria-current='true'] {
+  background-color: #14b8a60d;
+  border-color: #14b8a645;
+  color: #f1edf7;
+}
+.manuscript-chapter small { color: #a9a1bb; }
+.manuscript-actions .glass-button-ghost[aria-pressed='true'] { background-color: #ffffff0c; color: #f1edf7; }
 
 /* FAQ disclosures retain their quiet, transparent treatment. */
 #questions.welcome-faq summary,
