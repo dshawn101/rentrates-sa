@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useBookStore } from '../../store/useBookStore';
 import { totalBookWords } from '../../lib/book-stats';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, BookOpen, KeyRound, Settings, Menu, LifeBuoy } from 'lucide-react';
+import { Home, BookOpen, KeyRound, Settings, Menu, LifeBuoy, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useState } from 'react';
 
@@ -12,11 +12,10 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'My Books', href: '/books', icon: BookOpen },
   { name: 'AI Providers', href: '/ai-providers', icon: KeyRound },
+  { name: 'Features & Costs', href: '/transparency', icon: ShieldCheck },
   { name: 'Help Center', href: '/help', icon: LifeBuoy },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
-
-import { ShieldCheck } from 'lucide-react';
 
 export function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,6 +61,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 to={item.href}
+                aria-current={isActive ? 'page' : undefined}
                 onClick={() => setIsOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200 group",
@@ -83,10 +83,6 @@ export function Sidebar() {
         </nav>
 
         <div className="p-4 border-t border-white/5"><FeedbackButton className="mb-4 w-full"/>
-          <Link to="/transparency" className="flex items-center gap-2 mb-4 text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
-            <ShieldCheck className="w-4 h-4" />
-            Features & Costs
-          </Link>
           <div className="bg-white/5 rounded-lg p-4 border border-white/5">
             <h4 className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               {profile?.tier || 'free'} Tier
