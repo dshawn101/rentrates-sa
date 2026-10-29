@@ -1,3 +1,4 @@
+import {AuthorGuide} from '../components/author/AuthorGuide';
 import {DashboardIntroVideo} from '../components/onboarding/DashboardIntroVideo';
 import {DashboardAnalytics} from '../components/dashboard/DashboardAnalytics';
 import {Link} from 'react-router-dom';
@@ -20,6 +21,7 @@ export function Dashboard(){
  return <Container className="dashboard-overview"><header className="dashboard-welcome"><div><p className="dashboard-eyebrow">YOUR WRITING ROOM</p><h1>Hello{first?`, ${first}`:''}<span aria-hidden="true">.</span></h1><p>A little perspective on the words you’re bringing to life.</p></div><Link to="/books" className="glass-button">Open My Books <ArrowRight size={17}/></Link></header>
  {error&&<div className="dashboard-load-error"><p role="alert">{error}</p><GlassButton onClick={()=>void useBookStore.getState().fetchBooks()}>Retry loading books</GlassButton></div>}
  <div className="dashboard-video-section dashboard-video-content"><DashboardIntroVideo/></div>
+ <section className="author-toolkit"><div><h2>Your next step, made clearer.</h2><p>Try the interactive walkthrough or get help with this page. Templates and writing goals are ready in My Books.</p></div><AuthorGuide/></section>
  <DashboardAnalytics books={books} usage={usage} loading={isLoading} error={error}/>
  <section className="dashboard-provider-strip" aria-labelledby="dashboard-provider-title"><span className="dashboard-provider-icon"><KeyRound size={22}/></span><div><h2 id="dashboard-provider-title">Your AI setup · {provider.name}</h2><p>{hasKey?'Your key is saved. Optional requests use your provider account.':'Write freely without AI. Add a key only when you want assistance.'}</p></div><Link to="/ai-providers">Manage providers <ArrowRight size={15}/></Link></section>
 

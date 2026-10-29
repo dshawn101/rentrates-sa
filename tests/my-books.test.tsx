@@ -58,3 +58,9 @@ it('ignores unknown dragged IDs and filters book titles through search',async()=
  fireEvent.change(screen.getByLabelText('Search my books'),{target:{value:'Novel'}});
  expect(screen.getByRole('link',{name:'Open Novel'})).toBeTruthy();expect(screen.queryByRole('link',{name:'Open Second book'})).toBeNull();
 });
+it('previews a memoir template and applies it only to a new manuscript',async()=>{
+ mocks.create.mockResolvedValue(null);render(<MemoryRouter><MyBooks/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Start new book'}));fireEvent.change(screen.getByLabelText('Book template'),{target:{value:'memoir'}});expect(screen.getByText('The moment that stayed')).toBeTruthy();fireEvent.change(screen.getByPlaceholderText('e.g., The Midnight Library'),{target:{value:'A lived experience'}});fireEvent.click(screen.getByText('Create book'));await waitFor(()=>expect(mocks.create).toHaveBeenCalledWith('A lived experience',{starterTemplate:'memoir',genre:'biography',targetWordCount:40000},null));
+});
+it('keeps an imported draft free of a previously selected starter template',async()=>{
+ mocks.create.mockResolvedValue(null);render(<MemoryRouter><MyBooks/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Start new book'}));fireEvent.change(screen.getByLabelText('Book template'),{target:{value:'fiction'}});fireEvent.change(screen.getByLabelText('Starting point'),{target:{value:'import'}});expect(screen.queryByLabelText('Book template')).toBeNull();fireEvent.change(screen.getByPlaceholderText('e.g., The Midnight Library'),{target:{value:'Imported book'}});fireEvent.click(screen.getByText('Create book'));await waitFor(()=>expect(mocks.create).toHaveBeenCalledWith('Imported book',{},null));
+});

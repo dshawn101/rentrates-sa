@@ -1,3 +1,5 @@
+import { useBookStore } from '../../../store/useBookStore';
+import {templateOutline,bookTemplate} from '../../../lib/book-templates';
 import { ManuscriptImport } from '../../../components/book/ManuscriptImport';
 import type { ContentFormat } from '../../../lib/manuscript-format';
 import { useState, useEffect } from 'react';
@@ -55,7 +57,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false }: Outl
     if (!error && data) {
       const rows:ChapterOutline[]=data.map(ch=>({id:ch.id,content:ch.content,format:ch.content_format,revision:ch.revision,deleted_at:ch.deleted_at,ai_contribution:ch.ai_contribution,title:ch.title,description:ch.ai_contribution?.outline_description || '',order_index:ch.order_index}));
       const active=rows.filter(ch=>!ch.deleted_at);
-      setSavedIds(active.map(ch=>ch.id));setBaseline(active);setOutline(active);setArchived(rows.filter(ch=>ch.deleted_at));
+      setSavedIds(active.map(ch=>ch.id));setBaseline(active);setOutline(rows.length===0?templateOutline(book.metadata?.starterTemplate):active);setArchived(rows.filter(ch=>ch.deleted_at));
     }
     if (error) setLoadFailed(true);
     setIsLoading(false);
@@ -124,6 +126,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false }: Outl
       });
       if(error)throw error;
       if(!await fetchOutline())throw new Error('Outline saved, but it could not be reloaded. Retry loading before continuing.');
+      useBookStore.getState().setChapterCount(book.id,outline.length);
       addToast('Outline saved. Removed chapters are archived, not deleted.', 'success');
 
       await onNext();
@@ -162,6 +165,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false }: Outl
         </GlassCard>
 
         <ManuscriptImport initialOpen={importing} disabled={isLoading||isSaving||loadFailed} onImport={chapters=>setOutline(prev=>[...prev,...chapters.map((ch,i)=>({id:crypto.randomUUID(),title:ch.title,content:ch.content,format:ch.format,description:'',order_index:prev.length+i}))])}/>
+        {bookTemplate(book.metadata?.starterTemplate)&&savedIds.length===0&&<p className="text-sm text-purple-200 mb-4">{bookTemplate(book.metadata.starterTemplate)!.name} template · suggested titles and planning notes only. Change them freely, then save your outline. No prose is generated.</p>}
         {archived.length>0&&<details className="border border-white/10 rounded-xl p-4"><summary className="text-purple-200 cursor-pointer">Archived chapters · restore from here</summary>{archived.filter(ch=>!outline.some(item=>item.id===ch.id)).map(ch=><div key={ch.id} className="flex justify-between gap-3 mt-3"><span className="text-slate-300">{ch.title}</span><GlassButton size="sm" variant="secondary" onClick={()=>setOutline(prev=>[...prev,{...ch,deleted_at:null,order_index:prev.length}])}>Restore to outline</GlassButton></div>)}</details>}
         {/* Outline Editor */}
         <div className="space-y-4">
