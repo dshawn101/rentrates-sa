@@ -7,6 +7,10 @@ export function formatSelection(content:string,start:number,end:number,action:Fo
  start=Math.max(0,Math.min(content.length,start));end=Math.max(start,Math.min(content.length,end));
  if(action==='bold'||action==='italic'){
   const marker=action==='bold'?'**':'*',size=marker.length,selected=content.slice(start,end);
+  if(selected.includes('\n')){const value=selected.split('\n').map(line=>line.trim()?formatSelection(line,0,line.length,action).content:line).join('\n');return {content:content.slice(0,start)+value+content.slice(end),start,end:start+value.length};}
+  const block=/^(#{1,3}\s+|[-*]\s+|>\s?)/.exec(selected);
+  if(block&&start===(start===0?0:content.lastIndexOf('\n',start-1)+1)){const value=formatSelection(selected.slice(block[0].length),0,selected.length-block[0].length,action);return {content:content.slice(0,start)+block[0]+value.content+content.slice(end),start:start+block[0].length+value.start,end:start+block[0].length+value.end};}
+
   // Selection may include its markers, or sit inside a wrapper created by the toolbar.
   if(selected.length>size*2&&hasStyle(starsAfter(selected,0),action)&&hasStyle(starsBefore(selected,selected.length),action)){
    const value=selected.slice(size,-size);return {content:content.slice(0,start)+value+content.slice(end),start,end:start+value.length};

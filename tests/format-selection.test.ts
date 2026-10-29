@@ -14,3 +14,8 @@ it('formats whole selected lines, changes block type and removes repeated prefix
 it('removes formatting when the selected text includes its delimiters and exports combined emphasis safely',()=>{
  expect(formatSelection('**Whole**',0,9,'bold').content).toBe('Whole');expect(formatSelection('***Both***',0,10,'italic').content).toBe('**Both**');const html=manuscriptHTML('***<script>literal</script>***','markdown');expect(html).toBe('<p><em><strong>&lt;script&gt;literal&lt;/script&gt;</strong></em></p>');
 });
+
+it('applies inline styles across paragraphs without swallowing heading or list prefixes',()=>{
+ let r=formatSelection('# Heading\n\n- Item',0,17,'bold');expect(r.content).toBe('# **Heading**\n\n- **Item**');r=formatSelection(r.content,r.start,r.end,'bold');expect(r.content).toBe('# Heading\n\n- Item');
+ const heading=formatSelection('# Heading',0,9,'italic');expect(heading).toEqual({content:'# *Heading*',start:3,end:10});
+});
