@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
+import {useState} from 'react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../src/hooks/useAuth';
-const mocks = vi.hoisted(() => ({ getSession: vi.fn(), onAuthStateChange: vi.fn(), single: vi.fn(), from: vi.fn(), error: vi.fn(), updateUser: vi.fn() }));
-vi.mock('../src/lib/supabase', () => ({ supabaseConfigError: null, handleSupabaseError: mocks.error, supabase: { auth: { getSession: mocks.getSession, onAuthStateChange: mocks.onAuthStateChange, updateUser: mocks.updateUser }, from: mocks.from } }));
+const mocks = vi.hoisted(() => ({ getSession: vi.fn(), onAuthStateChange: vi.fn(), single: vi.fn(), from: vi.fn(), error: vi.fn(), updateUser: vi.fn(), signUp: vi.fn() }));
+vi.mock('../src/lib/supabase', () => ({ supabaseConfigError: null, handleSupabaseError: mocks.error, supabase: { auth: { getSession: mocks.getSession, onAuthStateChange: mocks.onAuthStateChange, updateUser: mocks.updateUser, signUp: mocks.signUp }, from: mocks.from } }));
 function Status() {
   const { user } = useAuth();
   return <p>{user ? 'Signed-in dashboard' : 'Login available'}</p>;
@@ -59,4 +60,11 @@ it('saves display name as presentation metadata and updates the current greeting
   fireEvent.click(await screen.findByRole('button', { name: 'Save test name' }));
   await screen.findByText('Deion Shawn');
   expect(mocks.updateUser).toHaveBeenCalledWith({ data: { display_name: 'Deion Shawn' } });
+});
+
+function SignupProbe(){const {signUp}=useAuth();const [result,setResult]=useState('');return <><button onClick={()=>void signUp('test@example.invalid','synthetic-password','billing').then(r=>setResult(r.requiresConfirmation?'Confirmation required':'Session ready'))}>Test signup routing</button><p>{result}</p></>;}
+it('passes the Lite destination to Supabase email confirmation without granting paid access',async()=>{
+ mocks.getSession.mockResolvedValue({data:{session:null},error:null});mocks.signUp.mockResolvedValue({data:{session:null},error:null});
+ render(<AuthProvider><SignupProbe/></AuthProvider>);fireEvent.click(await screen.findByText('Test signup routing'));await screen.findByText('Confirmation required');
+ expect(mocks.signUp).toHaveBeenCalledWith({email:'test@example.invalid',password:'synthetic-password',options:{emailRedirectTo:window.location.origin+'/auth/login?next=billing'}});
 });
