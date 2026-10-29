@@ -14,7 +14,7 @@ export function guideContext(pathname:string,search=''){
 export function guideAnswers(query:string,topics:string[]){
  const tokens=query.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu,' ').split(/\s+/).filter(t=>t.length>2&&!['the','how','can','with','for','you','and','what','does','have','this','that','book'].includes(t));
  if(!tokens.length)return HELP_ARTICLES.filter(a=>topics.includes(a.id)).slice(0,3);
- return HELP_ARTICLES.map(a=>({a,score:tokens.reduce((n,t)=>n+(`${a.question} ${a.answer} ${a.keywords||''}`.toLowerCase().includes(t)?1:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.a);
+ return HELP_ARTICLES.map(a=>({a,score:tokens.reduce((n,t)=>n+(a.question.toLowerCase().includes(t)?8:0)+(a.answer.toLowerCase().includes(t)?1:0)+(a.keywords?.toLowerCase().includes(t)?3:0),0)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score).slice(0,3).map(x=>x.a);
 }
 export function walkthroughSteps(book?:Book){const route=book?`/book/${encodeURIComponent(book.id)}`:'/books';return [
  {title:'Give your idea a home',text:'Open My Books and start a new manuscript. Choose Blank, Fiction, Nonfiction or Memoir, or select Import for an existing draft. Templates suggest editable chapter titles and planning notes; they do not write your prose.',href:'/books',action:'Open My Books',saved:!!book},

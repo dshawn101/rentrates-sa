@@ -12,3 +12,5 @@ it('keeps navigation separate from saved progress and distinguishes optional cov
 it('provides page-specific local answers and sends book progress only when explicitly supplied',()=>{
  const c=guideContext('/book/b','?step=5'),answers=guideAnswers('export',c.topics);expect(c.name).toBe('Manuscript export');expect(answers.length).toBeGreaterThan(0);const prompt=guidePrompt('How do I export?',c,answers);expect(prompt).not.toContain('Private title');expect(prompt).not.toContain('SECRET MANUSCRIPT NOTES');const withProgress=guidePrompt('What next?',c,answers,book);expect(withProgress).toContain('Private title');expect(withProgress).not.toContain('SECRET MANUSCRIPT NOTES');
 });
+
+it('prioritises a matching question over a general article mentioning the same words',()=>{const answers=guideAnswers('How do I export my manuscript?',[]);expect(answers[0].id).toBe('export');});
