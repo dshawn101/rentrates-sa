@@ -15,3 +15,9 @@
 @media(max-width:1050px){.puble-pricing-overview{grid-template-columns:1fr;gap:28px}.puble-pricing-heading{max-width:700px}}
 @media(max-width:640px){.puble-pricing-grid,.puble-premium-grid{grid-template-columns:1fr}.puble-premium-content{padding:22px}.puble-premium-content h2{font-size:25px}.puble-launch-art{height:210px}.puble-waitlist h3{font-size:26px}}
 @media(prefers-reduced-motion:reduce){.puble-rocket-flight,.puble-rocket-flame,.puble-launch-pulse{animation:none;transform:none;opacity:1}}
+
+/* Keep the heading's layout and accessible name stable while its visual text sweeps. */
+.puble-waitlist .puble-launch-heading{text-align:center;font-weight:800;line-height:1.35}
+.puble-launch-heading>span{display:inline-block;animation:puble-launch-heading-swish 8s ease-in-out infinite}
+@keyframes puble-launch-heading-swish{0%,5%{clip-path:inset(0 100% 0 0);opacity:0;transform:translateX(-14px)}16%,83%{clip-path:inset(0);opacity:1;transform:translateX(0)}95%,100%{clip-path:inset(0 0 0 100%);opacity:0;transform:translateX(14px)}}
+@media(prefers-reduced-motion:reduce){.puble-launch-heading>span{animation:none;clip-path:none;opacity:1;transform:none}}

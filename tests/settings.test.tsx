@@ -10,9 +10,9 @@ import { useIntegrationStore, waitForCredentials } from '../src/store/useIntegra
 vi.mock('../src/hooks/useAuth',()=>({useAuth:()=>({user:{email:'author@example.test'},profile:{tier:'free'},signOut:vi.fn()})}));
 beforeEach(async()=>{vi.stubGlobal('indexedDB',new IDBFactory());vi.stubGlobal('IDBKeyRange',IDBKeyRange);vi.stubGlobal('crypto',webcrypto);localStorage.clear();useIntegrationStore.getState().configureOwner(null);useIntegrationStore.getState().configureOwner('author');await waitForCredentials();});
 afterEach(cleanup);
-it('shows only the three author-facing settings sections',()=>{
+it('keeps Author Guide between writing defaults and design tools',()=>{
   render(<MemoryRouter initialEntries={['/settings']}><Settings/></MemoryRouter>);
-  expect(screen.getByRole('navigation',{name:'Settings sections'}).querySelectorAll('button')).toHaveLength(3);
+  expect(Array.from(screen.getByRole('navigation',{name:'Settings sections'}).querySelectorAll('button')).map(b=>b.querySelector('span>span')?.textContent)).toEqual(['Account','Writing Defaults','Author Guide','Design Tools']);
   expect(screen.queryByRole('searchbox')).toBeNull();
   expect(screen.queryByText('No matching section.')).toBeNull();
   expect(screen.queryByRole('button',{name:/Advanced tools/})).toBeNull();
@@ -86,9 +86,9 @@ it('keeps the section menu outside the scrolling panel and resets the panel when
  expect(panel.contains(nav)).toBe(false);
  panel.scrollTop=650;
  fireEvent.scroll(panel);
- expect(within(nav).getAllByRole('button')).toHaveLength(3);
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
  fireEvent.click(within(nav).getByRole('button',{name:/Writing Defaults/}));
  expect(screen.getByRole('region',{name:'Writing Defaults'})).toBe(panel);
  expect(panel.scrollTop).toBe(0);
- expect(within(nav).getAllByRole('button')).toHaveLength(3);
+ expect(within(nav).getAllByRole('button')).toHaveLength(4);
 });
