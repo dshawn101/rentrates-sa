@@ -15,12 +15,12 @@ it('routes Lite to billing and keeps notifications separate from checkout',()=>{
 });
 it('records explicit notification consent and does not create an account or subscription',async()=>{
  render(<MemoryRouter><PricingPlans source="landing"/></MemoryRouter>);
- fireEvent.change(screen.getByLabelText('Email address'),{target:{value:'Author@Example.invalid'}});fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Join launch waitlist'));
+ fireEvent.change(screen.getByLabelText('Email address'),{target:{value:'Author@Example.invalid'}});fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Join Launch Waitlist'));
  await screen.findByRole('status');expect(mocks.insert).toHaveBeenCalledWith({email:'author@example.invalid',interest:'launch',source:'landing',consent:true});expect(screen.getByRole('status').textContent).toContain('No account, payment or subscription');
 });
 it('keeps input for a retry after a network failure',async()=>{
  mocks.insert.mockResolvedValue({error:{message:'offline'}});render(<MemoryRouter><PricingPlans/></MemoryRouter>);
- fireEvent.change(screen.getByLabelText('Email address'),{target:{value:'author@example.invalid'}});fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Join launch waitlist'));
+ fireEvent.change(screen.getByLabelText('Email address'),{target:{value:'author@example.invalid'}});fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Join Launch Waitlist'));
  await screen.findByRole('alert');expect((screen.getByLabelText('Email address') as HTMLInputElement).value).toBe('author@example.invalid');
 });
 it('rejects missing consent, malformed email and the honeypot before sending',async()=>{

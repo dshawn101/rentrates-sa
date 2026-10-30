@@ -36,5 +36,5 @@
 @media(prefers-reduced-motion:reduce){.puble-chevron-pulse,.puble-waitlist-chevron{animation:none;transform:none;filter:none;opacity:1}}
 
 .puble-waitlist-launcher{display:flex;align-items:center;justify-content:flex-end;gap:20px;padding:12px 0;min-width:0}
-.puble-waitlist-launcher .puble-waitlist-submit{flex:0 1 340px;min-width:0;min-height:76px;padding:18px 24px;border-radius:16px;font-size:clamp(18px,1.65vw,22px);font-weight:800;line-height:1.35;text-align:center;white-space:normal}
+.puble-waitlist-launcher .puble-waitlist-submit{flex:0 1 340px;min-width:0;min-height:76px;padding:18px 24px;border-radius:16px;font-size:clamp(18px,1.65vw,22px);font-weight:400;line-height:1.35;text-align:center;white-space:normal}
 @media(max-width:640px){.puble-waitlist-launcher{gap:14px;padding:10px 4px}.puble-waitlist-launcher .puble-waitlist-submit{flex:1;min-height:72px;padding:16px;font-size:18px}}
