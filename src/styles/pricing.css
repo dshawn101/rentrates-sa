@@ -2,7 +2,7 @@
 
 /* Keep beta choices beside the introduction; premium plans live only in the dialog. */
 .puble-pricing-overview{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:44px;align-items:stretch}
-.puble-pricing-intro{display:flex;flex-direction:column;justify-content:flex-end;gap:24px;padding:24px 0;min-width:0}.puble-pricing-heading{margin-bottom:0;max-width:none}.puble-pricing-heading>p:last-child{font-size:15px}
+.puble-pricing-intro{display:flex;flex-direction:column;justify-content:space-between;gap:24px;padding:24px 0;min-width:0}.puble-pricing-heading{margin-bottom:0;max-width:none}.puble-pricing-heading>p:last-child{font-size:15px}
 .puble-pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 .puble-pricing-active{min-width:0}
 .puble-premium-launcher{display:flex;align-items:center;justify-content:flex-start;margin:0;padding:0;min-width:0}
