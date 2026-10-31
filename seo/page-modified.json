@@ -1,0 +1,26 @@
+{
+  "/": {
+    "fingerprint": "ea019bc5ac5f45ef461b7d09355f4ad33f65ac4c30e8ca91833745dab6c83993",
+    "lastmod": "2026-10-30T13:13:23.000Z"
+  },
+  "/pricing": {
+    "fingerprint": "876258c3cd2c74aaee6bf922814c2b5743505343effa598816b6af8093ce4986",
+    "lastmod": "2026-10-30T13:13:23.000Z"
+  },
+  "/features": {
+    "fingerprint": "24467de2ac67f5c140f4d9a826cc91f5b81a1b3624d0f294ea8a4fd8c8437b43",
+    "lastmod": "2026-10-30T07:32:37.000Z"
+  },
+  "/help": {
+    "fingerprint": "455bb6f3f030379e5d2e2626c9af40e2e7a86e6ee53cbaa2e2017f9514bd6a7c",
+    "lastmod": "2026-10-30T07:32:37.000Z"
+  },
+  "/contact": {
+    "fingerprint": "a4b1f9a57c4118907b37cd844a3ea582b5b25457b844e63e19d6b7e7b4f37174",
+    "lastmod": "2026-10-28T18:06:56.000Z"
+  },
+  "/transparency": {
+    "fingerprint": "eaee217ef37f3d531802c40a2f9ce6a9a48bc2963281e90cd2e220b698f5ea0f",
+    "lastmod": "2026-10-28T20:30:29.000Z"
+  }
+}

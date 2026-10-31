@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Keep crawling allowed so crawlers can read noindex headers on workspace/auth URLs.
+Sitemap: https://www.publestudio.com/sitemap.xml

@@ -1,0 +1,15 @@
+{
+  "origin": "https://www.publestudio.com",
+  "pages": [
+    { "path": "/", "indexable": true, "sources": ["src/pages/Welcome.tsx", "src/components/pricing/PricingPlans.tsx"] },
+    { "path": "/pricing", "indexable": true, "sources": ["src/pages/Pricing.tsx", "src/components/pricing/PricingPlans.tsx"] },
+    { "path": "/features", "indexable": true, "sources": ["src/pages/Features.tsx"] },
+    { "path": "/help", "indexable": true, "sources": ["src/pages/HelpCenter.tsx", "src/lib/help-articles.ts"] },
+    { "path": "/contact", "indexable": true, "sources": ["src/pages/Contact.tsx"] },
+    { "path": "/transparency", "indexable": true, "sources": ["src/pages/Transparency.tsx"] },
+    { "path": "/legal/about", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
+    { "path": "/legal/privacy", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
+    { "path": "/legal/terms", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
+    { "path": "/legal/cookies", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] }
+  ]
+}
