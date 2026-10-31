@@ -1,3 +1,4 @@
+import {ResendConfirmation} from '../../components/auth/ResendConfirmation';
 import { Brand } from '../../components/ui/Brand';
 import { authDestination, authPagePath } from '../../lib/auth-destination';
 import { supabaseConfigError } from '../../lib/supabase';
@@ -19,6 +20,7 @@ export function Login() {
   const navigate = useNavigate();
   const [search] = useSearchParams();
   const { addToast } = useToastStore();
+  const linkError = search.get('emailLink');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,6 +46,7 @@ export function Login() {
           <p className="signin-eyebrow">A space for your story</p>
           <h1 id="signin-heading">Welcome back<span>.</span></h1>
           <p className="signin-intro">{search.get('next')==='billing'?'Sign in to continue with Lite checkout. You’ll review the $9/month terms before approving payment on PayPal.':'Your words are waiting. Pick up where you left off.'}</p>
+          {(linkError==='expired'||linkError==='failed')&&<section role="alert" className="mb-6 rounded-xl border border-amber-200/30 bg-amber-100/5 p-4 text-sm leading-6 text-amber-100"><h2 className="font-semibold">{linkError==='expired'?'This email link has expired or was already used.':'This email link could not be verified.'}</h2><p className="mt-2">Try signing in first. If your email is still unconfirmed, request a fresh activation email below and open the newest link.</p></section>}
           {supabaseConfigError && <p role="alert" className="mb-6 text-amber-200">{supabaseConfigError}</p>}
           <form onSubmit={handleSubmit} className="space-y-6">
             <GlassInput label="Email" type="email" autoComplete="username" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -56,6 +59,7 @@ export function Login() {
             </div>
             <GlassButton type="submit" className="w-full py-3 text-lg" disabled={!!supabaseConfigError} isLoading={loading || isSubmitting}>{search.get('next')==='billing'?'Sign in & continue':'Sign in'}</GlassButton>
           </form>
+          <ResendConfirmation initialEmail={email} next={search.get('next')} expanded={linkError==='expired'||linkError==='failed'} />
           <p className="signin-signup">New to PubléStudio? <Link to={authPagePath('signup',search.get('next'))}>Create your account</Link></p>
         </div>
         <nav className="signin-footer" aria-label="Sign-in information"><Link to="/">Back to home</Link><Link to="/legal/privacy">Privacy</Link></nav>

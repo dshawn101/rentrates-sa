@@ -1,3 +1,4 @@
+import {ResendConfirmation} from '../../components/auth/ResendConfirmation';
 import {authDestination,authPagePath} from '../../lib/auth-destination';
 import { Brand } from '../../components/ui/Brand';
 import { supabaseConfigError } from '../../lib/supabase';
@@ -103,7 +104,7 @@ export function Signup() {
               {billing?'Create account & continue':'Create Account'}
             </GlassButton>
           </form></div>
-          {checkEmail && <section aria-label="Email confirmation next steps" className="space-y-5 text-slate-300 leading-7"><p role="status">Open the PubléStudio confirmation email and confirm your address. If you already have an account, sign in instead.</p><p>{billing?'After confirmation, continue to Lite checkout to review the $9/month subscription and approve it on PayPal. Creating an account does not start a paid subscription.':'After confirmation, sign in to open your writing space.'}</p><p className="text-sm text-slate-400">Check your spam folder if the message is missing. You can return here after confirming on another device.</p><Link className="glass-button inline-flex" to={authPagePath('login', search.get('next'))}>{billing?'Continue to sign in & Lite checkout':'Continue to sign in'}</Link><Link className="block text-sm text-purple-200 underline" to={authPagePath('signup',search.get('next'))}>Use a different email</Link></section>}
+          {checkEmail && <section aria-label="Email confirmation next steps" className="space-y-5 text-slate-300 leading-7"><p role="status">Open the PubléStudio confirmation email and confirm your address. If you already have an account, sign in instead.</p><p>{billing?'After confirmation, continue to Lite checkout to review the $9/month subscription and approve it on PayPal. Creating an account does not start a paid subscription.':'After confirmation, sign in to open your writing space.'}</p><p className="text-sm text-slate-400">Check your spam folder if the message is missing. You can return here after confirming on another device. Use the newest email; older links may be expired or already used.</p><ResendConfirmation initialEmail={email} next={search.get('next')} /><Link className="glass-button inline-flex" to={authPagePath('login', search.get('next'))}>{billing?'Continue to sign in & Lite checkout':'Continue to sign in'}</Link><Link className="block text-sm text-purple-200 underline" to={authPagePath('signup',search.get('next'))}>Use a different email</Link></section>}
 
           <p className="mt-6 text-center text-sm text-slate-400">
             Already have an account?{' '}

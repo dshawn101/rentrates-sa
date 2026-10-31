@@ -1,3 +1,4 @@
+import {AuthRedirectErrors} from './components/auth/AuthRedirectErrors';
 import {AuthorGuidePage} from './pages/AuthorGuidePage';
 import {WritingGoalsPage} from './pages/WritingGoalsPage';
 import {AIProviders} from './pages/AIProviders';
@@ -33,6 +34,7 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <RouteScroll />
+        <AuthRedirectErrors />
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Welcome />} />
