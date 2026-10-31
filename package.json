@@ -8,7 +8,11 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "seo": "node scripts/generate-sitemap.mjs",
+    "predev": "npm run seo",
+    "prebuild": "npm run seo",
+    "seo:dates": "node scripts/generate-sitemap.mjs --update-dates"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

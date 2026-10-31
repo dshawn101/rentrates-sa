@@ -5,6 +5,106 @@
   "framework": "vite",
   "routes": [
     {
+      "src": "/sitemap\\.xml",
+      "headers": {
+        "Content-Type": "application/xml; charset=utf-8",
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      },
+      "continue": true
+    },
+    {
+      "src": "/robots\\.txt",
+      "headers": {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "public, max-age=0, must-revalidate"
+      },
+      "continue": true
+    },
+    {
+      "src": "/",
+      "headers": {
+        "Link": "<https://www.publestudio.com/>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/pricing",
+      "headers": {
+        "Link": "<https://www.publestudio.com/pricing>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/features",
+      "headers": {
+        "Link": "<https://www.publestudio.com/features>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/help",
+      "headers": {
+        "Link": "<https://www.publestudio.com/help>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/contact",
+      "headers": {
+        "Link": "<https://www.publestudio.com/contact>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/transparency",
+      "headers": {
+        "Link": "<https://www.publestudio.com/transparency>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/legal/about",
+      "headers": {
+        "Link": "<https://www.publestudio.com/legal/about>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/legal/privacy",
+      "headers": {
+        "Link": "<https://www.publestudio.com/legal/privacy>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/legal/terms",
+      "headers": {
+        "Link": "<https://www.publestudio.com/legal/terms>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/legal/cookies",
+      "headers": {
+        "Link": "<https://www.publestudio.com/legal/cookies>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
+      "src": "/(auth|dashboard|books|book|author-guide|writing-goals|ai-providers|profile|billing|settings|api)(/.*)?",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    },
+    {
+      "src": "/legal/(?!about$|privacy$|terms$|cookies$).*",
+      "headers": {
+        "X-Robots-Tag": "noindex, follow"
+      },
+      "continue": true
+    },
+    {
       "src": "/assets/(.*)",
       "headers": {
         "cache-control": "public, max-age=31536000, immutable"
