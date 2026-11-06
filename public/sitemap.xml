@@ -2,7 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.publestudio.com/</loc>
-    <lastmod>2026-10-30T13:13:23.000Z</lastmod>
   </url>
   <url>
     <loc>https://www.publestudio.com/pricing</loc>
@@ -10,7 +9,9 @@
   </url>
   <url>
     <loc>https://www.publestudio.com/features</loc>
-    <lastmod>2026-10-30T07:32:37.000Z</lastmod>
+  </url>
+  <url>
+    <loc>https://www.publestudio.com/roadmap</loc>
   </url>
   <url>
     <loc>https://www.publestudio.com/help</loc>

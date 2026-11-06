@@ -42,6 +42,13 @@
       "continue": true
     },
     {
+      "src": "/roadmap",
+      "headers": {
+        "Link": "<https://www.publestudio.com/roadmap>; rel=\"canonical\""
+      },
+      "continue": true
+    },
+    {
       "src": "/help",
       "headers": {
         "Link": "<https://www.publestudio.com/help>; rel=\"canonical\""
