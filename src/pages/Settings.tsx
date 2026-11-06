@@ -1,8 +1,9 @@
+import {SeriesBibleEditor} from './SeriesBible';
 import {AuthorGuideContent} from './AuthorGuidePage';
 import '../styles/settings.css';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Link, Navigate, useSearchParams } from 'react-router-dom';
-import { UserRound, SlidersHorizontal, Palette, ShieldCheck, Compass } from 'lucide-react';
+import { UserRound, SlidersHorizontal, Palette, ShieldCheck, Compass, BookOpen } from 'lucide-react';
 import { Container } from '../components/layout/Container';
 import { GlassCard } from '../components/ui/GlassCard';
 import { GlassInput } from '../components/ui/GlassInput';
@@ -16,6 +17,7 @@ const sections = [
   { id: 'writing', name: 'Writing Defaults', detail: 'Start each book your way', icon: SlidersHorizontal },
   { id: 'guide', name: 'Author Guide', detail: 'Walkthrough and friendly help', icon: Compass },
   { id: 'design', name: 'Design Tools', detail: 'Cover artwork and imports', icon: Palette },
+  { id: 'series-bible', name: 'Series Bible', detail: 'Organize story notes and continuity', icon: BookOpen },
 ];
 export function Settings() {
   const [params, setParams] = useSearchParams();
@@ -34,6 +36,7 @@ export function Settings() {
       {section === 'writing' && <GlassCard className="p-7 space-y-5"><p className="text-sm text-slate-400">Used when you create a new book. Existing books keep their own settings.</p><div className="grid sm:grid-cols-2 gap-5"><label className="text-sm text-slate-300">Genre<select className="glass-select w-full mt-2" value={prefs.genre} onChange={e => setPrefs({ ...prefs, genre: e.target.value })}><option value="non-fiction">Non-fiction</option><option value="fiction">Fiction</option><option value="self-help">Self-help</option><option value="business">Business</option><option value="biography">Biography & memoir</option></select></label><label className="text-sm text-slate-300">Tone<select className="glass-select w-full mt-2" value={prefs.tone} onChange={e => setPrefs({ ...prefs, tone: e.target.value })}><option value="professional">Professional</option><option value="casual">Conversational</option><option value="inspirational">Inspirational</option><option value="empathetic">Empathetic</option><option value="academic">Academic</option></select></label><GlassInput label="Target book words" aria-label="Target book words" type="number" min={1000} max={200000} value={prefs.targetWordCount} onChange={e => setPrefs({ ...prefs, targetWordCount: Number(e.target.value) })} /><GlassInput label="Maximum AI output tokens per request" aria-label="Maximum AI output tokens per request" type="number" min={128} max={8000} value={prefs.maxOutputTokens} onChange={e => setPrefs({ ...prefs, maxOutputTokens: Number(e.target.value) })} /></div><p className="text-xs text-slate-500">The token limit bounds each writing request; it is not a price quote or a book word limit.</p><GlassButton onClick={() => { if (!Number.isFinite(prefs.targetWordCount) || prefs.targetWordCount < 1000 || prefs.targetWordCount > 200000 || !Number.isFinite(prefs.maxOutputTokens) || prefs.maxOutputTokens < 128 || prefs.maxOutputTokens > 8000) { setMessage('Choose a book target from 1,000–200,000 words and an AI output limit from 128–8,000 tokens.'); return; } settings.setPreferences(prefs); setMessage('Writing defaults saved.'); }}>Save defaults</GlassButton>{message && <p role="status" className="text-sm text-emerald-200">{message}</p>}</GlassCard>}
       {section === 'guide' && <AuthorGuideContent />}
       {section === 'design' && <DesignTools />}
+      {section === 'series-bible' && <SeriesBibleEditor embedded />}
       {settings.error && <p role="alert" className="text-sm text-red-200">{settings.error}</p>}
     </div></div>
   </Container>;

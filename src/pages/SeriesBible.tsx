@@ -8,6 +8,10 @@ import {buildSeriesBible,seriesBibleFields as fields,type SeriesBibleNotes as No
 const blank:Notes={title:'',characters:'',changes:'',rules:'',threads:''};
 
 export function SeriesBible(){
+ return <Container className="py-8"><SeriesBibleEditor /></Container>;
+}
+
+export function SeriesBibleEditor({embedded=false}:{embedded?:boolean}){
  const [notes,setNotes]=useState(blank),[preview,setPreview]=useState(''),[draft,setDraft]=useState(''),[busy,setBusy]=useState(false),[consent,setConsent]=useState(false),[status,setStatus]=useState('');
  const hasNotes=fields.slice(1).some(([key])=>notes[key].trim());
  async function generate(){
@@ -29,10 +33,10 @@ export function SeriesBible(){
   const url=URL.createObjectURL(new Blob([draft],{type:'text/markdown;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='series-bible.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  }
  const input='w-full rounded-lg border border-white/20 bg-white/5 p-3 text-white';
- return <Container className="space-y-6 py-8">
-  <div><h1 className="text-3xl font-bold text-white">Series Bible</h1><p className="mt-2 text-slate-300">Turn story notes into an editable continuity reference and preview fresh ideas for your next book.</p></div>
+ return <div className="space-y-6">
+  {!embedded && <div><h1 className="text-3xl font-bold text-white">Series Bible</h1><p className="mt-2 text-slate-300">Turn story notes into an editable continuity reference and preview fresh ideas for your next book.</p></div>}
   <p className="text-sm text-slate-300">Build a draft from your notes without an AI key. For optional AI suggestions, add your OpenRouter key in <Link className="text-purple-200 underline" to="/settings?section=providers">AI Providers</Link>. This workspace uses OpenRouter’s free model router only. Availability and quotas depend on OpenRouter. Notes and drafts stay in this tab until you download them.</p>
-  <div className="grid gap-6 lg:grid-cols-2">
+  <div className={embedded?"grid gap-6 2xl:grid-cols-2":"grid gap-6 lg:grid-cols-2"}>
    <section className="space-y-4" aria-label="Story notes">
     {fields.map(([key,label])=><label key={key} className="block space-y-2"><span>{label}</span>{key==='title'?<input className={input} value={notes.title} disabled={busy} maxLength={160} onChange={e=>{setNotes({...notes,title:e.target.value});setPreview('');}}/>:<textarea className={input} rows={4} value={notes[key]} disabled={busy} maxLength={5000} onChange={e=>{setNotes({...notes,[key]:e.target.value});setPreview('');}}/>}</label>)}
     <GlassButton disabled={!hasNotes||busy} onClick={()=>useDraft(buildSeriesBible(notes))}>Build draft from notes</GlassButton>
@@ -47,5 +51,5 @@ export function SeriesBible(){
     <GlassButton disabled={!draft.trim()} onClick={download}>Download Markdown</GlassButton>
    </section>
   </div>
- </Container>;
+ </div>;
 }
