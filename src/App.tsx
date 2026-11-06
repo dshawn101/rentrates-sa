@@ -1,3 +1,4 @@
+import { SeriesBible } from './pages/SeriesBible';
 import {AuthRedirectErrors} from './components/auth/AuthRedirectErrors';
 import {AuthorGuidePage} from './pages/AuthorGuidePage';
 import {WritingGoalsPage} from './pages/WritingGoalsPage';
@@ -52,6 +53,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/series-bible" element={<SeriesBible />} />
             <Route path="/books" element={<MyBooks />} />
             <Route path="/author-guide" element={<AuthorGuidePage />} />
             <Route path="/writing-goals" element={<WritingGoalsPage />} />

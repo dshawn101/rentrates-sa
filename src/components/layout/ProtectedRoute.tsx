@@ -16,7 +16,7 @@ export function ProtectedRoute() {
   }
 
   if (!user) {
-    return <Navigate to={location.pathname === "/billing" ? "/auth/login?next=billing" : "/auth/login"} replace />;
+    return <Navigate to={location.pathname === "/billing" ? "/auth/login?next=billing" : location.pathname === "/series-bible" ? "/auth/login?next=series-bible" : "/auth/login"} replace />;
   }
 
   return (
