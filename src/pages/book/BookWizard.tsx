@@ -1,5 +1,3 @@
-import {DraftDialog} from '../../components/book/DraftDialog';
-import {BookReview} from '../../components/book/BookReview';
 import {AuthorGuide} from '../../components/author/AuthorGuide';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
@@ -31,8 +29,7 @@ export function BookWizard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedStep = Number(searchParams.get('step') || 1);
   const currentStep = Number.isInteger(requestedStep) && requestedStep >= 1 && requestedStep <= 5 ? requestedStep : 1;
-  const setCurrentStep = (step: number) => setSearchParams({ step: String(step), ...(step===2&&searchParams.get('intent')==='import'?{intent:'import'}:{}) });
-  const [reviewBookId,setReviewBookId]=useState<string|null>(null);
+  const setCurrentStep = (step: number) => setSearchParams({ step: String(step) });
   const [showGuide,setShowGuide]=useState(true);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -100,8 +97,7 @@ export function BookWizard() {
 
       {/* Wizard Header / Progress Bar */}
       <div className="mb-6">
-<div className="flex flex-wrap items-center justify-between gap-3 mb-4"><h1 className="text-2xl font-bold text-white line-clamp-1">{book.title}</h1><div className="flex flex-wrap gap-2">{currentStep===1&&<GlassButton size="sm" onClick={()=>setSearchParams({step:'2',intent:'import'})}>Upload a draft</GlassButton>}<GlassButton size="sm" onClick={()=>setReviewBookId(book.id)}>AI draft suggestions</GlassButton><AuthorGuide /></div></div>
-        {reviewBookId===book.id&&<DraftDialog title="AI draft suggestions" onClose={()=>setReviewBookId(null)}><BookReview book={book} initialOpen onSourceOpen={()=>setReviewBookId(null)}/></DraftDialog>}
+<div className="flex flex-wrap items-center justify-between gap-3 mb-4"><h1 className="text-2xl font-bold text-white line-clamp-1">{book.title}</h1><AuthorGuide /></div>
 
         <div className="flex items-center justify-between mb-2">
           {STEPS.map((step) => {
@@ -137,11 +133,11 @@ export function BookWizard() {
       </div>
 
       {!showGuide&&<div className="mb-3"><GlassButton variant="ghost" size="sm" onClick={()=>setShowGuide(true)}>Show step guide</GlassButton></div>}
-      {showGuide&&<aside className="mb-4 rounded-xl border border-white/10 p-4 text-sm text-slate-300"><div className="flex justify-between gap-4"><strong className="text-white">{searchParams.get('intent')==='import'?'Bring your draft into its new home':'Your first book, one step at a time'}</strong><GlassButton variant="ghost" size="sm" onClick={()=>setShowGuide(false)}>Hide guide</GlassButton></div><p className="mt-2">{currentStep===1?'Save a title, author and genre. Next, import a draft or add your first chapter.':currentStep===2?'Import and review chapter splits, or add chapters manually. Save the outline to begin writing.':currentStep===3?'Write and save a chapter. Select a passage for optional AI editing; review before accepting.':currentStep===4?'Upload your own front cover, or continue without one. You can add it later.':'Preview the saved manuscript, check warnings and download your chosen format.'}</p><p className="mt-2 text-xs text-slate-400">Setup → Chapters → Write & revise → Optional cover → Preview & export. No AI key is needed.</p></aside>}
+      {showGuide&&<aside className="mb-4 rounded-xl border border-white/10 p-4 text-sm text-slate-300"><div className="flex justify-between gap-4"><strong className="text-white">Your first book, one step at a time</strong><GlassButton variant="ghost" size="sm" onClick={()=>setShowGuide(false)}>Hide guide</GlassButton></div><p className="mt-2">{currentStep===1?'Save a title, author and genre. Next, plan your first chapter.':currentStep===2?'Add chapters and save the outline to begin writing.':currentStep===3?'Write and save a chapter. Select a passage for optional AI editing; review before accepting.':currentStep===4?'Upload your own front cover, or continue without one. You can add it later.':'Preview the saved manuscript, check warnings and download your chosen format.'}</p><p className="mt-2 text-xs text-slate-400">Setup → Chapters → Write & revise → Optional cover → Preview & export. No AI key is needed.</p></aside>}
       {/* Step Content Area */}
       <div key={book.id} className="flex-1 min-h-0 relative">
         {currentStep === 1 && <BookSetup key={book.id} book={book} onNext={handleNextStep} />}
-        {currentStep === 2 && <OutlineGenerator onReview={()=>setReviewBookId(book.id)} importing={searchParams.get('intent')==='import'} book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
+        {currentStep === 2 && <OutlineGenerator book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 3 && <ChapterEditor initialChapterId={searchParams.get('chapter')||undefined} book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 4 && <CoverDesigner book={book} onNext={handleNextStep} onPrev={handlePrevStep} />}
         {currentStep === 5 && <ExportFormatter book={book} onPrev={handlePrevStep} />}

@@ -1,3 +1,4 @@
+import {SeriesManuscript} from '../components/book/SeriesManuscript';
 import {useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Container} from '../components/layout/Container';
@@ -35,6 +36,7 @@ export function SeriesBibleEditor({embedded=false}:{embedded?:boolean}){
  const input='w-full rounded-lg border border-white/20 bg-white/5 p-3 text-white';
  return <div className="space-y-6">
   {!embedded && <div><h1 className="text-3xl font-bold text-white">Series Bible</h1><p className="mt-2 text-slate-300">Turn story notes into an editable continuity reference and preview fresh ideas for your next book.</p></div>}
+  <SeriesManuscript />
   <p className="text-sm text-slate-300">Build a draft from your notes without an AI key. For optional AI suggestions, add your OpenRouter key in <Link className="text-purple-200 underline" to="/settings?section=providers">AI Providers</Link>. This workspace uses OpenRouter’s free model router only. Availability and quotas depend on OpenRouter. Notes and drafts stay in this tab until you download them.</p>
   <div className={embedded?"grid gap-6 2xl:grid-cols-2":"grid gap-6 lg:grid-cols-2"}>
    <section className="space-y-4" aria-label="Story notes">
