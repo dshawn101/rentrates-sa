@@ -1,7 +1,5 @@
-import {DraftDialog} from '../../../components/book/DraftDialog';
 import { useBookStore } from '../../../store/useBookStore';
 import {templateOutline,bookTemplate} from '../../../lib/book-templates';
-import { ManuscriptImport } from '../../../components/book/ManuscriptImport';
 import type { ContentFormat } from '../../../lib/manuscript-format';
 import { useState, useEffect } from 'react';
 import type { Book } from '../../../store/useBookStore';
@@ -16,8 +14,6 @@ interface OutlineGeneratorProps {
   book: Book;
   onNext: () => void;
   onPrev: () => void;
-  importing?: boolean;
-  onReview?: () => void;
 }
 
 interface ChapterOutline {
@@ -32,9 +28,7 @@ interface ChapterOutline {
   ai_contribution?: Record<string, unknown>;
 }
 
-export function OutlineGenerator({ book, onNext, onPrev, importing=false, onReview }: OutlineGeneratorProps) {
-  const [importOpen,setImportOpen]=useState(importing);
-  const [importAdded,setImportAdded]=useState(false);
+export function OutlineGenerator({ book, onNext, onPrev }: OutlineGeneratorProps) {
   const { addToast } = useToastStore();
   const [outline, setOutline] = useState<ChapterOutline[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -117,7 +111,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false, onRevi
     setOutline(outline.filter(ch => ch.id !== id).map((ch, idx) => ({ ...ch, order_index: idx })));
   };
 
-  const handleSaveAndContinue = async (review=false) => {
+  const handleSaveAndContinue = async () => {
     setIsSaving(true);
     try {
       if (isLoading || loadFailed) return;
@@ -133,9 +127,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false, onRevi
       useBookStore.getState().setChapterCount(book.id,outline.length);
       addToast('Outline saved. Removed chapters are archived, not deleted.', 'success');
 
-      setImportAdded(false);
-      if(review && onReview) onReview();
-      else await onNext();
+      await onNext();
     } catch (error: any) {
       addToast(error.message || 'Failed to save outline', 'error');
     } finally {
@@ -170,13 +162,6 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false, onRevi
           </div>
         </GlassCard>
 
-        <GlassButton disabled={isLoading||isSaving} onClick={()=>setImportOpen(true)}>Upload a draft</GlassButton>
-        {importOpen&&!isLoading&&<DraftDialog title="Upload a draft" onClose={()=>setImportOpen(false)}><ManuscriptImport standalone disabled={isSaving} onImport={chapters=>{
-          setOutline(prev=>[...prev,...chapters.map((ch,i)=>({id:crypto.randomUUID(),title:ch.title,content:ch.content,format:ch.format,description:'',order_index:prev.length+i}))]);
-          setImportAdded(true);setImportOpen(false);
-        }}/></DraftDialog>}
-        {importAdded&&<p role="status" className="text-sm text-purple-200">Draft added to the outline. Save it before running an AI review.</p>}
-        {importAdded&&onReview&&<GlassButton onClick={()=>void handleSaveAndContinue(true)} disabled={isSaving||isLoading||isGenerating||!outline.length}>Save & get AI suggestions</GlassButton>}
         {bookTemplate(book.metadata?.starterTemplate)&&savedIds.length===0&&<p className="text-sm text-purple-200 mb-4">{bookTemplate(book.metadata.starterTemplate)!.name} template · suggested titles and planning notes only. Change them freely, then save your outline. No prose is generated.</p>}
         {archived.length>0&&<details className="border border-white/10 rounded-xl p-4"><summary className="text-purple-200 cursor-pointer">Archived chapters · restore from here</summary>{archived.filter(ch=>!outline.some(item=>item.id===ch.id)).map(ch=><div key={ch.id} className="flex justify-between gap-3 mt-3"><span className="text-slate-300">{ch.title}</span><GlassButton size="sm" variant="secondary" onClick={()=>setOutline(prev=>[...prev,{...ch,deleted_at:null,order_index:prev.length}])}>Restore to outline</GlassButton></div>)}</details>}
         {/* Outline Editor */}
@@ -246,7 +231,7 @@ export function OutlineGenerator({ book, onNext, onPrev, importing=false, onRevi
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to Setup
           </GlassButton>
 
-          <GlassButton onClick={()=>void handleSaveAndContinue()} isLoading={isSaving} disabled={isLoading || isGenerating || outline.length === 0}>
+          <GlassButton onClick={handleSaveAndContinue} isLoading={isSaving} disabled={isLoading || isGenerating || outline.length === 0}>
             Save & Write Content <ArrowRight className="w-4 h-4 ml-2" />
           </GlassButton>
         </div>

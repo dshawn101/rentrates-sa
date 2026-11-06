@@ -37,7 +37,6 @@ function MyBookLibrary() {
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [template,setTemplate]=useState('blank');
-  const [startMode,setStartMode]=useState<'new'|'import'>('new');
   const [newBookTitle, setNewBookTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
@@ -46,14 +45,14 @@ function MyBookLibrary() {
     if (!newBookTitle.trim() || isCreating) return;
 
     setIsCreating(true);
-    const newBook = await createBook(newBookTitle,startMode==='import'?{}:templateMetadata(template),folder==='all'||folder==='unfiled'?null:folder);
+    const newBook = await createBook(newBookTitle,templateMetadata(template),folder==='all'||folder==='unfiled'?null:folder);
     if(!active.current)return;
     setIsCreating(false);
 
     if (newBook) {
       setIsCreateModalOpen(false);
       setNewBookTitle('');
-      navigate(`/book/${newBook.id}${startMode==='import'?'?intent=import':''}`);
+      navigate(`/book/${newBook.id}`);
     }
   };
 
@@ -108,7 +107,7 @@ function MyBookLibrary() {
         </GlassCard>
       </div>
 
-      <GlassCard className="p-5 space-y-3"><h2 className="text-xl font-semibold text-white">Where would you like to start?</h2><p className="text-sm text-slate-400">Write manually from the first word. AI setup is optional.</p><div className="flex flex-wrap gap-3"><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('new');setIsCreateModalOpen(true);}}>Start a book</GlassButton><GlassButton disabled={!!error||isLoading} onClick={()=>{setStartMode('import');setIsCreateModalOpen(true);}}>Import a draft</GlassButton>{latestBook&&<Link className="glass-button" to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter?3:1}`}>Continue writing</Link>}</div></GlassCard>
+      <GlassCard className="p-5 space-y-3"><h2 className="text-xl font-semibold text-white">Where would you like to start?</h2><p className="text-sm text-slate-400">Write manually from the first word. AI setup is optional.</p><div className="flex flex-wrap gap-3"><GlassButton disabled={!!error||isLoading} onClick={()=>setIsCreateModalOpen(true)}>Start a book</GlassButton>{latestBook&&<Link className="glass-button" to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter?3:1}`}>Continue writing</Link>}</div></GlassCard>
       <div className="author-toolkit"><div><h2>A little guidance, at your pace.</h2><p>Try the walkthrough, choose a book template or set a goal in your manuscript.</p></div><AuthorGuide /></div>
       <BookFolders onFolders={setFolders} userId={user?.id} books={books} selected={folder} onSelect={setFolder} onMove={moveBook} moving={moving} />
 
@@ -170,8 +169,7 @@ function MyBookLibrary() {
             <h2 className="text-2xl font-bold text-white mb-2">Start new book</h2>
             <p className="text-slate-400 text-sm mb-6">Give your new book a working title. You can change this later.</p>
 
-            <label className="block text-slate-300 mb-4">Starting point<select className="block w-full bg-slate-900 p-3 rounded mt-2" value={startMode} onChange={e=>setStartMode(e.target.value as 'new'|'import')}><option value="new">Start a new manuscript</option><option value="import">Import an existing draft after setup</option></select></label>
-            {startMode==='new'&&<div className="mb-4"><label className="block text-sm text-slate-300">Book template<select value={template} onChange={e=>setTemplate(e.target.value)} className="block w-full bg-slate-900 p-3 rounded mt-2"><option value="blank">Blank manuscript</option>{BOOK_TEMPLATES.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>{bookTemplate(template)&&<div className="author-template-preview mt-3"><p>{bookTemplate(template)!.description}</p><ol>{bookTemplate(template)!.chapters.map(([title])=><li key={title}>{title}</li>)}</ol><p>Suggestions only. Edit them in Outline, then save to create blank chapters. Your own writing starts in the editor.</p></div>}</div>}
+            <div className="mb-4"><label className="block text-sm text-slate-300">Book template<select value={template} onChange={e=>setTemplate(e.target.value)} className="block w-full bg-slate-900 p-3 rounded mt-2"><option value="blank">Blank manuscript</option>{BOOK_TEMPLATES.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>{bookTemplate(template)&&<div className="author-template-preview mt-3"><p>{bookTemplate(template)!.description}</p><ol>{bookTemplate(template)!.chapters.map(([title])=><li key={title}>{title}</li>)}</ol><p>Suggestions only. Edit them in Outline, then save to create blank chapters. Your own writing starts in the editor.</p></div>}</div>
             <form onSubmit={handleCreateBook} className="space-y-4">
               <GlassInput
                 label="Book Title"
