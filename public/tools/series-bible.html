@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#100d1b">
+<title>Free Series Bible Generator for Novelists | PubléStudio</title>
+<meta name="description" content="Starting Book 2? Track what’s canon, what changed, and which plot threads are still open. Build and download a free Markdown series bible. No sign-up or AI key.">
+<link rel="canonical" href="https://www.publestudio.com/tools/series-bible">
+<link rel="icon" href="/puble-quill.png">
+<link rel="stylesheet" href="/tools/series-bible.css">
+<script type="module" src="/tools/series-bible.mjs"></script>
+</head>
+<body>
+<header class="wrap bar"><a class="brand" href="/"><img src="/puble-quill.png" width="48" height="48" alt="">Publé<span>Studio</span></a><a href="/features">Explore PubléStudio</a></header>
+<main class="wrap">
+<section class="hero">
+<p class="eyebrow">FREE TOOL FOR SERIES AUTHORS</p>
+<h1>Series Bible Generator</h1>
+<p class="lead">Starting Book 2? Carry forward <em>what’s canon, what changed, and what’s still unresolved.</em></p>
+<p class="muted">Turn your continuity notes into a Markdown reference. No account, AI key or manuscript upload.</p>
+</section>
+<noscript><p class="panel">Enable JavaScript to use the generator. The guide and example below are available without it.</p></noscript>
+<div class="workspace" id="generator" hidden>
+<section class="panel" aria-labelledby="editor-title">
+<div class="bar"><h2 id="editor-title">Your series notes</h2><button id="example" type="button">Load example</button></div>
+<p class="muted">Notes stay in this tab. Export a copy before leaving.</p>
+<label class="choice"><input type="checkbox" id="measure"> Share anonymous usage counts (start, export and signup click only). No story text is sent.</label>
+<form id="notes">
+<label>Series title<input name="title" maxlength="160" placeholder="The Lantern Coast"></label>
+<label>Character facts<textarea name="characters" maxlength="8000" rows="3" placeholder="Mara is left-handed and never learned to swim."></textarea></label>
+<label>What changed by book<textarea name="changes" maxlength="8000" rows="3" placeholder="Book 1, chapter 12: Mara gave the lighthouse key to Ivo."></textarea></label>
+<label>World rules<textarea name="rules" maxlength="8000" rows="3" placeholder="The lantern only works below the tide line."></textarea></label>
+<label>Unresolved plot threads<textarea name="threads" maxlength="8000" rows="3" placeholder="Who sent the unmarked map? Resolve in Book 2."></textarea></label>
+</form>
+</section>
+<section class="panel preview" aria-labelledby="preview-title">
+<p class="eyebrow">MARKDOWN PREVIEW</p><h2 id="preview-title">Your series bible</h2>
+<pre id="output" tabindex="0" aria-label="Markdown preview">Add a continuity note or load the example to begin.</pre>
+<div class="actions"><button class="primary" id="download" disabled>Download Markdown</button><button id="copy" disabled>Copy Markdown</button></div>
+<p id="status" role="status"></p>
+<div id="next" hidden><p>Ready to write the next book?</p><a href="/auth/signup" id="signup">Try PubléStudio free →</a></div>
+</section>
+</div>
+<section class="guide" aria-labelledby="guide-title">
+<p class="eyebrow">A QUICK CONTINUITY GUIDE</p>
+<h2 id="guide-title">What goes in a series bible before Book 2?</h2>
+<p>A series bible is a reference for decisions your next book needs to respect. Start with details that would confuse readers if they changed. Add a book and chapter reference when you know where a fact was established.</p>
+<dl><dt>Character facts</dt><dd>Names, relationships and details that should stay consistent.</dd><dt>Changes by book</dt><dd>What changed, when it happened, and what’s true at the start of the next book.</dd><dt>World rules</dt><dd>Rules for places, technology or magic, including any established exceptions.</dd><dt>Open threads</dt><dd>Questions you’ve left with readers and where you intend to resolve them.</dd></dl>
+<div class="panel"><h3>Example: The Lantern Coast</h3><p>Mara never learned to swim. In Book 1, chapter 12, she gave the lighthouse key to Ivo. The lantern works only below the tide line. The sender of the unmarked map is still unknown when Book 2 opens.</p></div>
+<p>The generator organises what you enter. It doesn’t read your manuscript, invent details or check for contradictions. Your Markdown file can be opened in any plain text editor.</p>
+</section>
+</main>
+<footer class="wrap bar"><a href="/">PubléStudio home</a><a href="/legal/privacy">Privacy</a></footer>
+</body>
+</html>

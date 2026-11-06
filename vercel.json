@@ -119,6 +119,16 @@
       "continue": true
     },
     {
+      "src": "/tools/series-bible(?:/|[.]html)",
+      "status": 308,
+      "headers": { "Location": "/tools/series-bible" }
+    },
+    {
+      "src": "/tools/series-bible",
+      "dest": "/tools/series-bible.html",
+      "headers": { "Link": "<https://www.publestudio.com/tools/series-bible>; rel=\"canonical\"" }
+    },
+    {
       "handle": "filesystem"
     },
     {
