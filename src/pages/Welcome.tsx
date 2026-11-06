@@ -29,7 +29,7 @@ export function Welcome() {
     <a className="welcome-skip" href="#main">Skip to content</a>
     <header className="welcome-nav welcome-container">
       <Link to="/" aria-label="PubléStudio home"><Brand /></Link>
-      <nav aria-label="Main navigation"><a className="welcome-desktop-link" href="#how-it-works">How it works</a><Link className="welcome-desktop-link" to="/pricing">Pricing</Link><a className="welcome-desktop-link" href="#questions">Questions</a><Link className="welcome-signin" to={user ? '/dashboard' : '/auth/login'}>{user ? 'My dashboard' : 'Sign in'} <ArrowRight size={16} /></Link></nav>
+      <nav aria-label="Main navigation"><a className="welcome-desktop-link" href="#how-it-works">How it works</a><Link className="welcome-desktop-link" to="/pricing">Pricing</Link><Link className="welcome-desktop-link" to="/roadmap">Roadmap</Link><a className="welcome-desktop-link" href="#questions">Questions</a><Link className="welcome-signin" to={user ? '/dashboard' : '/auth/login'}>{user ? 'My dashboard' : 'Sign in'} <ArrowRight size={16} /></Link></nav>
     </header>
     <main id="main">
       <section className="welcome-hero welcome-container">

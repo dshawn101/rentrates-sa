@@ -14,6 +14,7 @@ import { Legal } from './pages/Legal';
 import './styles/legal.css';
 import { Pricing } from './pages/Pricing';
 import { Features } from './pages/Features';
+import { Roadmap } from './pages/Roadmap';
 import { Contact } from './pages/Contact';
 import { Welcome } from './pages/Welcome';
 
@@ -43,6 +44,7 @@ function App() {
           <Route path="/legal/:document" element={<Legal />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/features" element={<Features />} />
+          <Route path="/roadmap" element={<Roadmap />} />
           <Route path="/help" element={<HelpCenter />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/transparency" element={<Transparency />} />

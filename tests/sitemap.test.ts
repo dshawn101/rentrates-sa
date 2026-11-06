@@ -9,9 +9,9 @@ const matches=(src:string,path:string)=>new RegExp(`^(?:${src})$`).test(path);
 it('contains exactly the audited public pages, valid XML and one canonical production origin',()=>{
  const xml=renderSitemap(config,()=>null);const doc=new JSDOM(xml,{contentType:'application/xml'}).window.document;
  const urls=Array.from(doc.querySelectorAll('loc'),e=>e.textContent);
- expect(urls).toHaveLength(10);expect(new Set(urls).size).toBe(10);expect(doc.documentElement.namespaceURI).toBe('http://www.sitemaps.org/schemas/sitemap/0.9');
+ expect(urls).toHaveLength(11);expect(new Set(urls).size).toBe(11);expect(doc.documentElement.namespaceURI).toBe('http://www.sitemaps.org/schemas/sitemap/0.9');
  for(const url of urls){const u=new URL(url!);expect(u.origin).toBe('https://www.publestudio.com');expect(u.search).toBe('');expect(u.hash).toBe('');}
- expect(urls).toContain('https://www.publestudio.com/help');expect(urls).toContain('https://www.publestudio.com/pricing');expect(xml).not.toContain('<lastmod>');
+ expect(urls).toContain('https://www.publestudio.com/roadmap');expect(urls).toContain('https://www.publestudio.com/help');expect(urls).toContain('https://www.publestudio.com/pricing');expect(xml).not.toContain('<lastmod>');
 });
 it('fails closed on private, duplicate, noncanonical or noindexed URLs',()=>{
  const page=config.pages[0];
