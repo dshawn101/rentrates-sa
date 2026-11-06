@@ -20,7 +20,7 @@ it('previews a local manuscript and saves it after existing chapters before open
  fireEvent.change(screen.getByLabelText(/Manuscript file/),{target:{files:[file]}});
  await screen.findByText('draft.txt · 1 chapter');
  expect(m.rpc).not.toHaveBeenCalled();
- fireEvent.click(screen.getByRole('button',{name:'Save & open editor'}));
+ fireEvent.click(screen.getByRole('button',{name:'Import and start writing'}));
  await waitFor(()=>expect(m.rpc).toHaveBeenCalledWith('save_book_outline',expect.objectContaining({
   p_book:'book-1',p_known_ids:['existing'],p_removed:[],
   p_items:[expect.objectContaining({id:'existing',revision:3}),expect.objectContaining({content:'A draft to continue.'})],

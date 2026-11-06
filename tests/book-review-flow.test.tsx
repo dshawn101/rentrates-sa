@@ -5,17 +5,18 @@ import {MemoryRouter} from 'react-router-dom';
 import {webcrypto} from 'node:crypto';
 import {BookReview} from '../src/components/book/BookReview';
 import {useIntegrationStore} from '../src/store/useIntegrationStore';
-const mocks=vi.hoisted(()=>({ai:vi.fn(),order:vi.fn()}));
-vi.mock('../src/lib/supabase',()=>({supabase:{from:()=>({select:()=>({eq:()=>({order:mocks.order})})})}}));
+const mocks=vi.hoisted(()=>({ai:vi.fn(),order:vi.fn(),platform:vi.fn()}));
+vi.mock('../src/lib/supabase',()=>({supabase:{from:()=>({select:()=>({eq:()=>({order:()=>({order:mocks.order})})})})}}));
+vi.mock('../src/lib/platform-review',()=>({requestPlatformReview:mocks.platform}));
 vi.mock('../src/lib/ai-provider',()=>({MultiProviderAI:{generate:mocks.ai},requestAI:vi.fn()}));
 vi.mock('../src/store/useIntegrationStore',async original=>({...await original<typeof import('../src/store/useIntegrationStore')>(),readCredential:()=> 'test-key'}));
 const book={id:'book',user_id:'owner',title:'A book',metadata:{},status:'writing' as const,tier_created:'free',created_at:'',updated_at:''};
 const chapters=[{id:'one',title:'Opening',content:'Maya was thirty-two years old.',revision:1,content_format:'plain',deleted_at:null},{id:'two',title:'Later',content:'Maya celebrated her thirtieth birthday.',revision:1,content_format:'plain',deleted_at:null}];
 const digest=(i:number)=>({text:JSON.stringify({summary:'Summary',facts:[{fact:'Age',quote:chapters[i].content}]})});
 const report={text:JSON.stringify({findings:[{title:'Possible age conflict',explanation:'Check elapsed time.',severity:'high',evidence:chapters.map(c=>({chapterId:c.id,quote:c.content}))}]})};
-beforeEach(()=>{vi.clearAllMocks();localStorage.clear();vi.stubGlobal('crypto',webcrypto);useIntegrationStore.setState({owner:'owner',provider:'openrouter'});mocks.order.mockResolvedValue({data:chapters,error:null});});
+beforeEach(()=>{vi.clearAllMocks();localStorage.clear();vi.stubGlobal('crypto',webcrypto);vi.stubGlobal('fetch',vi.fn(async()=>Response.json({available:true})));useIntegrationStore.setState({owner:'owner',provider:'openrouter'});mocks.order.mockResolvedValue({data:chapters,error:null});});
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
-function setup(){render(<MemoryRouter><BookReview book={book}/></MemoryRouter>);fireEvent.click(screen.getByText('Whole-book consistency review · beta'));fireEvent.click(screen.getByLabelText(/Send saved manuscript batches/));}
+function setup(){render(<MemoryRouter><BookReview book={book}/></MemoryRouter>);fireEvent.click(screen.getByText('Whole-book consistency review · beta'));fireEvent.click(screen.getByLabelText(/Use my own key/));fireEvent.click(screen.getByLabelText(/Send saved manuscript batches/));}
 it('resumes completed batches after a failed request and provides source links without editing prose',async()=>{
  mocks.ai.mockResolvedValueOnce(digest(0)).mockRejectedValueOnce(new Error('Quota reached')).mockResolvedValueOnce(digest(1)).mockResolvedValueOnce(report);
  setup();fireEvent.click(screen.getByText('Review my book'));await screen.findByText('Quota reached');
@@ -34,4 +35,22 @@ it('pauses after the current request and checkpoints the completed batch',async(
  let finish!:(value:{text:string})=>void;mocks.ai.mockReturnValueOnce(new Promise(resolve=>{finish=resolve;}));
  setup();fireEvent.click(screen.getByText('Review my book'));await waitFor(()=>expect(mocks.ai).toHaveBeenCalledTimes(1));fireEvent.click(screen.getByText('Pause'));finish(digest(0));
  await screen.findByText('Review paused. The completed batch is saved on this device.');expect(mocks.ai).toHaveBeenCalledTimes(1);expect(JSON.parse(localStorage.getItem('puble:review:owner:book')!).digests).toHaveLength(1);
+});
+
+it('defaults to platform, requires separate consent and never switches providers after failure',async()=>{
+ mocks.platform.mockRejectedValueOnce(new Error('Platform capacity used'));
+ render(<MemoryRouter><BookReview book={book} openForImport/></MemoryRouter>);
+ expect((screen.getByLabelText('Platform review') as HTMLInputElement).checked).toBe(true);
+ const button=screen.getByText('Review my book') as HTMLButtonElement;
+ expect(button.disabled).toBe(true);
+ const consent=screen.getByLabelText(/Send all saved chapter titles/) as HTMLInputElement;
+ await waitFor(()=>expect(consent.disabled).toBe(false));
+ fireEvent.click(consent);
+ fireEvent.click(button);
+ await screen.findByText('Platform capacity used');
+ expect(mocks.platform).toHaveBeenCalledOnce();
+ expect(mocks.ai).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByLabelText(/Use my own key/));
+ expect(button.disabled).toBe(true);
+ expect((screen.getByLabelText(/Send saved manuscript batches/) as HTMLInputElement).checked).toBe(false);
 });
