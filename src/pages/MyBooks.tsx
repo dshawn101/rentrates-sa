@@ -1,6 +1,6 @@
 import {BOOK_TEMPLATES,bookTemplate,templateMetadata} from '../lib/book-templates';
 import {AuthorGuide} from '../components/author/AuthorGuide';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { BookFolder } from '../components/book/BookFolders';
 import { BookFolders } from '../components/book/BookFolders';
 import { useToastStore } from '../store/useToastStore';
@@ -35,7 +35,9 @@ function MyBookLibrary() {
   const progress = progressSnapshot(latestBook);
   useEffect(() => { void fetchBooks(); }, [fetchBooks]);
 
+  const [params,setParams]=useSearchParams();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  useEffect(()=>{if(params.get('new')==='1'){setIsCreateModalOpen(true);const next=new URLSearchParams(params);next.delete('new');setParams(next,{replace:true});}},[params,setParams]);
   const [template,setTemplate]=useState('blank');
   const [newBookTitle, setNewBookTitle] = useState('');
   const [isCreating, setIsCreating] = useState(false);
@@ -107,7 +109,6 @@ function MyBookLibrary() {
         </GlassCard>
       </div>
 
-      <GlassCard className="p-5 space-y-3"><h2 className="text-xl font-semibold text-white">Where would you like to start?</h2><p className="text-sm text-slate-400">Write manually from the first word. AI setup is optional.</p><div className="flex flex-wrap gap-3"><GlassButton disabled={!!error||isLoading} onClick={()=>setIsCreateModalOpen(true)}>Start a book</GlassButton>{latestBook&&<Link className="glass-button" to={`/book/${latestBook.id}?step=${latestBook.lastEditedChapter?3:1}`}>Continue writing</Link>}</div></GlassCard>
       <div className="author-toolkit"><div><h2>A little guidance, at your pace.</h2><p>Try the walkthrough, choose a book template or set a goal in your manuscript.</p></div><AuthorGuide /></div>
       <BookFolders onFolders={setFolders} userId={user?.id} books={books} selected={folder} onSelect={setFolder} onMove={moveBook} moving={moving} />
 

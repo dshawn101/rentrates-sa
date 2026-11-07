@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
 import {cleanup,fireEvent,render,screen,waitFor} from '@testing-library/react';
-import {MemoryRouter} from 'react-router-dom';
+import {MemoryRouter,Routes,Route} from 'react-router-dom';
 import {MyBooks} from '../src/pages/MyBooks';
 import {Dashboard} from '../src/pages/Dashboard';
 import {useBookStore} from '../src/store/useBookStore';
@@ -66,4 +66,14 @@ it('keeps manuscript import out of the new-book form',()=>{
  fireEvent.click(screen.getByRole('button',{name:'Start new book'}));
  expect(screen.queryByLabelText('Starting point')).toBeNull();
  expect(screen.getByLabelText('Book template')).toBeTruthy();
+});
+
+it('opens the new-book form from the dashboard start action without creating a manuscript',async()=>{
+ render(<MemoryRouter initialEntries={['/dashboard']}><Routes><Route path="/dashboard" element={<Dashboard/>}/><Route path="/books" element={<MyBooks/>}/></Routes></MemoryRouter>);
+ fireEvent.click(screen.getByRole('button',{name:'Start a book'}));
+ await screen.findByLabelText('Book Title');expect(mocks.create).not.toHaveBeenCalled();expect(screen.queryByText('Where would you like to start?')).toBeNull();
+});
+it('resumes the latest saved chapter from the dashboard',()=>{
+ useBookStore.setState({books:[{...books[0],lastEditedChapter:{id:'chapter-1',title:'A beginning',updatedAt:'2026-11-07T10:00:00Z',orderIndex:0}}]});
+ render(<MemoryRouter><Dashboard/></MemoryRouter>);expect(screen.getByRole('link',{name:'Continue writing'}).getAttribute('href')).toBe('/book/one?step=3&chapter=chapter-1');
 });
