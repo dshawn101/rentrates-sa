@@ -5,6 +5,15 @@
   "framework": "vite",
   "routes": [
     {
+      "src": "/tools/series-bible(?:/|[.]html)?",
+      "headers": {
+        "Content-Security-Policy": "default-src 'none'; script-src 'self'; connect-src 'self' https://openrouter.ai; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        "Referrer-Policy": "no-referrer",
+        "X-Content-Type-Options": "nosniff"
+      },
+      "continue": true
+    },
+    {
       "src": "/sitemap\\.xml",
       "headers": {
         "Content-Type": "application/xml; charset=utf-8",
@@ -121,12 +130,16 @@
     {
       "src": "/tools/series-bible(?:/|[.]html)",
       "status": 308,
-      "headers": { "Location": "/tools/series-bible" }
+      "headers": {
+        "Location": "/tools/series-bible"
+      }
     },
     {
       "src": "/tools/series-bible",
       "dest": "/tools/series-bible.html",
-      "headers": { "Link": "<https://www.publestudio.com/tools/series-bible>; rel=\"canonical\"" }
+      "headers": {
+        "Link": "<https://www.publestudio.com/tools/series-bible>; rel=\"canonical\""
+      }
     },
     {
       "handle": "filesystem"

@@ -16,7 +16,7 @@ export function indexablePages(config){
   if(seen.has(page.path))throw new Error(`Duplicate sitemap path: ${page.path}`);seen.add(page.path);
   if(!Array.isArray(page.sources)||!page.sources.length)throw new Error(`Missing content source for ${page.path}`);
   for(const source of page.sources){
-   if(!(source.startsWith('src/')||/^public\/tools\/[a-z0-9-]+\.html$/.test(source))||source.includes('..'))throw new Error('Invalid content source.');
+   if(!(source.startsWith('src/')||/^(?:public\/)?tools\/[a-z0-9-]+\.html$/.test(source))||source.includes('..'))throw new Error('Invalid content source.');
    // Fail closed if a listed page adds an explicit robots/googlebot noindex meta tag.
    const content=readFileSync(resolve(root,source),'utf8');
    if(/<meta\b[^>]*(?:name\s*=\s*["'](?:robots|googlebot)["'][^>]*content\s*=\s*["'][^"']*noindex|content\s*=\s*["'][^"']*noindex[^"']*["'][^>]*name\s*=\s*["'](?:robots|googlebot)["'])/i.test(content))throw new Error(`Noindexed content cannot enter the sitemap: ${source}`);
