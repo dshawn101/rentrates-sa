@@ -28,3 +28,6 @@ dist-ssr
 
 # Supabase CLI temporary metadata
 supabase/.temp/
+
+# Copied from the pinned PDF.js package at dev/build time.
+public/tools/pdfjs/
