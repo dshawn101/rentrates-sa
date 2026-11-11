@@ -1,11 +1,12 @@
-export const DEFAULT_MODEL = 'anthropic/claude-sonnet-4';
+export const DEFAULT_MODEL = 'google/gemini-2.5-flash-lite';
+export const DEFAULT_MODEL_LABEL = 'Gemini 2.5 Flash-Lite';
 export const MAX_WORDS = 120_000;
 export const MAX_SECTIONS = 12;
 export const ANALYSIS_OUTPUT_TOKENS = 1200;
 export const BLUEPRINT_OUTPUT_TOKENS = 5000;
 export const WORD_LIMIT_ERROR = 'This manuscript is longer than the 120,000-word limit. Try uploading a single book rather than a box set, or paste a synopsis instead.';
 // USD per million input and output tokens. Other models are deliberately unpriced.
-const prices: Record<string, readonly [number, number]> = {'anthropic/claude-sonnet-4': [3, 15]};
+const prices: Record<string, readonly [number, number]> = {[DEFAULT_MODEL]: [0.10, 0.40]};
 export function estimateCost(model: string, sections: readonly string[]) {
  const rate = prices[model.trim()];
  if (!rate || !sections.length) return null;
