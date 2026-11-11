@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useMemo,useRef,useState} from 'react';
 import ReactMarkdown from 'react-markdown';
 import {LottieStageLoader,type LoadingStage} from '../../components/LottieStageLoader';
 import {describeManuscript,parseManuscript,type ParsedManuscript} from './ingestion';
@@ -23,7 +23,7 @@ export function BookTwoExtrapolator(){
   catch(e){if(runId.current===id)setError(abort.signal.aborted?'Generation cancelled. Any partial text remains below; it is not a complete blueprint.':e instanceof Error?e.message:'The model returned an unusable response. Try regenerating, or switch models.');}finally{if(runId.current===id){setStage(null);setProgress('');controller.current=null;}}
  }
  function stop(){controller.current?.abort();}
- const sections=file?splitManuscript(file.text):[];const selected=selectSections(sections);const cost=estimateCost(model,selected);
+ const selected=useMemo(()=>file?selectSections(splitManuscript(file.text)):[],[file]);const cost=estimateCost(model,selected);
  const markdown=output||(!stage||stage==='generating'?live:'');
  async function copy(){try{await navigator.clipboard.writeText(markdown);setNotice('Markdown copied.');}catch{setError('Clipboard access is unavailable. Use Download .md instead.');}}
  function download(){const url=URL.createObjectURL(new Blob([markdown],{type:'text/markdown;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='publestudio-book2-blueprint.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);setNotice('Markdown download started.');}
