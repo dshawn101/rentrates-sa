@@ -1,3 +1,4 @@
+import {SeriesBibleModalTrigger} from '../components/SeriesBibleModalTrigger';
 import {IntroVideo} from '../components/onboarding/IntroVideo';
 import { PricingPlans } from '../components/pricing/PricingPlans';
 import { TypewriterHeadline } from '../components/ui/TypewriterHeadline';
@@ -26,6 +27,7 @@ export function Welcome() {
   const { user } = useAuth();
   const start = user ? '/books' : '/auth/signup';
   return <div className="welcome">
+    <SeriesBibleModalTrigger />
     <a className="welcome-skip" href="#main">Skip to content</a>
     <header className="welcome-nav welcome-container">
       <Link to="/" aria-label="PubléStudio home"><Brand /></Link>
@@ -39,6 +41,7 @@ export function Welcome() {
           <p className="welcome-intro">A calm space to turn your ideas into a manuscript. Plan your chapters, find your words, and bring it all together — with AI help when you want it.</p>
           <div className="welcome-actions"><Link className="welcome-primary" to={start}>{user ? 'Continue writing' : 'Start your book'} <ArrowRight size={19} /></Link><IntroVideo /></div>
           <p className="welcome-small"><Check size={14} /> Write without AI. Connect your own key anytime.</p>
+          {!user && <p className="mt-3 text-sm"><a className="text-purple-200 underline underline-offset-4" href="/series-bible" data-open-series-bible-modal>Explore the free Series Bible tool</a></p>}
         </div>
         <div className="welcome-studio-preview" aria-label="Illustrative preview of the book-writing workflow">
           <div className="welcome-preview-top"><Brand compact /><span>THE WRITING ROOM</span><span className="welcome-preview-dot" /></div>
