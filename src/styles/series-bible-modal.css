@@ -1,0 +1,14 @@
+.series-promo { position: fixed; inset: 0; margin: auto; width: min(28rem, calc(100% - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid #c4b5fd45; border-radius: 20px; background: #191329; color: #f5f3ff; box-shadow: 0 24px 80px #0008; animation: series-promo-fade .16s ease-out; }
+.series-promo::backdrop { background: rgb(0 0 0 / .6); animation: series-promo-fade .16s ease-out; }
+.series-promo-content { position: relative; padding: 22px; font-size: 14px; line-height: 1.45; }
+.series-promo .series-promo-close { position: absolute; top: 7px; right: 7px; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; }
+.series-promo-eyebrow { color: #c4b5fd; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+.series-promo h2 { font-size: clamp(22px, 5vw, 27px); line-height: 1.12; font-weight: 700; margin: 0 0 10px; }
+.series-promo ul { display: grid; gap: 7px; margin: 13px 0 15px; padding: 0; list-style: none; }
+.series-promo li { display: flex; align-items: flex-start; gap: 8px; }
+.series-promo li svg { color: #c4b5fd; flex-shrink: 0; margin-top: 2px; }
+.series-promo-cta { display: flex; justify-content: center; align-items: center; min-height: 44px; text-align: center; }
+.series-promo .series-promo-later { display: block; min-height: 44px; margin: 0 auto; padding: 0 12px; background: transparent !important; border-color: transparent !important; color: #ddd6fe !important; text-decoration: underline; text-underline-offset: 3px; }
+.series-promo-micro { color: #bfb4d0; text-align: center; font-size: 12px; }
+@keyframes series-promo-fade { from {opacity: 0} to {opacity: 1} }
+@media (prefers-reduced-motion: reduce) { .series-promo, .series-promo::backdrop { animation: none; } }
