@@ -53,7 +53,7 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/series-bible" element={<SeriesBible />} />
+            <Route path="/series-bible-workspace" element={<SeriesBible />} />
             <Route path="/books" element={<MyBooks />} />
             <Route path="/author-guide" element={<AuthorGuidePage />} />
             <Route path="/writing-goals" element={<WritingGoalsPage />} />

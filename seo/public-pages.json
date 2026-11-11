@@ -1,17 +1,97 @@
 {
   "origin": "https://www.publestudio.com",
   "pages": [
-    { "path": "/", "indexable": true, "sources": ["src/pages/Welcome.tsx", "src/components/pricing/PricingPlans.tsx"] },
-    { "path": "/pricing", "indexable": true, "sources": ["src/pages/Pricing.tsx", "src/components/pricing/PricingPlans.tsx"] },
-    { "path": "/features", "indexable": true, "sources": ["src/pages/Features.tsx"] },
-    { "path": "/roadmap", "indexable": true, "sources": ["src/pages/Roadmap.tsx"] },
-    { "path": "/tools/series-bible", "indexable": true, "sources": ["public/tools/series-bible.html"] },
-    { "path": "/help", "indexable": true, "sources": ["src/pages/HelpCenter.tsx", "src/lib/help-articles.ts"] },
-    { "path": "/contact", "indexable": true, "sources": ["src/pages/Contact.tsx"] },
-    { "path": "/transparency", "indexable": true, "sources": ["src/pages/Transparency.tsx"] },
-    { "path": "/legal/about", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
-    { "path": "/legal/privacy", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
-    { "path": "/legal/terms", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] },
-    { "path": "/legal/cookies", "indexable": true, "lastModified": false, "sources": ["src/pages/Legal.tsx"] }
+    {
+      "path": "/",
+      "indexable": true,
+      "sources": [
+        "src/pages/Welcome.tsx",
+        "src/components/pricing/PricingPlans.tsx"
+      ]
+    },
+    {
+      "path": "/pricing",
+      "indexable": true,
+      "sources": [
+        "src/pages/Pricing.tsx",
+        "src/components/pricing/PricingPlans.tsx"
+      ]
+    },
+    {
+      "path": "/features",
+      "indexable": true,
+      "sources": [
+        "src/pages/Features.tsx"
+      ]
+    },
+    {
+      "path": "/roadmap",
+      "indexable": true,
+      "sources": [
+        "src/pages/Roadmap.tsx"
+      ]
+    },
+    {
+      "path": "/series-bible",
+      "indexable": true,
+      "sources": [
+        "tools/series-bible.html"
+      ],
+      "changeFrequency": "monthly"
+    },
+    {
+      "path": "/help",
+      "indexable": true,
+      "sources": [
+        "src/pages/HelpCenter.tsx",
+        "src/lib/help-articles.ts"
+      ]
+    },
+    {
+      "path": "/contact",
+      "indexable": true,
+      "sources": [
+        "src/pages/Contact.tsx"
+      ]
+    },
+    {
+      "path": "/transparency",
+      "indexable": true,
+      "sources": [
+        "src/pages/Transparency.tsx"
+      ]
+    },
+    {
+      "path": "/legal/about",
+      "indexable": true,
+      "lastModified": false,
+      "sources": [
+        "src/pages/Legal.tsx"
+      ]
+    },
+    {
+      "path": "/legal/privacy",
+      "indexable": true,
+      "lastModified": false,
+      "sources": [
+        "src/pages/Legal.tsx"
+      ]
+    },
+    {
+      "path": "/legal/terms",
+      "indexable": true,
+      "lastModified": false,
+      "sources": [
+        "src/pages/Legal.tsx"
+      ]
+    },
+    {
+      "path": "/legal/cookies",
+      "indexable": true,
+      "lastModified": false,
+      "sources": [
+        "src/pages/Legal.tsx"
+      ]
+    }
   ]
 }

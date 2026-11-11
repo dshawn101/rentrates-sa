@@ -1,0 +1,23 @@
+import {expect,it,vi} from 'vitest';
+import {BLUEPRINT_SECTIONS,createBlueprint,OPENROUTER_URL,RouterError,selectSections,splitManuscript,streamCompletion} from '../src/tools/book-two/openrouter';
+const markdown=BLUEPRINT_SECTIONS.map(s=>`## ${s}\n\nAuthor reviews this proposal.`).join('\n\n');
+function sse(content:string){const payload=': OPENROUTER PROCESSING\r\n\r\n'+Array.from(content).map(c=>`data: ${JSON.stringify({choices:[{delta:{content:c}}]})}\r\n\r\n`).join('')+'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}\n\ndata: [DONE]\n\n';const bytes=new TextEncoder().encode(payload);let at=0;return new Response(new ReadableStream({pull(controller){if(at>=bytes.length){controller.close();return;}controller.enqueue(bytes.slice(at,at+=37));}}));}
+const options=()=>({key:'synthetic-key-not-real',model:'test/model',signal:new AbortController().signal,onStage:vi.fn(),onText:vi.fn(),onWarning:vi.fn()});
+it('maps every character without silently dropping later manuscript text',()=>{const text=('A chapter.\n🌙'.repeat(6000));const chunks=splitManuscript(text,1000);expect(chunks.join('')).toBe(text);expect(chunks.length).toBeGreaterThan(2);for(const chunk of chunks)expect(chunk).not.toMatch(/[\uD800-\uDBFF]$/);});
+it('streams analysis and Markdown directly to OpenRouter, never to a PubléStudio endpoint',async()=>{
+ const request=vi.fn().mockResolvedValueOnce(sse(JSON.stringify({characters:['Mara'],relationships:[],plotEvents:[],worldDetails:[],unresolvedQuestions:[]}))).mockResolvedValueOnce(sse(markdown));
+ const o=options();expect(await createBlueprint({...o,text:'FICTIONAL-MANUSCRIPT-CANARY',request})).toBe(markdown);expect(request).toHaveBeenCalledTimes(2);
+ for(const [url,init] of request.mock.calls){expect(url).toBe(OPENROUTER_URL);expect(init.redirect).toBe('error');expect(init.credentials).toBe('omit');expect(init.headers.Authorization).toBe('Bearer synthetic-key-not-real');const body=JSON.parse(init.body);expect(body.stream).toBe(true);expect(body.response_format).toEqual(JSON.parse(body.messages[1].content).manuscript?{type:'json_object'}:undefined);expect(init.body).not.toContain('synthetic-key-not-real');}
+ expect(request.mock.calls[0][1].body).toContain('FICTIONAL-MANUSCRIPT-CANARY');expect(o.onText.mock.calls.some(([s])=>s.includes('## Series Premise'))).toBe(true);expect(o.onStage).toHaveBeenCalledWith('generating',1,1);
+});
+it('samples across the whole book and caps the number of analysis calls',()=>{const sections=Array.from({length:15},(_,i)=>String(i));const selected=selectSections(sections);expect(selected).toHaveLength(12);expect(selected[0]).toBe('0');expect(selected.at(-1)).toBe('14');});
+it('retries one failed section, then synthesises from successful sections',async()=>{
+ const valid=JSON.stringify({characters:['Mara'],relationships:[],plotEvents:[],worldDetails:[],unresolvedQuestions:[]});
+ const request=vi.fn().mockResolvedValueOnce(sse('{broken')).mockResolvedValueOnce(sse('{broken')).mockResolvedValueOnce(sse(valid)).mockResolvedValueOnce(sse(markdown));
+ const o=options();expect(await createBlueprint({...o,text:'word '.repeat(8001),request})).toBe(markdown);
+ expect(request).toHaveBeenCalledTimes(4);expect(o.onWarning).toHaveBeenCalledWith(expect.stringContaining('Skipped sections: 1'));
+});
+it('reports a rejected key exactly and never retries it',async()=>{const request=vi.fn().mockResolvedValue(new Response('{}',{status:401}));await expect(createBlueprint({...options(),text:'fictional',request})).rejects.toThrow('Your OpenRouter key was rejected. Check that it\'s valid and has credit.');expect(request).toHaveBeenCalledTimes(1);});
+it('keeps provider errors out of the UI and does not retry a rate limit',async()=>{const request=vi.fn().mockResolvedValue(new Response('{"error":{"message":"sensitive provider detail"}}',{status:429}));await expect(createBlueprint({...options(),text:'fictional',request})).rejects.toThrow(/Rate limited/);expect(request).toHaveBeenCalledTimes(1);});
+it('does not call the provider after cancellation',async()=>{const controller=new AbortController();controller.abort();const request=vi.fn();await expect(createBlueprint({...options(),signal:controller.signal,text:'fictional',request})).rejects.toThrow();expect(request).not.toHaveBeenCalled();});
+it('rejects a premature stream and preserves the last visible text',async()=>{const request=vi.fn().mockResolvedValue(new Response('data: {"choices":[{"delta":{"content":"partial"}}]}\n\n'));const o=options();await expect(streamCompletion({...o,system:'test',user:'test',json:false,maxTokens:10,request})).rejects.toThrow(/before the model finished/);expect(o.onText).toHaveBeenCalledWith('partial');expect(new RouterError(401).message).not.toContain('synthetic');});

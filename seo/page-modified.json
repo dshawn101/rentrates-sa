@@ -1,26 +1,34 @@
 {
   "/": {
-    "fingerprint": "ea019bc5ac5f45ef461b7d09355f4ad33f65ac4c30e8ca91833745dab6c83993",
-    "lastmod": "2026-10-30T13:13:23.000Z"
+    "fingerprint": "68de8b71375bfb8974b66021d15d2b30fb1259e1d0b7a8c0eb55981633a554d3",
+    "lastmod": "2026-11-06T07:59:05.000Z"
   },
   "/pricing": {
     "fingerprint": "876258c3cd2c74aaee6bf922814c2b5743505343effa598816b6af8093ce4986",
-    "lastmod": "2026-10-30T13:13:23.000Z"
+    "lastmod": "2026-10-30T13:13:12.000Z"
   },
   "/features": {
-    "fingerprint": "24467de2ac67f5c140f4d9a826cc91f5b81a1b3624d0f294ea8a4fd8c8437b43",
-    "lastmod": "2026-10-30T07:32:37.000Z"
+    "fingerprint": "00b4fc5b98c6f30372a46d9a745f081b4bca15dd9dcce494642e4af9d80f0329",
+    "lastmod": "2026-11-06T07:59:05.000Z"
+  },
+  "/roadmap": {
+    "fingerprint": "c8e2786141c59105ae5812a529a61fc9a318bef51c21f05127c44b42f2dc3d45",
+    "lastmod": "2026-11-06T07:59:05.000Z"
+  },
+  "/series-bible": {
+    "fingerprint": "ebfeb5b27b1bb9048869bb67ac52a2c2ba48f73dd41e2fd171d04551cd8fefae",
+    "lastmod": "2026-11-11T10:01:05.000Z"
   },
   "/help": {
     "fingerprint": "455bb6f3f030379e5d2e2626c9af40e2e7a86e6ee53cbaa2e2017f9514bd6a7c",
-    "lastmod": "2026-10-30T07:32:37.000Z"
+    "lastmod": "2026-10-30T07:32:22.000Z"
   },
   "/contact": {
     "fingerprint": "a4b1f9a57c4118907b37cd844a3ea582b5b25457b844e63e19d6b7e7b4f37174",
-    "lastmod": "2026-10-28T18:06:56.000Z"
+    "lastmod": "2026-10-28T18:06:44.000Z"
   },
   "/transparency": {
-    "fingerprint": "eaee217ef37f3d531802c40a2f9ce6a9a48bc2963281e90cd2e220b698f5ea0f",
-    "lastmod": "2026-10-28T20:30:29.000Z"
+    "fingerprint": "1edf39d3d1f8dd29506313df08f3879fd6acd2c9efa44bae88a22072bc825df2",
+    "lastmod": "2026-11-06T16:09:49.000Z"
   }
 }

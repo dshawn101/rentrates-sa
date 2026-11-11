@@ -6,6 +6,16 @@ export function seriesMarkdown(data) {
 }
 
 if (typeof document !== 'undefined') {
+  const modes = document.querySelectorAll('[data-mode]');
+  const show = id => {
+    for (const button of modes) {
+      const active = button.dataset.mode === id;
+      button.setAttribute('aria-pressed', String(active));
+      document.getElementById(button.dataset.mode).hidden = !active;
+    }
+  };
+  for (const button of modes) button.addEventListener('click', () => show(button.dataset.mode));
+  show('book-two-root');
   const form = document.querySelector('#notes');
   const output = document.querySelector('#output');
   const status = document.querySelector('#status');
@@ -50,5 +60,5 @@ if (typeof document !== 'undefined') {
     exported('Markdown download started.');
   });
   document.querySelector('#signup').addEventListener('click', () => count('signup'));
-  document.querySelector('#generator').hidden = false;
+
 }
