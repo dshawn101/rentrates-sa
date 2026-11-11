@@ -2,7 +2,7 @@
 import {act, cleanup, fireEvent, render, screen} from '@testing-library/react';
 import {afterEach, expect, it, vi} from 'vitest';
 
-async function setup(options: {path?: string; loggedIn?: boolean; loading?: boolean; mobile?: boolean; width?: number; setupStorage?: () => void} = {}) {
+async function setup(options: {path?: string; loggedIn?: boolean; loading?: boolean; mobile?: boolean; width?: number; pricingTop?: number; setupStorage?: () => void} = {}) {
   vi.resetModules();
   vi.useFakeTimers();
   Object.defineProperty(document, 'readyState', {configurable: true, value: 'complete'});
@@ -15,6 +15,13 @@ async function setup(options: {path?: string; loggedIn?: boolean; loading?: bool
   const previousShow = HTMLDialogElement.prototype.showModal;
   HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
   restorers.push(() => { HTMLDialogElement.prototype.showModal = previousShow; });
+  if (options.pricingTop !== undefined) {
+    const pricing = document.createElement('div');
+    pricing.setAttribute('data-series-bible-pricing', '');
+    pricing.getBoundingClientRect = () => new DOMRect(0, options.pricingTop! - window.scrollY, 100, 300);
+    document.body.append(pricing);
+    restorers.push(() => pricing.remove());
+  }
   options.setupStorage?.();
   const {useSeriesBibleModalTrigger} = await import('../src/hooks/useSeriesBibleModalTrigger');
   function Harness() {
@@ -51,6 +58,18 @@ it('requires 60% scroll on a narrow touch viewport, then opens', async () => {
   await setup({mobile: true}); tick(3000); fireEvent.click(screen.getByText('Explore')); expect(modal()).toBeNull();
   vi.stubGlobal('scrollY', 1199); fireEvent.scroll(window); expect(modal()).toBeNull();
   vi.stubGlobal('scrollY', 1200); fireEvent.scroll(window); expect(modal()).toBeTruthy();
+});
+it.each([false, true])('opens on approach to pricing even before 60% scroll (mobile: %s)', async mobile => {
+  await setup({mobile, pricingTop: 1200});
+  tick(3000);
+  fireEvent.scroll(window); expect(modal()).toBeNull();
+  vi.stubGlobal('scrollY', 372); fireEvent.scroll(window); expect(modal()).toBeNull();
+  vi.stubGlobal('scrollY', 373); fireEvent.scroll(window); expect(modal()).toBeTruthy();
+});
+it('opens when a quick downward scroll skips past pricing', async () => {
+  await setup({pricingTop: 1200});
+  tick(3000);
+  vi.stubGlobal('scrollY', 1700); fireEvent.scroll(window); expect(modal()).toBeTruthy();
 });
 it.each(['/series-bible','/pricing','/login','/signup','/dashboard','/auth/login','/auth/signup'])('never arms on %s', async path => {
   await setup({path}); tick(46_000); fireEvent.click(screen.getByText('Explore')); expect(modal()).toBeNull();
