@@ -1,0 +1,8 @@
+// @vitest-environment jsdom
+import {expect,it,vi} from 'vitest';
+import {checkText,MAX_TEXT_BYTES,parseManuscript} from '../src/tools/book-two/ingestion';
+vi.mock('pdfjs-dist',()=>({GlobalWorkerOptions:{workerSrc:''},getDocument:()=>({promise:Promise.resolve({numPages:1,getPage:async()=>({getTextContent:async()=>({items:[]}),cleanup:()=>{}})}),destroy:async()=>{}})}));
+it('uses FileReader for text and Markdown and produces a local count and preview',async()=>{const fetch=vi.spyOn(globalThis,'fetch');for(const ext of ['txt','md']){const r=await parseManuscript(new File(['Mara opens the gate.'],`story.${ext}`));expect(r.text).toBe('Mara opens the gate.');expect(r.characters).toBe(20);expect(r.preview).toContain('Mara');}expect(fetch).not.toHaveBeenCalled();fetch.mockRestore();});
+it('gives specific errors for empty, unsupported and oversized extracted text',async()=>{await expect(parseManuscript(new File([],'empty.txt'))).rejects.toThrow(/empty/);await expect(parseManuscript(new File(['   '],'blank.md'))).rejects.toThrow(/No readable text/);await expect(parseManuscript(new File(['x'],'bad.exe'))).rejects.toThrow(/Choose/);expect(()=>checkText('x'.repeat(MAX_TEXT_BYTES+1))).toThrow(/exceeds/);await expect(parseManuscript(new File(['too many bytes'],'large.txt'),{maxTextBytes:4})).rejects.toThrow(/exceeds/);});
+it('reports a scanned PDF without text instead of silently succeeding',async()=>{await expect(parseManuscript(new File(['%PDF-fake'],'scan.pdf'))).rejects.toThrow(/Scanned pages require OCR/);});
+it('rejects a corrupt DOCX with a useful error',async()=>{await expect(parseManuscript(new File(['not a zip'],'bad.docx'))).rejects.toThrow(/Word file could not be parsed/);});

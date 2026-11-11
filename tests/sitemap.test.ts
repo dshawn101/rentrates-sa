@@ -11,7 +11,7 @@ it('contains exactly the audited public pages, valid XML and one canonical produ
  const urls=Array.from(doc.querySelectorAll('loc'),e=>e.textContent);
  expect(urls).toHaveLength(12);expect(new Set(urls).size).toBe(12);expect(doc.documentElement.namespaceURI).toBe('http://www.sitemaps.org/schemas/sitemap/0.9');
  for(const url of urls){const u=new URL(url!);expect(u.origin).toBe('https://www.publestudio.com');expect(u.search).toBe('');expect(u.hash).toBe('');}
- expect(urls).toContain('https://www.publestudio.com/roadmap');expect(urls).toContain('https://www.publestudio.com/help');expect(urls).toContain('https://www.publestudio.com/tools/series-bible');expect(urls).toContain('https://www.publestudio.com/pricing');expect(xml).not.toContain('<lastmod>');
+ expect(urls).toContain('https://www.publestudio.com/roadmap');expect(urls).toContain('https://www.publestudio.com/help');expect(urls).toContain('https://www.publestudio.com/series-bible');expect(urls).toContain('https://www.publestudio.com/pricing');expect(xml).not.toContain('<lastmod>');
 });
 it('fails closed on private, duplicate, noncanonical or noindexed URLs',()=>{
  const page=config.pages[0];

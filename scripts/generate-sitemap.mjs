@@ -5,7 +5,7 @@ import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const privateRoute=/^\/(?:auth|dashboard|books|book|author-guide|writing-goals|ai-providers|profile|billing|settings|api)(?:\/|$)/;
+const privateRoute=/^\/(?:auth|series-bible-workspace|dashboard|books|book|author-guide|writing-goals|ai-providers|profile|billing|settings|api)(?:\/|$)/;
 const escapeXML=value=>value.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;');
 export function indexablePages(config){
  const origin=new URL(config.origin);
@@ -16,7 +16,7 @@ export function indexablePages(config){
   if(seen.has(page.path))throw new Error(`Duplicate sitemap path: ${page.path}`);seen.add(page.path);
   if(!Array.isArray(page.sources)||!page.sources.length)throw new Error(`Missing content source for ${page.path}`);
   for(const source of page.sources){
-   if(!(source.startsWith('src/')||/^public\/tools\/[a-z0-9-]+\.html$/.test(source))||source.includes('..'))throw new Error('Invalid content source.');
+   if(!(source.startsWith('src/')||/^(?:public\/)?tools\/[a-z0-9-]+\.html$/.test(source))||source.includes('..'))throw new Error('Invalid content source.');
    // Fail closed if a listed page adds an explicit robots/googlebot noindex meta tag.
    const content=readFileSync(resolve(root,source),'utf8');
    if(/<meta\b[^>]*(?:name\s*=\s*["'](?:robots|googlebot)["'][^>]*content\s*=\s*["'][^"']*noindex|content\s*=\s*["'][^"']*noindex[^"']*["'][^>]*name\s*=\s*["'](?:robots|googlebot)["'])/i.test(content))throw new Error(`Noindexed content cannot enter the sitemap: ${source}`);
@@ -53,7 +53,7 @@ export function renderSitemap(config,lastModified=gitLastModified){
  const entries=indexablePages(config).map(page=>{
   const date=lastModified(page);
   if(date&&(!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(date)||!Number.isFinite(new Date(date).getTime())||new Date(date).getTime()>Date.now()))throw new Error('lastmod must be an accurate ISO timestamp.');
-  return `  <url>\n    <loc>${escapeXML(config.origin+page.path)}</loc>${date?`\n    <lastmod>${date}</lastmod>`:''}\n  </url>`;
+  return `  <url>\n    <loc>${escapeXML(config.origin+page.path)}</loc>${date?`\n    <lastmod>${date}</lastmod>`:''}${page.changeFrequency==='monthly'?'\n    <changefreq>monthly</changefreq>':''}\n  </url>`;
  });
  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
 }
