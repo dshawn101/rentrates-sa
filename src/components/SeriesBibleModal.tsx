@@ -57,11 +57,14 @@ export default function SeriesBibleModal({ close }: {close: (method: DismissMeth
       }}>
       <div className="series-promo-content">
         <button ref={closeButton} type="button" className="series-promo-close" aria-label="Close" onClick={() => close('close')}><X size={20} aria-hidden="true"/></button>
-        <p className="series-promo-eyebrow">Free tool</p>
+        <div className="series-promo-brand">
+          <img src="/puble-quill.png" width="60" height="60" alt=""/>
+          <div><span className="series-promo-wordmark">PubléStudio</span><p className="series-promo-eyebrow">Free tool</p></div>
+        </div>
         <h2 id={title}>Turn Book #1 into a Book #2 blueprint</h2>
         <p id={description}>Upload your finished manuscript and get a structured series bible — characters, unresolved threads, and a chapter-by-chapter outline for the next book.</p>
         <ul>{bullets.map(([Icon, label]) => <li key={label}><Icon size={16} aria-hidden="true"/><span>{label}</span></li>)}</ul>
-        <a className="series-promo-cta glass-button" href="/series-bible?utm_source=modal&utm_medium=site&utm_campaign=series_bible_launch" onClick={() => close('cta')}>Try the Series Bible tool →</a>
+        <a className="series-promo-cta" href="/series-bible?utm_source=modal&utm_medium=site&utm_campaign=series_bible_launch" onClick={() => close('cta')}>Try the Series Bible tool →</a>
         <button ref={laterButton} type="button" className="series-promo-later" onClick={() => close('later')}>Maybe later</button>
         <p className="series-promo-micro">No account needed. Bring your own OpenRouter key.</p>
         <span className="sr-only" aria-live="polite">{announcement}</span>
