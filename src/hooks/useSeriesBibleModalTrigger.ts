@@ -5,6 +5,7 @@ const DISMISSED = 'ps_series_bible_modal_dismissed';
 const CLICKED = 'ps_series_bible_modal_clicked';
 const SESSION = 'ps_series_bible_modal_seen';
 const DAY_MS = 86_400_000;
+const PRICING_APPROACH_PX = 160;
 export type Trigger = 'exit_intent' | 'time' | 'scroll' | 'cta';
 export type DismissMethod = 'close' | 'backdrop' | 'escape' | 'later';
 type Event =
@@ -55,16 +56,18 @@ export function useSeriesBibleModalTrigger({ pathname, loggedIn, loading }: {
     if (!eligible || suppressed() || typeof HTMLDialogElement.prototype.showModal !== 'function') return;
     let grace: number | undefined, timer: number | undefined, exit: number | undefined;
     let exitAttempted = false, timeReady = false, scrollMet = false;
+    let previousScrollY = window.scrollY;
+    const pricing = document.querySelector('[data-series-bible-pricing]');
     const fine = window.matchMedia('(pointer: fine)');
     const coarse = window.matchMedia('(pointer: coarse)');
     const updateScroll = () => {
       const distance = document.documentElement.scrollHeight - window.innerHeight;
       if (distance > 0 && window.scrollY / distance >= .6) scrollMet = true;
     };
-    const show = (trigger: Trigger) => {
+    const show = (trigger: Trigger, reachedPricing = false) => {
       updateScroll();
       if (suppressed() || document.visibilityState !== 'visible' ||
-          (window.innerWidth < 640 && !scrollMet) || document.querySelector('dialog[open]')) return false;
+          (window.innerWidth < 640 && !scrollMet && !reachedPricing) || document.querySelector('dialog[open]')) return false;
       seenInMemory = true;
       write('sessionStorage', SESSION, '1');
       active.current = true;
@@ -81,7 +84,14 @@ export function useSeriesBibleModalTrigger({ pathname, loggedIn, loading }: {
     const onEnter = () => window.clearTimeout(exit);
     const onScroll = () => {
       updateScroll();
-      if (scrollMet && coarse.matches) show('scroll');
+      const currentScrollY = window.scrollY;
+      const scrolledDown = currentScrollY > previousScrollY;
+      previousScrollY = currentScrollY;
+      if (!scrolledDown) return;
+      // The section's top stays above this line even if a fast scroll skips past it.
+      const reachedPricing = pricing !== null &&
+        pricing.getBoundingClientRect().top <= window.innerHeight + PRICING_APPROACH_PX;
+      if (reachedPricing || (scrollMet && coarse.matches)) show('scroll', reachedPricing);
     };
     const onTime = () => { if (timeReady && fine.matches) show('time'); };
     const onClick = (event: MouseEvent) => {
@@ -108,6 +118,7 @@ export function useSeriesBibleModalTrigger({ pathname, loggedIn, loading }: {
         if (suppressed()) return;
         document.addEventListener('mouseleave', onExit, {passive: true});
         document.addEventListener('mouseenter', onEnter, {passive: true});
+        previousScrollY = window.scrollY;
         window.addEventListener('scroll', onScroll, {passive: true});
         document.addEventListener('visibilitychange', onTime);
         document.addEventListener('click', onClick);
